@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-	<meta name="generator" content="Hugo 0.81.0" />
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="//www.google-analytics.com" />
   
-  <link rel="canonical" href="https://nightjerry.github.io/" />
-  
-  <meta name="description" content="My New Hugo Site">
+  <link rel="canonical" href="https://nightjerry.github.io/about/" />
   
   <title>
 	  
-	    My New Hugo Site
+	    About | My New Hugo Site
 	  
   </title>
 
@@ -44,22 +41,81 @@
 		</div>
 	</div>
 
-
-
-	<div class="uk-block uk-block-default">
-		<div class="uk-container uk-container-center">
-			<div class="uk-grid">
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
-				<div id="articleContainer" class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						About
+					</h1>
 					
+					<p class="uk-article-meta">Posted on Tue, Mar 9, 2021 | </p>
 
           
+					<p>hello hugo !</p>
 
-				</div>
-				<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
+          
+				</article>
 			</div>
+			<div class="uk-width-large-1-10 uk-hidden-medium uk-hidden-small"></div>
 		</div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <ul class="uk-pagination">
+          
+          
+            <li class="uk-float-right"><a href="https://nightjerry.github.io/kotlin1/">Next &gt;</a></li>
+          
+        </ul>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-large-1-10"></div>
+      <div class="uk-width-large-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-large-1-10"></div>
+    </div>
 	</div>
+</div>
 
 	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
 		<div class="uk-container uk-container-center">
@@ -95,16 +151,4 @@
 </html>
 
 
-<script>
-(function () {
-  var loadPage =  1 ;
-  var totalPages =  0 ;
-  $('#footer[data-uk-scrollspy]').on('inview.uk.scrollspy', function () {
-    loadPage = loadPage + 1;
-    if (loadPage > totalPages) { return; }
-    $.get('/page/' + loadPage, function (result) {
-      $('#articleContainer').append('<hr class="uk-grid-divider">').append($(result).find('article'));
-    })
-  })
-})();
-</script>
+

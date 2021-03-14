@@ -6,5 +6,31 @@
     <description>Recent content on My New Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language><atom:link href="https://nightjerry.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kotlin1</title>
+      <link>https://nightjerry.github.io/kotlin1/</link>
+      <pubDate>Tue, 09 Mar 2021 12:03:59 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/kotlin1/</guid>
+      <description>1. 函数和变量 1.1 函数 fun main(args: Array&amp;lt;String&amp;gt;){ println(&amp;#34;Hello world!&amp;#34;) } 函数以关键字fun开始声明，函数名称紧随其后，参数列表用小括号括起来，返回值类型位于参数列表后，之间用:分隔；
+ 语句和表达式: kotlin中表达式有值，可以使用变量引用，而语句没有值；java中所有的控制结构都是语句； kotlin中除了循环(for,while,do/while)以外大多数控制结构都是表达式；
+ 表达式函数体
+fun max(a:Int, b:Int):Int = if (a&amp;gt; b) a else b 只有表达式体函数的返回类型可以省略，有返回值的代码块体函数，必须显示写出返回值类型和return
+1.2 变量 kotlin变量类型可以省略，如果没有初始化，需要显示指定类型；
+val answer = 42 //省略变量类型 val answer:Int //指定类型 answer = 42 变量声明语法： val/var 变量名: 变量类型 = x
+可变变量和不可变量
+ val(value简写): 不可变引用；相当于java的final var(variable简写): 可变引用，可以多次修改；  默认情况下，使用val关键字声明变量； val引用自身是不可变的，但指向的对象可能是可变的； 例：
+val language = arrayListOf(&amp;#34;java&amp;#34;) language.add(&amp;#34;Kotlin&amp;#34;) fun main(args: Array&amp;lt;String&amp;gt;) { val name = if (args.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://nightjerry.github.io/about/</link>
+      <pubDate>Tue, 09 Mar 2021 09:41:09 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/about/</guid>
+      <description>hello hugo !</description>
+    </item>
+    
   </channel>
 </rss>
