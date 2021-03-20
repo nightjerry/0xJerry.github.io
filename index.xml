@@ -4,7 +4,328 @@
     <title>Jerry Blog</title>
     <link>https://nightjerry.github.io/</link>
     <description>Recent content on Jerry Blog</description>
-    <generator>Hugo -- gohugo.io</generator><atom:link href="https://nightjerry.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 24 Dec 2019 10:55:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Binder机制之messenger，aidl</title>
+      <link>https://nightjerry.github.io/posts/2019-12-24-binder2/</link>
+      <pubDate>Tue, 24 Dec 2019 10:55:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-24-binder2/</guid>
+      <description>[TOC]
+Messenger 轻量级的IPC方式，底层实现是aidl
+通信范例(client sendMsg to server) 步骤：
+ 服务端进程；实现逻辑如下  //1.创建service  public class MessengerService extends Services { //2.创建处理消息的handler  private static class MessengerHandler extends Handler { @Override public void handleMessage(Message msg) { //处理消息  switch(msg.what) { case MSG_FROM_CLIENT: Log.e(&amp;#34;tag&amp;#34;,&amp;#34;receive msg:&amp;#34;=msg.getData().getString(&amp;#34;msg&amp;#34;)); break; default: break; } } } //3.根据Handler创建Messenger  private final Messenger mMessenger = new Messenger(new MessengerHandler()); //4.</description>
+    </item>
+    
+    <item>
+      <title>Binder机制</title>
+      <link>https://nightjerry.github.io/posts/2019-12-20-binder/</link>
+      <pubDate>Fri, 20 Dec 2019 09:28:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-20-binder/</guid>
+      <description>[TOC]
+IPC是Inter-Processs Communication的缩写，意为进程间通信. android启动多进程方式: 在AndroidManifest.xml中给Activity/Service/ContentProvider指定android:process属性
+&amp;lt;activity android:name=&amp;#34;com.jerry.MainActivity&amp;#34; &amp;gt; &amp;lt;intent-filter&amp;gt; &amp;lt;action android:name=&amp;#34;android.intent.action.MAIN&amp;#34;/&amp;gt; &amp;lt;category android:name=&amp;#34;android.intent.category.LAUNCHER&amp;#34;/&amp;gt; &amp;lt;/intent-filter&amp;gt; &amp;lt;/activity&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.SecondActivity&amp;#34; android:process=&amp;#34;:remote&amp;#34; /&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.ThridActivity&amp;#34; android:process=&amp;#34;com.jerry.remote&amp;#34; /&amp;gt; 以上增加了两个进程，如果包名为com.jerry，当启动SecondActivity时，系统创建一个单独的进程，进程名称为&amp;quot;com.jerry:remote&amp;quot;;当启动ThridActivity时，进程名为com.jerry.remote 在命令行通过adb shell ps | grep 包名查看进程信息 多进程会引入的问题：
+ 静态成员和单例模式完全失效； 线程同步机制失效； SharedPreferences 的可靠性下降； Application会多次创建;  Serializable serialVersionUID的作用: 序列化后的数据中的serialVersionUID只有和当前类的serialVersionUID相同才能正常被反序列化. 如果不手动指定serialVersionUID，反序列化时当前类有改动(增加或删除变量),系统会重新计算当前类的hash值并把它赋值给serialVersionUID，此时serialVersionUID与序列化数据中的serialVersionUID不同，导致反序列化失败.
+Parcelable接口 一种序列化方式，对象实现此接口，可以通过Intent和Binder传递
+public class User implements Parcelable { public int userId; public String userName; public boolean isMale; public Book book; public User() {} public User(int userId, String userName, boolean isMale) { this.</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析之AbstractProcessor</title>
+      <link>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</link>
+      <pubDate>Fri, 13 Dec 2019 10:20:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</guid>
+      <description>EventBus源码分析之AbstractProcessor [TOC]
+AbstractProcessor 注解处理器 目前很多Android库都是使用注解的方式实现的.处理注解分两种，
+ 运行时(Runtime)通过反射机制运行处理的注解， 编译时(Compile time)通过注解处理器处理的注解  AbstractProcessor简介 注解处理器是javac中的，在编译时扫描和处理注解的工具 可以生成java代码，组成.java文件 抽象处理器AbstractProcessor,每个注解处理器都要继承它
+import java.util.Set; import javax.annotation.processing.AbstractProcessor; import javax.annotation.processing.ProcessingEnvironment; import javax.annotation.processing.RoundEnvironment; import javax.lang.model.SourceVersion; import javax.lang.model.element.TypeElement; public class MyProcessor extends AbstractProcessor { /** * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。 * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer */ @Override public synchronized void init(ProcessingEnvironment processingEnvironment) { super.init(processingEnvironment); } /** * 相当于每个处理器的主函数main()。 * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件 * @param set * @param roundEnvironment 可以查询出包含特定注解的被注解元素 * @return */ @Override public boolean process(Set&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-12-12-eventbus/</link>
+      <pubDate>Thu, 12 Dec 2019 15:38:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-12-eventbus/</guid>
+      <description>EventBus源码分析 [TOC]
+通过使用，分析eventbus源码实现
+1. EventBus.getDefault().register(this); 1.1 EventBus.getDefault() //使用双重校验锁(DCL)单例模式 static volatile EventBus defaultInstance; public static EventBus getDefault() { EventBus instance = defaultInstance; if (instance == null) { synchronized (EventBus.class) { instance = EventBus.defaultInstance; if (instance == null) { instance = EventBus.defaultInstance = new EventBus(); } } } return instance; } new EventBus() private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder(); private final Map&amp;lt;Class&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>注解</title>
+      <link>https://nightjerry.github.io/posts/2019-12-11-annotation/</link>
+      <pubDate>Wed, 11 Dec 2019 14:34:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-11-annotation/</guid>
+      <description>[TOC]
+注解通过@interface关键字进行定义
+public @interface TestAnnotation{ //定义了名为TestAnnotation的注解 } 元注解 元注解是基本注解，是注解的注解，用到自定义的注解上 元注解有5种: @Retention,@Documented,@Target,@Inherited,@Repeatable
+@Retention 是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间. 取值如下:
+ RetentionPolicy.SOURCE 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视 RetentionPolicy.CLASS 注解只被保留到编译进行的时候，不会被加载到JVM中 RetentionPolicy.RUNTIME 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们  @Documented 此注解与文档有关，作用是将注解中的元素包含到javadoc中
+@Target 指定注解使用的场景，如类上，方法上，成员变量，方法参数等 取值如下:
+ ElementType.ANNOTATION_TYPE 给一个注解进行注解 ElementType.CONSTRUCTOR 用在构造方法上 ElementType.FIELD 给属性进行注解 ElementType.LOCAL_VARIABLE 给局部变量进行注解 ElementType.METHOD 用在函数上 ElementType.PACKAGE 对包进行注解 ElementType.PARAMETER 对方法中的参数注解 ElementType.TYPE 给类型注解，(类，接口，枚举)  @Inherited 继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解
+@Inherited @Retention(RetentionPolicy.RUNTIME) @interface Test { } @Test public class A {} public class B extends A { } 注解Test被@Inherited修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解</description>
+    </item>
+    
+    <item>
+      <title>okhttp3部分源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</link>
+      <pubDate>Mon, 25 Nov 2019 17:21:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</guid>
+      <description>okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&amp;lt;T&amp;gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&amp;lt;Integer&amp;gt; demo1 = new Demo&amp;lt;Integer&amp;gt;(); Demo&amp;lt;String&amp;gt; demo2 = new Demo&amp;lt;String&amp;gt;(); demo1.</description>
+    </item>
+    
+    <item>
+      <title>go8 生产者消费者模型</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go8/</link>
+      <pubDate>Mon, 25 Nov 2019 17:20:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go8/</guid>
+      <description>8 生产者消费者模型 [TOC] ###模型分析 缓冲区: 1. 解偶 (降低生产者，消费者的耦合度) 2. 并发 (生产者消费者数量不对等时，能保持正常通信) 3. 缓存 (生产者和消费者数据处理速度不一致时，暂存数据)
+有缓冲: 异步通信 无缓冲: 同步通信
+func main() { ch := make(chan int, 5) go producer(ch) consumer(ch) } func consumer(in &amp;lt;-chan int){ for num := range in{ fmt.Println(&amp;#34;消费者拿到: &amp;#34;, num) } } func producer(out chan&amp;lt;-int){ for i:=0; i&amp;lt;10; i++ { out &amp;lt;- i*i } close(out) } Timer定时器 创建定时器，指定定时时长;定时到达后，系统会自动向定时器的成员C写系统当前时间;(对chan的写操作) 读取Timer.</description>
+    </item>
+    
+    <item>
+      <title>go7 并发</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</link>
+      <pubDate>Mon, 25 Nov 2019 17:17:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</guid>
+      <description>7 并发 [TOC]
+并行 (parallel) 同一时刻，有多条指令在多个处理器上同时执行; 借助多核实现 并发 : 微观：
+Go并发 通过两种方式实现并发,goroutine及channel
+func main() { go sign() dance() //for {;} } func sign(){ for i:=0; i&amp;lt; 5 ; i++ { fmt.Println(&amp;#34;is singing---&amp;#34;, i) time.Sleep(100 * time.Millisecond) } } func dance(){ for i:= 0; i&amp;lt; 5; i++ { fmt.Println(&amp;#34;is dancing&amp;#34;,i) time.Sleep(100 * time.</description>
+    </item>
+    
+    <item>
+      <title>go6 异常</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</link>
+      <pubDate>Mon, 25 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</guid>
+      <description>6 异常 [TOC]
+panic 抛出异常，终止程序
+func main(){ fmt.Println(&amp;#34;abc&amp;#34;) panic(&amp;#34;bcd&amp;#34;) fmt.Println(123) } //abc //panic: bcd error func main() { num, err := TestError(10, 0) if err != nil { fmt.Println(err) }else{ fmt.Println(num) } } func TestError(num1 int, num2 int)(result int, err error){ if num2 == 0{ err = errors.New(&amp;#34;除数不能为0&amp;#34;) return } result = num1/ num2 return } recover 错误拦截  recover只有在defer调用的函数中有效, defer不能直接作用在recover函数上</description>
+    </item>
+    
+    <item>
+      <title>go5 面向对象</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go5/</link>
+      <pubDate>Mon, 25 Nov 2019 16:45:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go5/</guid>
+      <description>5面向对象 [TOC]
+对象创建 type Student struct { id int name string age int } func main(){ var stu Student = Student{101, &amp;#34;tom&amp;#34;,19} var stu1 = Student{102, &amp;#34;lili&amp;#34;,19} } 继承 type Person struct { id int name string age int } type Student struct { //通过匿名字段，实现继承  Person //匿名字段，只有类型，没有成员名  score float64 } func main(){ var stu Student = Student{Person{101, &amp;#34;tom&amp;#34;,19},90} fmt.</description>
+    </item>
+    
+    <item>
+      <title>go4 map/struct</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go4/</link>
+      <pubDate>Mon, 25 Nov 2019 16:43:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go4/</guid>
+      <description>4 map/struct [TOC]
+map 创建  var 变量名 map[key类型]value类型 变量名 := map[key类型]value类型{} make(map[key类型]value类型)  func main(){ var m map[int]string m1 := map[int]string{} m2 := make(map[int]string) } 初始化 func main(){ var m /*map[int]string*/ = map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m1 := map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m2 := make(map[int]string) m2[1] = &amp;#34;张三&amp;#34; m2[2] = &amp;#34;李四&amp;#34; } //map[ 3:&amp;#34;王五&amp;#34; 1:&amp;#34;张三&amp;#34; 2:&amp;#34;李四&amp;#34;] key/value value,bool := map变量名[key]: 获取map中key的值，如果value存在，则bool为true，否则为false</description>
+    </item>
+    
+    <item>
+      <title>设计模式_创建型模式</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</link>
+      <pubDate>Mon, 25 Nov 2019 16:39:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</guid>
+      <description>#创建型模式 [TOC]
+工厂模式 Factory Pattern 相当于创建实例对象的new; 可能多做一些工作，但有更大的可扩展性和尽量少的修改量; 创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;
+使用场景：不同条件下创建不同实例时，即子类较多;
+核心思想:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；
+优点：扩展性高，屏蔽实现，调用方便；
+缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；
+ 复杂对象适合用工厂模式，简单对象使用new创建 任何需要生成复杂对象的地方，都可以使用工厂模式
+ //1.定义接口 public interface Animal{ void eat(); } //2.创建接口实体类(有共同性) public class Cat implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;cat eat fish&amp;#34;); } } public class Panda implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;panda eat bamboo&amp;#34;); } } //3.</description>
+    </item>
+    
+    <item>
+      <title>retrofit源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-retrofit/</link>
+      <pubDate>Mon, 25 Nov 2019 16:36:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-retrofit/</guid>
+      <description>retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class.</description>
+    </item>
+    
+    <item>
+      <title>java 线程池</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</link>
+      <pubDate>Mon, 25 Nov 2019 16:33:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</guid>
+      <description>线程池ThreadPool [TOC]
+线程是一种昂贵的资源，开销有以下几种：
+ 线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销 线程的销毁 线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源 线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目   线程工厂ThreadFactory 创建线程的工厂方法,ThreadFactory接口是工厂方法模式的一个实例；
+public Thread newThread(Runnable r) //用于创建线程，r代表线程需要执行的任务 线程池执行状态分析 线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；
+线程池可看作是生产者——消费者模式的一种服务 内部维护的工作者线程相当于消费者线程； 线程池的客户端线程相当于生产者线程； 线程池内部缓存队列相当于传输通道； 客户端提交给线程池的任务相当于‘产品’;
+线程池java.util.concurrent.ThreadPoolExecutor，ThreadPoolExecutor.submit提交任务
+public Future&amp;lt;?&amp;gt; submit(Runnable task) //task代表客户端需要线程池执行的任务 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) //corePoolSize : 指定线程池核心线程数 //maximumPoolSize : 线程池最大线程数 //keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间 //workQueue : 工作队列的阻塞队列，相当于传输通道 //threadFactory : 用于创建工作者线程的线程工厂 //handler:  初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理； 当创建的线程池数量等于核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的BlockingQueue.</description>
+    </item>
+    
+    <item>
+      <title>java 反射</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</link>
+      <pubDate>Mon, 25 Nov 2019 16:30:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</guid>
+      <description>反射Reflection 获取Class对象 创建实例 获取方法 获取类的成员变量 调用方法 访问私有方法 修改私有常量 进阶
+ 静态函数 反射接口 —— 动态代理 kotlin中函数类型作为参数的反射  反射android自定义application
+通过反射，在运行时获取程序每一个类型的成员和成员的信息 一般的对象类型在编译期就确定下来的，反射机制可以动态的创建对象并调用其属性； 反射的核心: JVM在运行时才动态加载类或调用方法/访问属性，不需要事先知道运行对象是谁 简单说，反射可以加载运行时才得知名称的.class文件，获悉完整结构，并生成对象实体，或对fields变量设值，或调用methods
+获取Class对象  Class.forName(String className) 直接获取一个对象的class  Class&amp;lt;?&amp;gt; clazz = int.class; Class&amp;lt;?&amp;gt; clazzInt = Integer.TYPE;  调用对象的getClass()方法:  StringBuilder str = new StringBuilder(&amp;#34;123&amp;#34;); Class&amp;lt;?&amp;gt; clazz = str.getClass();    ### &amp;lt;span id=&amp;quot;reflect_2&amp;quot;&amp;gt;创建实例&amp;lt;/span&amp;gt; 通过反射来生成对象有两种方式： 1.</description>
+    </item>
+    
+    <item>
+      <title>&lt;算法&gt;_查找</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</link>
+      <pubDate>Mon, 25 Nov 2019 09:28:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</guid>
+      <description>##算法 [TOC]
+顺序查找(基于无序链表) public class SequentialSearchST&amp;lt;Key, Value&amp;gt; { private Node first;//链表首结点  private class Node { Key key; Value val; Node next; public Node(Key key, Value val, Node next){ this.key = key; this.val = val; this.next= next; } } public Value get(key key){ for (Node x = first; x!= null; x=x.</description>
+    </item>
+    
+    <item>
+      <title>算法之排序(kotlin实现)</title>
+      <link>https://nightjerry.github.io/posts/2019-11-21-algorithms-1kotlin/</link>
+      <pubDate>Thu, 21 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-21-algorithms-1kotlin/</guid>
+      <description>fun main(){ // val a = intArrayOf(20,5,10,3,7,98,2,9,54,1,23,6,65)  val a = intArrayOf(20,5,10,3,7,98,2,9) // selection(a) // insertion(a) // shell(a) // mergeSort(a,0, a.size-1)  quick(a, 0,a.size-1) a.forEach{ print(&amp;#34;$it,&amp;#34;) } } /** * 快速排序 */ fun quick(a:IntArray, start: Int, end: Int) { if (end &amp;lt;= start) return val partition = partition(a, start, end) quick(a, start, partition-1) quick(a, partition+1, end) } fun partition(a:IntArray, start: Int,end: Int): Int { var i = start //左右扫描指针  var j = end+1 val value = a[start] while (true){ while (a[++i] &amp;lt; value) if (i == end) break while (value &amp;lt; a[--j]) if (j == start) break if (i &amp;gt;= j) break swap(a, i, j) } swap(a, start, j) //将value放到索引j位置  return j //得到 a[start.</description>
+    </item>
+    
+    <item>
+      <title>算法之排序</title>
+      <link>https://nightjerry.github.io/posts/2019-11-21-algorithms-1/</link>
+      <pubDate>Thu, 21 Nov 2019 17:03:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-21-algorithms-1/</guid>
+      <description>[TOC]
+堆栈 栈(动态调整数组大小) import java.util.Iterator; public class ResizingArrayStack&amp;lt;Item&amp;gt; implements Iterable&amp;lt;Item&amp;gt; { private Item[] a = (Item[]) new Object[1]; //栈元素  private int N = 0; public boolean isEmpty() { return N == 0; } public int size(){ return N; } private void resize(int max) { Item[] tmp = (Item[]) new Object[max]; for(int i=0; i&amp;lt; N; i++) { tmp[i] = a[i]; } a = tmp; } public void push(Item item) { if (N == a.</description>
+    </item>
+    
+    <item>
+      <title>go2 语法</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-go2/</link>
+      <pubDate>Fri, 15 Nov 2019 17:16:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-go2/</guid>
+      <description>##2语法 [TOC]
+if/else var age int if age &amp;gt;= 10 { fmt.Println(&amp;#34;..&amp;#34;) }else{ } switch switch 变量/表达式 { case value1: running code case value2: running code case value3: running code default: running code } 循环 for for 初始化变量; 判断条件; 更新变量 { }  break:结束当前循环 continue: 结束本次循环，进入下一次循环
+ //计算水仙花数 var h int //百位 var t int //十位 var b int //个位 for i:= 100; i&amp;lt;=999; i++ { h = i /100 t = i % 100/ 10 b = i % 10 if h*h*h + t*t*t + b*b*t == i { fmt.</description>
+    </item>
+    
+    <item>
+      <title>go1 语法</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-go1/</link>
+      <pubDate>Fri, 15 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-go1/</guid>
+      <description>[TOC]
+变量 //变量的声明 var age int //打印变量 fmt.Println(age) //变量初始化 var age int = 10 //自动推导类型：在声明赋值变量时，不需要`var`和变量类型，其类型由所赋值决定 num := 10 //多重赋值 a, b, c := 1, 2, 3 //交互变量 a := 1 b := 2 a, b = b, a 输出函数 println``print
+printf: 格式化输出
+a := 1 fmt.Printf(&amp;#34;a = %d&amp;#34;, a) //a = 1 输入函数 Scan``Scanf</description>
+    </item>
+    
+    <item>
+      <title>kotlin basic 5 lambda</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-kotlin4/</link>
+      <pubDate>Fri, 15 Nov 2019 09:57:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-kotlin4/</guid>
+      <description>lambda语法 始终在花括号内，箭头将实参列表与函数体隔开
+{x: Int, y: Int -&amp;gt; x+y} val people = listOf(Person(&amp;#34;Bob&amp;#34;,29), Person(&amp;#34;Alice&amp;#34;,20)) println(people.maxBy{ it.age}) //Person(name=Bob, age=29) //`it`是自动生成的参数名称  people.maxBy(){ p:Person -&amp;gt; p.age}//显式写出参数类型 people.maxBy {p: Person -&amp;gt; p.age}//当lambda是唯一参数时，可去掉括号 people.maxBy {p -&amp;gt; p.age} //推导出参数类型  最好显示声明每个lambda的参数
+ 成员引用:: 创建一个调用单个方法或访问单个属性的函数值, 双冒号将类名称与要引用的成员名隔开,不要在成员引用的名称后加括号 还可以引用顶层函数
+fun salute() = println(&amp;#34;hello&amp;#34;) run(::salute) 集合的函数式API filter和map filter函数可以从集合中移除不想要的元素，但不会改变这些元素；起过滤作用 map函数对集合中的每个元素应用给定的函数并把结果收集到新集合
+val list = listOf(1,2,3,4) println(list.</description>
+    </item>
+    
+    <item>
+      <title>kotlin6 类型</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-kotlin6/</link>
+      <pubDate>Fri, 15 Nov 2019 09:57:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-kotlin6/</guid>
+      <description>可空性 显示在类型名称后面加问号来表示类型可为null
+String? = String or null 没有问号?的类型表示该类型的变量不能为空；这说明常见类型默认都是非空的； 一个可空类型的值，对它的操作也会受到限制
+fun strLen(s: String?) = s.length() ERROR: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type kotlin.String? 不能将可空类型赋值给非可空类型的变量
+安全调用运算符: ?. 允许把一次null检查和一次方法调用合并成一个操作
+s?.toUpperCase() 等同于 if (s != null) s.toUpperCase() else null 安全调用的结果类型也是可空的
+fun printAll(s: String?) { val a:String?</description>
+    </item>
+    
+    <item>
+      <title>kotlin8 高阶函数</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-kotlin8/</link>
+      <pubDate>Fri, 15 Nov 2019 09:57:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-kotlin8/</guid>
+      <description>声明高阶函数 高阶函数就是以另一个函数作为参数或者返回值的函数
+函数类型 lambda表达式就是函数类型
+val sum = {x: Int, y: Int -&amp;gt; x+y} val action = {println(42)} val b = 3 val a: Int = 4 编译器推导出sum,action变量具有函数类型;与变量声明方式类似，sum省略了变量类型，显示类型声明方式如下
+val sum: (Int, Int) -&amp;gt; Int = {x,y -&amp;gt; x+y} val action:()-&amp;gt;Unit = { println(42) } 声明函数类型，需要将函数参数类型放在括号中，紧接着是一个箭头和函数的 返回类型
+/*函数参数类型*/(Int, String) -&amp;gt; Unit/*返回类型*/  函数类型的声明必须有显式的返回类型， Unit类型也不能省略</description>
+    </item>
+    
+    <item>
+      <title>kotlin3 类,对象和接口</title>
+      <link>https://nightjerry.github.io/posts/2019-11-14-kotlin3/</link>
+      <pubDate>Fri, 15 Nov 2019 09:53:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-14-kotlin3/</guid>
+      <description>1. 类 Kotlin的声明默认时public final的 嵌套的类默认不是内部类，没有包含其对外部类的隐式引用. 使用interface定义接口
+接口实现 kotlin使用冒号:关键字代替java中的extends和implements关键字. 与java一样，类只能单继承，可以实现多个接口 kotlin中的override 是强制要求的 接口中的函数可以有默认的方法体,有默认实现的函数可以不重写
+interface Clickable { fun click() fun showOff() = println(&amp;#34;I&amp;#39;m clickable!&amp;#34;) } 如果实现多个接口，接口有相同的函数名，则类需要显示实现该方法，否则编译错误：
+The class &#39;Button&#39; must override public open fun showOff() because it inherits many implementation of it. interface Focusable { fun showOff() = println(&amp;#34;I&amp;#39;m focusable!&amp;#34;) } class Button: Clickable, Focusable { override fun click() = println(&amp;#34;I was clicked&amp;#34;) //显示实现，通过super&amp;lt;父类&amp;gt;调用父类方法  override fun showOff() { super&amp;lt;Clickable&amp;gt;.</description>
+    </item>
+    
+    <item>
+      <title>kotlin2 fun</title>
+      <link>https://nightjerry.github.io/posts/2019-11-14-kotlin2/</link>
+      <pubDate>Thu, 14 Nov 2019 16:58:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-14-kotlin2/</guid>
+      <description>函数的定义与调用 命名参数 val list= listOf(1,2,3) println(list) // [1,2,3] 更改集合的显示样式
+fun &amp;lt;T&amp;gt; joinToString(collection: Collection&amp;lt;T&amp;gt;, separator: String, prefix: String, postfix: String): String{ val result = StringBuilder(prefix) for ((index, element) in collection.withIndex()) { if(index &amp;gt;0) result.append(separator) result.append(element) } result.append(postfix) return result.toString() } println(joinToString(list,&amp;#34;;&amp;#34;,&amp;#34;(&amp;#34;,&amp;#34;)&amp;#34;)) //(1;2;3) 命名参数就是在调用函数时给参数指定名字，提高可读性；
+joinToString(list,separator=&amp;#34;;&amp;#34;, prefix=&amp;#34;(&amp;#34;, postfix=&amp;#34;)&amp;#34;)  如果调用函数时，指明了一个参数的名称，为避免混淆，它之后的所有参数都需要标明名称；(否则编译失败) 如使用命名参数，可以不按照参数列表顺序使用；
+ 默认参数值 函数的参数带有默认值，替代java中的函数重载</description>
+    </item>
+    
+    <item>
+      <title>kotlin1 函数&amp;变量</title>
+      <link>https://nightjerry.github.io/posts/2019-11-14-kotlin1/</link>
+      <pubDate>Thu, 14 Nov 2019 16:48:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-14-kotlin1/</guid>
+      <description>1. 函数和变量 1.1 函数 fun main(args: Array&amp;lt;String&amp;gt;){ println(&amp;#34;Hello world!&amp;#34;) } 函数以关键字fun开始声明，函数名称紧随其后，参数列表用小括号括起来，返回值类型位于参数列表后，之间用:分隔；
+ 语句和表达式: kotlin中表达式有值，可以使用变量引用，而语句没有值；java中所有的控制结构都是语句； kotlin中除了循环(for,while,do/while)以外大多数控制结构都是表达式；
+ 表达式函数体
+fun max(a:Int, b:Int):Int = if (a&amp;gt; b) a else b 只有表达式体函数的返回类型可以省略，有返回值的代码块体函数，必须显示写出返回值类型和return
+1.2 变量 kotlin变量类型可以省略，如果没有初始化，需要显示指定类型；
+val answer = 42 //省略变量类型 val answer:Int //指定类型 answer = 42 变量声明语法： val/var 变量名: 变量类型 = x
+可变变量和不可变量
+ val(value简写): 不可变引用；相当于java的final var(variable简写): 可变引用，可以多次修改；  默认情况下，使用val关键字声明变量； val引用自身是不可变的，但指向的对象可能是可变的； 例：</description>
+    </item>
+    
     <item>
       <title>About</title>
       <link>https://nightjerry.github.io/about/</link>

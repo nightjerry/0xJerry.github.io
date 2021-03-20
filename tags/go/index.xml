@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>go on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/go/</link>
+    <description>Recent content in go on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 25 Nov 2019 17:20:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>go8 生产者消费者模型</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go8/</link>
+      <pubDate>Mon, 25 Nov 2019 17:20:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go8/</guid>
+      <description>8 生产者消费者模型 [TOC] ###模型分析 缓冲区: 1. 解偶 (降低生产者，消费者的耦合度) 2. 并发 (生产者消费者数量不对等时，能保持正常通信) 3. 缓存 (生产者和消费者数据处理速度不一致时，暂存数据)
+有缓冲: 异步通信 无缓冲: 同步通信
+func main() { ch := make(chan int, 5) go producer(ch) consumer(ch) } func consumer(in &amp;lt;-chan int){ for num := range in{ fmt.Println(&amp;#34;消费者拿到: &amp;#34;, num) } } func producer(out chan&amp;lt;-int){ for i:=0; i&amp;lt;10; i++ { out &amp;lt;- i*i } close(out) } Timer定时器 创建定时器，指定定时时长;定时到达后，系统会自动向定时器的成员C写系统当前时间;(对chan的写操作) 读取Timer.</description>
+    </item>
+    
+    <item>
+      <title>go7 并发</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</link>
+      <pubDate>Mon, 25 Nov 2019 17:17:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</guid>
+      <description>7 并发 [TOC]
+并行 (parallel) 同一时刻，有多条指令在多个处理器上同时执行; 借助多核实现 并发 : 微观：
+Go并发 通过两种方式实现并发,goroutine及channel
+func main() { go sign() dance() //for {;} } func sign(){ for i:=0; i&amp;lt; 5 ; i++ { fmt.Println(&amp;#34;is singing---&amp;#34;, i) time.Sleep(100 * time.Millisecond) } } func dance(){ for i:= 0; i&amp;lt; 5; i++ { fmt.Println(&amp;#34;is dancing&amp;#34;,i) time.Sleep(100 * time.</description>
+    </item>
+    
+    <item>
+      <title>go6 异常</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</link>
+      <pubDate>Mon, 25 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</guid>
+      <description>6 异常 [TOC]
+panic 抛出异常，终止程序
+func main(){ fmt.Println(&amp;#34;abc&amp;#34;) panic(&amp;#34;bcd&amp;#34;) fmt.Println(123) } //abc //panic: bcd error func main() { num, err := TestError(10, 0) if err != nil { fmt.Println(err) }else{ fmt.Println(num) } } func TestError(num1 int, num2 int)(result int, err error){ if num2 == 0{ err = errors.New(&amp;#34;除数不能为0&amp;#34;) return } result = num1/ num2 return } recover 错误拦截  recover只有在defer调用的函数中有效, defer不能直接作用在recover函数上</description>
+    </item>
+    
+    <item>
+      <title>go5 面向对象</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go5/</link>
+      <pubDate>Mon, 25 Nov 2019 16:45:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go5/</guid>
+      <description>5面向对象 [TOC]
+对象创建 type Student struct { id int name string age int } func main(){ var stu Student = Student{101, &amp;#34;tom&amp;#34;,19} var stu1 = Student{102, &amp;#34;lili&amp;#34;,19} } 继承 type Person struct { id int name string age int } type Student struct { //通过匿名字段，实现继承  Person //匿名字段，只有类型，没有成员名  score float64 } func main(){ var stu Student = Student{Person{101, &amp;#34;tom&amp;#34;,19},90} fmt.</description>
+    </item>
+    
+    <item>
+      <title>go4 map/struct</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go4/</link>
+      <pubDate>Mon, 25 Nov 2019 16:43:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go4/</guid>
+      <description>4 map/struct [TOC]
+map 创建  var 变量名 map[key类型]value类型 变量名 := map[key类型]value类型{} make(map[key类型]value类型)  func main(){ var m map[int]string m1 := map[int]string{} m2 := make(map[int]string) } 初始化 func main(){ var m /*map[int]string*/ = map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m1 := map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m2 := make(map[int]string) m2[1] = &amp;#34;张三&amp;#34; m2[2] = &amp;#34;李四&amp;#34; } //map[ 3:&amp;#34;王五&amp;#34; 1:&amp;#34;张三&amp;#34; 2:&amp;#34;李四&amp;#34;] key/value value,bool := map变量名[key]: 获取map中key的值，如果value存在，则bool为true，否则为false</description>
+    </item>
+    
+    <item>
+      <title>go2 语法</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-go2/</link>
+      <pubDate>Fri, 15 Nov 2019 17:16:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-go2/</guid>
+      <description>##2语法 [TOC]
+if/else var age int if age &amp;gt;= 10 { fmt.Println(&amp;#34;..&amp;#34;) }else{ } switch switch 变量/表达式 { case value1: running code case value2: running code case value3: running code default: running code } 循环 for for 初始化变量; 判断条件; 更新变量 { }  break:结束当前循环 continue: 结束本次循环，进入下一次循环
+ //计算水仙花数 var h int //百位 var t int //十位 var b int //个位 for i:= 100; i&amp;lt;=999; i++ { h = i /100 t = i % 100/ 10 b = i % 10 if h*h*h + t*t*t + b*b*t == i { fmt.</description>
+    </item>
+    
+    <item>
+      <title>go1 语法</title>
+      <link>https://nightjerry.github.io/posts/2019-11-15-go1/</link>
+      <pubDate>Fri, 15 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-15-go1/</guid>
+      <description>[TOC]
+变量 //变量的声明 var age int //打印变量 fmt.Println(age) //变量初始化 var age int = 10 //自动推导类型：在声明赋值变量时，不需要`var`和变量类型，其类型由所赋值决定 num := 10 //多重赋值 a, b, c := 1, 2, 3 //交互变量 a := 1 b := 2 a, b = b, a 输出函数 println``print
+printf: 格式化输出
+a := 1 fmt.Printf(&amp;#34;a = %d&amp;#34;, a) //a = 1 输入函数 Scan``Scanf</description>
+    </item>
+    
+  </channel>
+</rss>

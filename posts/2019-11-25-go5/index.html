@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>go5 面向对象 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="go5 面向对象"/>
+<meta name="twitter:description" content="5面向对象 [TOC]
+对象创建 type Student struct { id int name string age int } func main(){ var stu Student = Student{101, &#34;tom&#34;,19} var stu1 = Student{102, &#34;lili&#34;,19} } 继承 type Person struct { id int name string age int } type Student struct { //通过匿名字段，实现继承  Person //匿名字段，只有类型，没有成员名  score float64 } func main(){ var stu Student = Student{Person{101, &#34;tom&#34;,19},90} fmt."/>
+
+    <meta property="og:title" content="go5 面向对象" />
+<meta property="og:description" content="5面向对象 [TOC]
+对象创建 type Student struct { id int name string age int } func main(){ var stu Student = Student{101, &#34;tom&#34;,19} var stu1 = Student{102, &#34;lili&#34;,19} } 继承 type Person struct { id int name string age int } type Student struct { //通过匿名字段，实现继承  Person //匿名字段，只有类型，没有成员名  score float64 } func main(){ var stu Student = Student{Person{101, &#34;tom&#34;,19},90} fmt." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-go5/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T16:45:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T16:45:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">go5 面向对象</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/go/">go</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h2 id="5面向对象">5面向对象</h2>
+<p>[TOC]</p>
+<h3 id="对象创建">对象创建</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>,<span style="color:#ae81ff">19</span>}
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu1</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#ae81ff">102</span>, <span style="color:#e6db74">&#34;lili&#34;</span>,<span style="color:#ae81ff">19</span>}
+}
+</code></pre></div><h3 id="继承">继承</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+<span style="color:#75715e">//通过匿名字段，实现继承
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Person</span> <span style="color:#75715e">//匿名字段，只有类型，没有成员名
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">score</span> <span style="color:#66d9ef">float64</span>
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#a6e22e">Person</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>,<span style="color:#ae81ff">19</span>},<span style="color:#ae81ff">90</span>}
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">stu</span>)
+}
+</code></pre></div><p>部分成员初始化</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu1</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#a6e22e">Person</span>:<span style="color:#a6e22e">Person</span>{<span style="color:#a6e22e">name</span>:<span style="color:#e6db74">&#34;jack&#34;</span>, <span style="color:#a6e22e">age</span>:<span style="color:#ae81ff">18</span>}}
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu2</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#a6e22e">score</span>:<span style="color:#ae81ff">90</span>}
+}
+</code></pre></div><h4 id="成员操作">成员操作</h4>
+<p>方式: <code>对象名.成员</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">Person</span>.<span style="color:#a6e22e">name</span>)    <span style="color:#75715e">//tom
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">name</span>)           <span style="color:#75715e">//tom
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e">//修改成员
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">id</span> = <span style="color:#ae81ff">11</span>
+}
+</code></pre></div><h4 id="指针类型匿名字段">指针类型匿名字段</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#f92672">*</span><span style="color:#a6e22e">Person</span> <span style="color:#75715e">//指针类型匿名字段
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">score</span> <span style="color:#66d9ef">float64</span>
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Person</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>,<span style="color:#ae81ff">19</span>},<span style="color:#ae81ff">90</span>}
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">stu</span>)   <span style="color:#75715e">//{0xc000084000 90}
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">name</span>)     <span style="color:#75715e">//tom
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="多重继承">多重继承</h4>
+<h4 id="结构体添加方法">结构体添加方法</h4>
+<p>语法: <code>func (对象名 结构体类型)方法名(参数列表)(返回值列表){ code }</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span>{
+    <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+	<span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>
+	<span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> = <span style="color:#a6e22e">Student</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>,<span style="color:#ae81ff">19</span>}
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">EditInfo</span>()
+    <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">PrintInfo</span>()
+}
+<span style="color:#75715e">//结构体函数
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">PrintInfo</span>(){
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>)
+}
+
+<span style="color:#75715e">//结构体指针(常用)
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">EditInfo</span>(){
+    <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">age</span> = <span style="color:#ae81ff">20</span>
+}
+</code></pre></div><blockquote>
+<p>接收者类型不同，即使方法名相同，也是不同方法
+接收者为指针类型</p>
+</blockquote>
+<h4 id="方法继承">方法继承</h4>
+<p>子类调用父类方法</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">id</span> <span style="color:#66d9ef">int</span>
+    <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>
+    <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span>
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">Person</span>
+    <span style="color:#a6e22e">score</span> <span style="color:#66d9ef">float64</span>
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">p</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Person</span>)<span style="color:#a6e22e">PrintInfo</span>(){
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">p</span>)
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#a6e22e">stu</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Student</span>{<span style="color:#a6e22e">Person</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>, <span style="color:#ae81ff">19</span>},<span style="color:#ae81ff">90</span>}
+    <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">PrintInfo</span>()   <span style="color:#75715e">//{101 tom 19}
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="方法重写override">方法重写override</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">PrintInfo</span>(){
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;this is student method&#34;</span>)
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">PrintInfo</span>()           <span style="color:#75715e">//执行子类的方法
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">Person</span>.<span style="color:#a6e22e">PrintInfo</span>()    <span style="color:#75715e">//执行父类的方法
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="方法值与方法表达式">方法值与方法表达式</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#a6e22e">stu</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Student</span>{<span style="color:#a6e22e">Person</span>{<span style="color:#ae81ff">101</span>, <span style="color:#e6db74">&#34;tom&#34;</span>, <span style="color:#ae81ff">19</span>},<span style="color:#ae81ff">90</span>}
+    <span style="color:#a6e22e">f</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">stu</span>.<span style="color:#a6e22e">PrintInfo</span>  <span style="color:#75715e">//f是方法值
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%T&#34;</span>, <span style="color:#a6e22e">f</span>)  <span style="color:#75715e">//func()
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">f</span>()  <span style="color:#75715e">//执行stu.PrintInfo()
+</span><span style="color:#75715e"></span>}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">//方法表达式
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#a6e22e">f</span> <span style="color:#f92672">:=</span> (<span style="color:#f92672">*</span><span style="color:#a6e22e">Person</span>).<span style="color:#a6e22e">PrintInfo</span>
+    <span style="color:#a6e22e">f</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">stu</span>)
+}
+</code></pre></div><h3 id="接口">接口</h3>
+<p><code>type 接口名称 interface { 方法声明 }</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">interface</span> {
+	<span style="color:#a6e22e">SayHello</span>()
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">SayHello</span>(){
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;good morning&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span>
+
+	<span style="color:#75715e">//通过接口变量来调用，必须都实现接口中所声明的方法
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#a6e22e">Person</span>
+	<span style="color:#a6e22e">p</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">stu</span>
+	<span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">SayHello</span>()
+}
+</code></pre></div><blockquote>
+<p>一般接口名以<code>er</code>结尾</p>
+</blockquote>
+<h4 id="多态">多态</h4>
+<p>就是同一个接口，使用不同的实例而执行不同操作
+实现多态</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">函数名</span>(<span style="color:#a6e22e">参数</span> <span style="color:#a6e22e">接口类型</span>) { }
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">interface</span> {
+	<span style="color:#a6e22e">SayHello</span>()
+}
+
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Teacher</span> <span style="color:#66d9ef">struct</span> {}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Teacher</span>)<span style="color:#a6e22e">SayHello</span>(){
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;teacher sayhello&#34;</span>)
+}
+
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">SayHello</span>(){
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;good morning&#34;</span>)
+}
+<span style="color:#75715e">//多态
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">say</span>(<span style="color:#a6e22e">p</span> <span style="color:#a6e22e">Person</span>){
+	<span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">SayHello</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span>
+	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">t</span> <span style="color:#a6e22e">Teacher</span>
+	<span style="color:#75715e">//传地址
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">say</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">stu</span>)
+	<span style="color:#a6e22e">say</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">t</span>)
+}
+</code></pre></div><h4 id="接口继承">接口继承</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Human</span> <span style="color:#66d9ef">interface</span>{
+    <span style="color:#a6e22e">SayHello</span>()
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Person</span> <span style="color:#66d9ef">interface</span> {
+    <span style="color:#a6e22e">Human</span>
+    <span style="color:#a6e22e">Say</span>()
+}
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Student</span> <span style="color:#66d9ef">struct</span> {
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">SayHello</span>(){
+
+}
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Student</span>)<span style="color:#a6e22e">Say</span>(){
+
+}
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">stu</span> <span style="color:#a6e22e">Student</span>
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">p</span> <span style="color:#a6e22e">Person</span>
+    <span style="color:#a6e22e">p</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">stu</span>
+    <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">Say</span>()
+    <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">SayHello</span>()
+}
+
+</code></pre></div><h4 id="空接口定义">空接口定义</h4>
+<p>是没有方法的接口，可以存储任意类型的数据</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">interface</span>{}
+    <span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">123</span>
+    <span style="color:#a6e22e">i</span> = <span style="color:#e6db74">&#34;abc&#34;</span>
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">i</span>)
+
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">interface</span>{}
+    <span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">123</span>,<span style="color:#e6db74">&#34;abc&#34;</span>,<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#66d9ef">true</span>, <span style="color:#ae81ff">3.14</span>)
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s</span>) <span style="color:#75715e">//string[123 abc 97 true 3.14]
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h4 id="断言">断言</h4>
+<p>通过类型断言，可以判断空接口中存储的数据类型
+语法:</p>
+<pre><code>value, ok := m.(T)
+m: 空接口类型变量
+T: 断言的类型
+value: 变量m中的值
+ok: 断言结果，成功true,失败false
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">interface</span>{}
+    <span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">123</span>
+    <span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">i</span>.(<span style="color:#66d9ef">int</span>)
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ok</span>{
+        <span style="color:#75715e">//断言成功
+</span><span style="color:#75715e"></span>    }<span style="color:#66d9ef">else</span>{
+        <span style="color:#75715e">//断言失败
+</span><span style="color:#75715e"></span>    }
+}
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

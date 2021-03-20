@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>kotlin3 类,对象和接口 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kotlin3 类,对象和接口"/>
+<meta name="twitter:description" content="1. 类 Kotlin的声明默认时public final的 嵌套的类默认不是内部类，没有包含其对外部类的隐式引用. 使用interface定义接口
+接口实现 kotlin使用冒号:关键字代替java中的extends和implements关键字. 与java一样，类只能单继承，可以实现多个接口 kotlin中的override 是强制要求的 接口中的函数可以有默认的方法体,有默认实现的函数可以不重写
+interface Clickable { fun click() fun showOff() = println(&#34;I&#39;m clickable!&#34;) } 如果实现多个接口，接口有相同的函数名，则类需要显示实现该方法，否则编译错误：
+The class &#39;Button&#39; must override public open fun showOff() because it inherits many implementation of it. interface Focusable { fun showOff() = println(&#34;I&#39;m focusable!&#34;) } class Button: Clickable, Focusable { override fun click() = println(&#34;I was clicked&#34;) //显示实现，通过super&lt;父类&gt;调用父类方法  override fun showOff() { super&lt;Clickable&gt;."/>
+
+    <meta property="og:title" content="kotlin3 类,对象和接口" />
+<meta property="og:description" content="1. 类 Kotlin的声明默认时public final的 嵌套的类默认不是内部类，没有包含其对外部类的隐式引用. 使用interface定义接口
+接口实现 kotlin使用冒号:关键字代替java中的extends和implements关键字. 与java一样，类只能单继承，可以实现多个接口 kotlin中的override 是强制要求的 接口中的函数可以有默认的方法体,有默认实现的函数可以不重写
+interface Clickable { fun click() fun showOff() = println(&#34;I&#39;m clickable!&#34;) } 如果实现多个接口，接口有相同的函数名，则类需要显示实现该方法，否则编译错误：
+The class &#39;Button&#39; must override public open fun showOff() because it inherits many implementation of it. interface Focusable { fun showOff() = println(&#34;I&#39;m focusable!&#34;) } class Button: Clickable, Focusable { override fun click() = println(&#34;I was clicked&#34;) //显示实现，通过super&lt;父类&gt;调用父类方法  override fun showOff() { super&lt;Clickable&gt;." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-14-kotlin3/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-15T09:53:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-15T09:53:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">kotlin3 类,对象和接口</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 15, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          4 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h2 id="1-类">1. 类</h2>
+<p><em><strong>Kotlin的声明默认时public final的</strong></em>
+嵌套的类默认不是内部类，没有包含其对外部类的隐式引用.
+使用<code>interface</code>定义接口</p>
+<h3 id="接口实现">接口实现</h3>
+<p>kotlin使用冒号<code>:</code>关键字代替java中的<code>extends</code>和<code>implements</code>关键字.
+与java一样，类只能单继承，可以实现多个接口
+kotlin中的<code>override</code> 是强制要求的
+接口中的函数可以有默认的方法体,有默认实现的函数可以不重写</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Clickable</span> {
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">click</span>()
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">showOff</span>() = println(<span style="color:#e6db74">&#34;I&#39;m clickable!&#34;</span>)
+}
+</code></pre></div><p>如果实现多个接口，接口有相同的函数名，则类需要显示实现该方法，否则编译错误：</p>
+<pre><code>The class 'Button' must
+override public open fun showOff() because it inherits many implementation of it.
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Focusable</span> {
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">showOff</span>() = println(<span style="color:#e6db74">&#34;I&#39;m focusable!&#34;</span>)
+}
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Button</span>: Clickable, Focusable {
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">click</span>() = println(<span style="color:#e6db74">&#34;I was clicked&#34;</span>)
+    <span style="color:#75715e">//显示实现，通过super&lt;父类&gt;调用父类方法
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">showOff</span>() {
+        <span style="color:#66d9ef">super</span>&lt;Clickable&gt;.showOff()
+        <span style="color:#66d9ef">super</span>&lt;Focusable&gt;.showOff()
+    }
+}
+</code></pre></div><h3 id="类继承">类继承</h3>
+<p>类默认是<code>final</code>的，不允许被继承；使用<code>open</code>关键字修改可以被继承，还需要给可以被重写的属性和方法添加<code>open</code>修饰符</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RichButton</span>: Clickable {
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">disable</span>(){<span style="color:#f92672">..</span>.} <span style="color:#75715e">// final的，子类不能重写
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">open</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">animate</span>(){<span style="color:#f92672">..</span>.} <span style="color:#75715e">//子类可以重写
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">click</span>(){<span style="color:#f92672">..</span>.} <span style="color:#75715e">//已重写的open函数，本身也是open的
+</span><span style="color:#75715e"></span>}
+</code></pre></div><blockquote>
+<p>已重写了基类或接口的成员，重写的成员默认是open的；如果不想类的子类再重写该成员，需要显示将重写的成员标为<code>final</code></p>
+</blockquote>
+<p>抽象类的抽象成员始终是<code>open</code>的,非抽象函数默认是<code>final</code>
+接口中的成员始终是<code>open</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RichButton</span>: Clickable{
+    <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">click</span>(){}
+}
+<span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Animate</span>{
+    <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">animate</span>() <span style="color:#75715e">//open
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">animateTwice</span>(){} <span style="color:#75715e">//默认final
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h3 id="可见性修饰符">可见性修饰符</h3>
+<p>kotlin可见性修饰符包括<code>public</code>,<code>protected</code>,<code>internal</code>,<code>private</code>
+<code>protected</code>在kotlin中只能在类和它的子类中可见，与java不同
+<code>internal</code>只在模块内部可见，一个模块就是一个项目</p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>类成员</th>
+<th>顶层声明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>public(默认)</td>
+<td>所有地方可见</td>
+<td>所有地方可见</td>
+</tr>
+<tr>
+<td>internal</td>
+<td>模块中可见</td>
+<td>模块中可见</td>
+</tr>
+<tr>
+<td>protected</td>
+<td>子类中可见</td>
+<td>－</td>
+</tr>
+<tr>
+<td>private</td>
+<td>类中可见</td>
+<td>文件中可见</td>
+</tr>
+</tbody>
+</table>
+<p>如果违反可见性规则，编译时发生错误；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">internal</span> <span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TalkButton</span>: Focusable {
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">yell</span>() = println(<span style="color:#e6db74">&#34;Hey!&#34;</span>)
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">whisper</span>() = println(<span style="color:#e6db74">&#34;Let&#39;s talk!&#34;</span>)
+}
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">TalkButton</span>.giveSpeech(){
+    yell() <span style="color:#75715e">//错误，不能访问private
+</span><span style="color:#75715e"></span>    whisper() <span style="color:#75715e">//错误，不能访问protected
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>修改属性的可见性</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LengthCounter</span> {
+    <span style="color:#66d9ef">var</span> counter: Int = <span style="color:#ae81ff">0</span>
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">set</span> <span style="color:#75715e">//外部不能修改该属性
+</span><span style="color:#75715e"></span>
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">addWord</span>(word:String){
+        counter <span style="color:#f92672">+=</span> word.length
+    }
+}
+
+<span style="color:#66d9ef">val</span> len = LengthCounter()
+len.addWord(<span style="color:#e6db74">&#34;hi&#34;</span>)
+println(len.counter) <span style="color:#75715e">//2
+</span></code></pre></div><h2 id="内部类和嵌套类">内部类和嵌套类</h2>
+<p>区别：嵌套类不能访问外部类的实例，而内部类可以.
+嵌套类和内部类在Java与Kotlin中的对应实现方式：</p>
+<table>
+<thead>
+<tr>
+<th>类A在类B中声明</th>
+<th>Java</th>
+<th>Kotlin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>嵌套类 (不存储外部类的引用)</td>
+<td>static class A</td>
+<td>class A</td>
+</tr>
+<tr>
+<td>内部类(存储外部类的引用)</td>
+<td>class A</td>
+<td>inner class A</td>
+</tr>
+</tbody>
+</table>
+<p>内部类引用外部类语法：<code>this@Outer</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Outer</span> {
+    <span style="color:#66d9ef">inner</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Inner</span>{
+        <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">getOuterReference</span>(): Outer = <span style="color:#66d9ef">this</span><span style="color:#a6e22e">@Outer</span>
+    }
+}
+</code></pre></div><h2 id="密封类-受限的类继承结构">密封类: 受限的类继承结构</h2>
+<p>执行when表达式时，kotlin编译器会<code>强制</code>检查默认选项(else)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Expr</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Num</span>(<span style="color:#66d9ef">val</span> value: Int): Expr()
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Sum</span>(<span style="color:#66d9ef">val</span> left:Expr, <span style="color:#66d9ef">val</span> right:Expr): Expr()
+
+<span style="color:#75715e">//必须检查else
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">eval</span>(e: Expr): Int = <span style="color:#66d9ef">when</span>(e){
+    <span style="color:#66d9ef">is</span> Expr.Num <span style="color:#f92672">-&gt;</span> e.value
+    <span style="color:#66d9ef">is</span> Expr.Sum <span style="color:#f92672">-&gt;</span> eval(e.right) + eval(e.left)
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">throw</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Unknow&#34;</span>)
+}
+</code></pre></div><p>密封类：为父类添加一个<code>sealed</code>修饰符，对可能创建的子类做出严格的限制，所有的直接子类必须嵌套在父类中,不能在父类外部拥有子类</p>
+<p>密封类表达式：when的参数为密封类时，已涵盖所有子类，可以去掉else；如果有子类不再when表达式中，会导致编译失败</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">sealed</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Expr</span>{
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Num</span>(<span style="color:#66d9ef">val</span> value: Int): Expr()
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Sum</span>(<span style="color:#66d9ef">val</span> left:Expr, <span style="color:#66d9ef">val</span> right:Expr): Expr()
+}
+<span style="color:#75715e">//when 涵盖所有可能的情况，不需要else分支
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">eval</span>(e: Expr): Int = <span style="color:#66d9ef">when</span>(e){
+    <span style="color:#66d9ef">is</span> Expr.Num <span style="color:#f92672">-&gt;</span> e.value
+    <span style="color:#66d9ef">is</span> Expr.Sum <span style="color:#f92672">-&gt;</span> eval(e.right) + eval(e.left)
+}
+</code></pre></div><blockquote>
+<p><code>sealed</code>修饰的类是<code>open</code>的</p>
+</blockquote>
+<h2 id="构造函数">构造函数</h2>
+<p>主构造函数：至多有一个，在类体外部声明
+从构造函数：可以有多个，在类体内部声明</p>
+<p><code>constructor</code>用来声明主/从构造函数
+<code>init</code>关键字引入初始化语句块，在类被创建时执行，与主构造函数一起使用.
+因为主构造函数语法限制，不能包含初始化代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">constructor</span>(_nickname: String) {
+    <span style="color:#66d9ef">val</span> nickname: String
+    <span style="color:#66d9ef">init</span>{
+        nickname = _nickname
+    }
+}
+</code></pre></div><blockquote>
+<p>主构造函数没有注解或可见性修饰符，可省略<code>constructor</code></p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(_nickname: String) { <span style="color:#75715e">//简化版
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">val</span> nickname= _nickname
+}
+
+<span style="color:#75715e">//带可见性修饰符，不能省略constructor
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">constructor</span>(){}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(<span style="color:#66d9ef">val</span> nickname:String)
+<span style="color:#75715e">//val修饰的属性会用构造方法的属性来初始化，等同于上例
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(<span style="color:#66d9ef">val</span> nickname:String, <span style="color:#66d9ef">val</span> isSubscribed: Boolean = <span style="color:#66d9ef">true</span>) <span style="color:#75715e">//提供默认值
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">val</span> alice = User(<span style="color:#e6db74">&#34;Alice&#34;</span>)
+println(alice.isSubscribed) <span style="color:#75715e">//true
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">val</span> alice = User(<span style="color:#e6db74">&#34;Alice&#34;</span>, <span style="color:#66d9ef">false</span>)
+<span style="color:#66d9ef">val</span> alice = User(<span style="color:#e6db74">&#34;Alice&#34;</span>, isSubscribed = <span style="color:#66d9ef">false</span>)
+</code></pre></div><blockquote>
+<p>如果所有的构造方法参数都有默认值，编译器会生成一个额外的不带参数的构造函数来使用所有的默认值</p>
+</blockquote>
+<p>如果类具有父类，主构造函数需要初始化父类，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(<span style="color:#66d9ef">val</span> nickname: String){<span style="color:#f92672">..</span>.}
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TwitterUser</span>(nickname: String) : User(nickname){ <span style="color:#f92672">..</span>.}
+</code></pre></div><p>如果没有给类声明任何的构造方法，将会生成默认构造方法</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Button</span>
+</code></pre></div><p>如果继承Button，且子类没有提供任何的构造方法，必须显示调用父类的构造方法，即使没有参数</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RadioButton</span> : Button()
+</code></pre></div><blockquote>
+<p>区别：接口没有构造函数，实现接口不需加括号</p>
+</blockquote>
+<h3 id="初始化父类的方式">初始化父类的方式</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">open</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">View</span> {
+    <span style="color:#66d9ef">constructor</span>(ctx: Context) {<span style="color:#f92672">..</span>.}
+    <span style="color:#66d9ef">constructor</span>(ctx: Context, attr: AttributeSet){<span style="color:#f92672">..</span>}
+}
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Button</span> : View {
+    <span style="color:#66d9ef">constructor</span>(ctx: Context): <span style="color:#66d9ef">super</span>(ctx){<span style="color:#f92672">..</span>}
+    <span style="color:#66d9ef">constructor</span>(ctx: Context, attr: AttributeSet): <span style="color:#66d9ef">super</span>(ctx, attr){}
+    <span style="color:#75715e">//或者
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">constructor</span>(ctx: Context): <span style="color:#66d9ef">this</span>(ctx,<span style="color:#66d9ef">null</span>){<span style="color:#f92672">..</span>}
+}
+
+</code></pre></div><h3 id="实现接口中声明的属性">实现接口中声明的属性</h3>
+<p>接口可以包含<strong>抽象属性</strong>声明,意味着具体实现User接口的类需要提供一个取得nickname值的方式.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">User</span> {
+    <span style="color:#66d9ef">val</span> nickname: String
+}
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PrivateUser</span>(<span style="color:#66d9ef">override</span> <span style="color:#66d9ef">val</span> nickname: String):User <span style="color:#75715e">//1.构造函数初始化
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SubscribUser</span>(<span style="color:#66d9ef">val</span> email: String) : User{
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">val</span> nickname: String
+        <span style="color:#66d9ef">get</span>() = email.substringBefore(<span style="color:#e6db74">&#39;@&#39;</span>) <span style="color:#75715e">//2.自定义getter
+</span><span style="color:#75715e"></span>}
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FacebookUser</span>(<span style="color:#66d9ef">val</span> accountId: Int): User {
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">val</span> nickname = getFacebookName(accountId)   <span style="color:#75715e">//3.属性初始化
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h3 id="支持字段field">支持字段<code>field</code></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(<span style="color:#66d9ef">val</span> name: String) {
+    <span style="color:#66d9ef">var</span> address: String = <span style="color:#e6db74">&#34;unspecified&#34;</span>
+        <span style="color:#66d9ef">set</span>(value: String) {
+            println(<span style="color:#e6db74">&#34;&#34;&#34;Address was changed for </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">:&#34;$field&#34; -&gt; &#34;$value&#34;.&#34;&#34;&#34;</span>.trimIndent())
+
+            <span style="color:#66d9ef">field</span> = value
+        }
+}
+
+<span style="color:#66d9ef">val</span> user = User(<span style="color:#e6db74">&#34;Alice&#34;</span>)
+user.address = <span style="color:#e6db74">&#34;Beijing&#34;</span>
+<span style="color:#75715e">//Address was changed for Alice: &#34;unspecified&#34;-&gt;&#34;Bejing&#34;.
+</span></code></pre></div><blockquote>
+<p>使用了<code>field</code>来访问支持字段的值,getter中只能读取值，setter中既能读取又能修改.
+使用默认的访问器实现，编译器会为属性生成支持字段</p>
+</blockquote>
+<h3 id="数据类和类委托">数据类和类委托</h3>
+<p>数据类自动生成通用方法的实现，使用<code>data</code>修饰</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">data</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Client</span>(<span style="color:#66d9ef">val</span> name:String, <span style="color:#66d9ef">val</span> age: Int)
+<span style="color:#75715e">//使用data修饰，编译器自动重写`equals`,`hashCode`,`toString`
+</span></code></pre></div><blockquote>
+<p><code>equals</code>,<code>hashCode</code>将所有在<strong>主构造</strong>函数中声明的属性呢纳入考虑</p>
+</blockquote>
+<p>//TODO 类委托</p>
+<h2 id="object关键字"><code>object</code>关键字</h2>
+<p><code>object</code>关键字定义一个类同时创建一个实例
+功能如下：</p>
+<ul>
+<li><code>对象声明</code>是定义<code>单例</code>的一种方式；</li>
+<li><code>伴生对象</code>可以持有工厂方法</li>
+<li><code>对象表达式</code>：等同于java的匿名内部类</li>
+</ul>
+<h4 id="对象声明">对象声明</h4>
+<p>将类声明与该类的单一实例声明结合在一起</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">object</span> <span style="color:#a6e22e">Payroll</span> {
+    <span style="color:#66d9ef">val</span> allEmployees = arrayListOf&lt;Person&gt;()
+
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">calculateSalary</span>(){
+        <span style="color:#66d9ef">for</span> (person <span style="color:#66d9ef">in</span> allEmployees){<span style="color:#f92672">..</span>.}
+    }
+}
+
+Payroll.allEmployees.add(Person(<span style="color:#f92672">..</span>.))
+Payroll.calculateSalary()
+</code></pre></div><p>对象声明与类一样，可以包含属性，方法，初始化语句块等的声明.不允许的是构造函数(主／从)
+对象声明在定义的时候就立即创建了，不需要在其它地方调用构造方法.
+使用方法：对象名加<code>.</code>调用方法和访问属性</p>
+<h4 id="伴生对象工厂方法和静态成员">伴生对象：工厂方法和静态成员</h4>
+<blockquote>
+<p>kotlin中没有static关键字，不能拥有静态成员，一般用<code>顶层函数</code>替代，但顶层函数无法访问类的<code>private</code>成员</p>
+</blockquote>
+<p>在类中使用<code>companion</code>关键字，可以通过类名直接访问类的方法和属性,这就是伴生对象</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span>{
+    <span style="color:#66d9ef">companion</span> <span style="color:#66d9ef">object</span> {
+        <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">bar</span>() {
+            println(<span style="color:#e6db74">&#34;Companion object called&#34;</span>)
+        }
+    }
+}
+A.bar() <span style="color:#75715e">//Companion object called
+</span></code></pre></div><p>伴生对象可以访问类中<code>private</code>成员，包括<code>private</code>构造方法，是实现工厂模式的理想选择.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">constructor</span>(<span style="color:#66d9ef">val</span> nickname: String) {
+    <span style="color:#66d9ef">companion</span> <span style="color:#66d9ef">object</span> {
+        <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">newSubscribingUser</span>(email: String) = User(email.substringBefore(<span style="color:#e6db74">&#39;@&#39;</span>))
+    }
+}
+
+<span style="color:#66d9ef">val</span> subUser = User.newSubscribingUser(<span style="color:#e6db74">&#34;bob@gmail.com&#34;</span>)
+println(subUser.nickname) <span style="color:#75715e">//bob
+</span></code></pre></div><p>伴生对象在子类中不能被重写
+伴生对象是声明在类中的普通对象，可以有名字，可以实现接口，有扩展函数或属性</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>(<span style="color:#66d9ef">val</span> name: String) {
+    <span style="color:#66d9ef">companion</span> <span style="color:#66d9ef">object</span> Loader {<span style="color:#75715e">//给伴生对象命名`Loader`
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">fromJson</span>(jsonText: String): Person= {<span style="color:#f92672">..</span>.}
+    }
+}
+<span style="color:#75715e">//可以通过两种方式来调用fromJson
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> person = Person.Loader.fromJson(<span style="color:#e6db74">&#34;{name:&#39;Bob&#39;}&#34;</span>)
+<span style="color:#66d9ef">val</span> p = Person.fromJson(<span style="color:#e6db74">&#34;{name:&#39;Bob&#39;}&#34;</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//伴生对象实现接口
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">JSON</span>&lt;T&gt; {
+    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">fromJson</span>(jsonText: String): T
+}
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>(<span style="color:#66d9ef">val</span> name: String) {
+    <span style="color:#66d9ef">companion</span> <span style="color:#66d9ef">object</span>: JSON&lt;Person&gt; {
+        <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">fromJson</span>(jsonText: String): Person = {<span style="color:#f92672">..</span>.}
+    }
+}
+</code></pre></div><p>为伴生对象定义扩展函数,<em><strong>类中必须声明伴生对象</strong></em>,即使是空的</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>(<span style="color:#66d9ef">val</span> name: String){
+    <span style="color:#66d9ef">companion</span> <span style="color:#66d9ef">object</span>{}<span style="color:#75715e">//空的伴生对象
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Person</span>.Companion.fromJson(json: String): Person {<span style="color:#f92672">..</span>.}
+<span style="color:#66d9ef">val</span> p = Person.fromJson(<span style="color:#e6db74">&#34;{name:&#39;bob&#39;}&#34;</span>)
+</code></pre></div><h3 id="对象表达式-java版匿名内部类">对象表达式: java版匿名内部类</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//android中的设置按钮的点击事件
+</span><span style="color:#75715e"></span>button.setOnClickListener{
+    <span style="color:#66d9ef">object</span>: View.OnClickListener{
+        <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">onClick</span>(v: View){<span style="color:#f92672">..</span>.}
+    }
+}
+</code></pre></div><blockquote>
+<p>与对象声明不同，匿名对象不是单例的
+对象表达式在匿名对象中重写多个方法时是最有用的; 实现一个单方法的接口(如Runnable),推荐<code>lambda</code></p>
+</blockquote>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

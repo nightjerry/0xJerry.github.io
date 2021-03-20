@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>jekyll update on Jerry Blog</title>
+    <link>https://nightjerry.github.io/categories/jekyll-update/</link>
+    <description>Recent content in jekyll update on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 24 Dec 2019 10:55:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/categories/jekyll-update/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Binder机制之messenger，aidl</title>
+      <link>https://nightjerry.github.io/posts/2019-12-24-binder2/</link>
+      <pubDate>Tue, 24 Dec 2019 10:55:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-24-binder2/</guid>
+      <description>[TOC]
+Messenger 轻量级的IPC方式，底层实现是aidl
+通信范例(client sendMsg to server) 步骤：
+ 服务端进程；实现逻辑如下  //1.创建service  public class MessengerService extends Services { //2.创建处理消息的handler  private static class MessengerHandler extends Handler { @Override public void handleMessage(Message msg) { //处理消息  switch(msg.what) { case MSG_FROM_CLIENT: Log.e(&amp;#34;tag&amp;#34;,&amp;#34;receive msg:&amp;#34;=msg.getData().getString(&amp;#34;msg&amp;#34;)); break; default: break; } } } //3.根据Handler创建Messenger  private final Messenger mMessenger = new Messenger(new MessengerHandler()); //4.</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析之AbstractProcessor</title>
+      <link>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</link>
+      <pubDate>Fri, 13 Dec 2019 10:20:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</guid>
+      <description>EventBus源码分析之AbstractProcessor [TOC]
+AbstractProcessor 注解处理器 目前很多Android库都是使用注解的方式实现的.处理注解分两种，
+ 运行时(Runtime)通过反射机制运行处理的注解， 编译时(Compile time)通过注解处理器处理的注解  AbstractProcessor简介 注解处理器是javac中的，在编译时扫描和处理注解的工具 可以生成java代码，组成.java文件 抽象处理器AbstractProcessor,每个注解处理器都要继承它
+import java.util.Set; import javax.annotation.processing.AbstractProcessor; import javax.annotation.processing.ProcessingEnvironment; import javax.annotation.processing.RoundEnvironment; import javax.lang.model.SourceVersion; import javax.lang.model.element.TypeElement; public class MyProcessor extends AbstractProcessor { /** * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。 * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer */ @Override public synchronized void init(ProcessingEnvironment processingEnvironment) { super.init(processingEnvironment); } /** * 相当于每个处理器的主函数main()。 * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件 * @param set * @param roundEnvironment 可以查询出包含特定注解的被注解元素 * @return */ @Override public boolean process(Set&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-12-12-eventbus/</link>
+      <pubDate>Thu, 12 Dec 2019 15:38:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-12-eventbus/</guid>
+      <description>EventBus源码分析 [TOC]
+通过使用，分析eventbus源码实现
+1. EventBus.getDefault().register(this); 1.1 EventBus.getDefault() //使用双重校验锁(DCL)单例模式 static volatile EventBus defaultInstance; public static EventBus getDefault() { EventBus instance = defaultInstance; if (instance == null) { synchronized (EventBus.class) { instance = EventBus.defaultInstance; if (instance == null) { instance = EventBus.defaultInstance = new EventBus(); } } } return instance; } new EventBus() private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder(); private final Map&amp;lt;Class&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>注解</title>
+      <link>https://nightjerry.github.io/posts/2019-12-11-annotation/</link>
+      <pubDate>Wed, 11 Dec 2019 14:34:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-11-annotation/</guid>
+      <description>[TOC]
+注解通过@interface关键字进行定义
+public @interface TestAnnotation{ //定义了名为TestAnnotation的注解 } 元注解 元注解是基本注解，是注解的注解，用到自定义的注解上 元注解有5种: @Retention,@Documented,@Target,@Inherited,@Repeatable
+@Retention 是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间. 取值如下:
+ RetentionPolicy.SOURCE 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视 RetentionPolicy.CLASS 注解只被保留到编译进行的时候，不会被加载到JVM中 RetentionPolicy.RUNTIME 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们  @Documented 此注解与文档有关，作用是将注解中的元素包含到javadoc中
+@Target 指定注解使用的场景，如类上，方法上，成员变量，方法参数等 取值如下:
+ ElementType.ANNOTATION_TYPE 给一个注解进行注解 ElementType.CONSTRUCTOR 用在构造方法上 ElementType.FIELD 给属性进行注解 ElementType.LOCAL_VARIABLE 给局部变量进行注解 ElementType.METHOD 用在函数上 ElementType.PACKAGE 对包进行注解 ElementType.PARAMETER 对方法中的参数注解 ElementType.TYPE 给类型注解，(类，接口，枚举)  @Inherited 继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解
+@Inherited @Retention(RetentionPolicy.RUNTIME) @interface Test { } @Test public class A {} public class B extends A { } 注解Test被@Inherited修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解</description>
+    </item>
+    
+    <item>
+      <title>okhttp3部分源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</link>
+      <pubDate>Mon, 25 Nov 2019 17:21:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</guid>
+      <description>okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&amp;lt;T&amp;gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&amp;lt;Integer&amp;gt; demo1 = new Demo&amp;lt;Integer&amp;gt;(); Demo&amp;lt;String&amp;gt; demo2 = new Demo&amp;lt;String&amp;gt;(); demo1.</description>
+    </item>
+    
+    <item>
+      <title>go8 生产者消费者模型</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go8/</link>
+      <pubDate>Mon, 25 Nov 2019 17:20:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go8/</guid>
+      <description>8 生产者消费者模型 [TOC] ###模型分析 缓冲区: 1. 解偶 (降低生产者，消费者的耦合度) 2. 并发 (生产者消费者数量不对等时，能保持正常通信) 3. 缓存 (生产者和消费者数据处理速度不一致时，暂存数据)
+有缓冲: 异步通信 无缓冲: 同步通信
+func main() { ch := make(chan int, 5) go producer(ch) consumer(ch) } func consumer(in &amp;lt;-chan int){ for num := range in{ fmt.Println(&amp;#34;消费者拿到: &amp;#34;, num) } } func producer(out chan&amp;lt;-int){ for i:=0; i&amp;lt;10; i++ { out &amp;lt;- i*i } close(out) } Timer定时器 创建定时器，指定定时时长;定时到达后，系统会自动向定时器的成员C写系统当前时间;(对chan的写操作) 读取Timer.</description>
+    </item>
+    
+    <item>
+      <title>go7 并发</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</link>
+      <pubDate>Mon, 25 Nov 2019 17:17:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go7-goroutine/</guid>
+      <description>7 并发 [TOC]
+并行 (parallel) 同一时刻，有多条指令在多个处理器上同时执行; 借助多核实现 并发 : 微观：
+Go并发 通过两种方式实现并发,goroutine及channel
+func main() { go sign() dance() //for {;} } func sign(){ for i:=0; i&amp;lt; 5 ; i++ { fmt.Println(&amp;#34;is singing---&amp;#34;, i) time.Sleep(100 * time.Millisecond) } } func dance(){ for i:= 0; i&amp;lt; 5; i++ { fmt.Println(&amp;#34;is dancing&amp;#34;,i) time.Sleep(100 * time.</description>
+    </item>
+    
+    <item>
+      <title>go6 异常</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</link>
+      <pubDate>Mon, 25 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go6-exception/</guid>
+      <description>6 异常 [TOC]
+panic 抛出异常，终止程序
+func main(){ fmt.Println(&amp;#34;abc&amp;#34;) panic(&amp;#34;bcd&amp;#34;) fmt.Println(123) } //abc //panic: bcd error func main() { num, err := TestError(10, 0) if err != nil { fmt.Println(err) }else{ fmt.Println(num) } } func TestError(num1 int, num2 int)(result int, err error){ if num2 == 0{ err = errors.New(&amp;#34;除数不能为0&amp;#34;) return } result = num1/ num2 return } recover 错误拦截  recover只有在defer调用的函数中有效, defer不能直接作用在recover函数上</description>
+    </item>
+    
+    <item>
+      <title>go5 面向对象</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go5/</link>
+      <pubDate>Mon, 25 Nov 2019 16:45:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go5/</guid>
+      <description>5面向对象 [TOC]
+对象创建 type Student struct { id int name string age int } func main(){ var stu Student = Student{101, &amp;#34;tom&amp;#34;,19} var stu1 = Student{102, &amp;#34;lili&amp;#34;,19} } 继承 type Person struct { id int name string age int } type Student struct { //通过匿名字段，实现继承  Person //匿名字段，只有类型，没有成员名  score float64 } func main(){ var stu Student = Student{Person{101, &amp;#34;tom&amp;#34;,19},90} fmt.</description>
+    </item>
+    
+    <item>
+      <title>go4 map/struct</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-go4/</link>
+      <pubDate>Mon, 25 Nov 2019 16:43:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-go4/</guid>
+      <description>4 map/struct [TOC]
+map 创建  var 变量名 map[key类型]value类型 变量名 := map[key类型]value类型{} make(map[key类型]value类型)  func main(){ var m map[int]string m1 := map[int]string{} m2 := make(map[int]string) } 初始化 func main(){ var m /*map[int]string*/ = map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m1 := map[int]string{1:&amp;#34;张三&amp;#34;, 2:&amp;#34;李四&amp;#34;, 3:&amp;#34;王五&amp;#34;} m2 := make(map[int]string) m2[1] = &amp;#34;张三&amp;#34; m2[2] = &amp;#34;李四&amp;#34; } //map[ 3:&amp;#34;王五&amp;#34; 1:&amp;#34;张三&amp;#34; 2:&amp;#34;李四&amp;#34;] key/value value,bool := map变量名[key]: 获取map中key的值，如果value存在，则bool为true，否则为false</description>
+    </item>
+    
+    <item>
+      <title>retrofit源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-retrofit/</link>
+      <pubDate>Mon, 25 Nov 2019 16:36:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-retrofit/</guid>
+      <description>retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class.</description>
+    </item>
+    
+    <item>
+      <title>java 线程池</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</link>
+      <pubDate>Mon, 25 Nov 2019 16:33:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</guid>
+      <description>线程池ThreadPool [TOC]
+线程是一种昂贵的资源，开销有以下几种：
+ 线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销 线程的销毁 线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源 线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目   线程工厂ThreadFactory 创建线程的工厂方法,ThreadFactory接口是工厂方法模式的一个实例；
+public Thread newThread(Runnable r) //用于创建线程，r代表线程需要执行的任务 线程池执行状态分析 线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；
+线程池可看作是生产者——消费者模式的一种服务 内部维护的工作者线程相当于消费者线程； 线程池的客户端线程相当于生产者线程； 线程池内部缓存队列相当于传输通道； 客户端提交给线程池的任务相当于‘产品’;
+线程池java.util.concurrent.ThreadPoolExecutor，ThreadPoolExecutor.submit提交任务
+public Future&amp;lt;?&amp;gt; submit(Runnable task) //task代表客户端需要线程池执行的任务 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) //corePoolSize : 指定线程池核心线程数 //maximumPoolSize : 线程池最大线程数 //keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间 //workQueue : 工作队列的阻塞队列，相当于传输通道 //threadFactory : 用于创建工作者线程的线程工厂 //handler:  初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理； 当创建的线程池数量等于核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的BlockingQueue.</description>
+    </item>
+    
+    <item>
+      <title>java 反射</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</link>
+      <pubDate>Mon, 25 Nov 2019 16:30:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</guid>
+      <description>反射Reflection 获取Class对象 创建实例 获取方法 获取类的成员变量 调用方法 访问私有方法 修改私有常量 进阶
+ 静态函数 反射接口 —— 动态代理 kotlin中函数类型作为参数的反射  反射android自定义application
+通过反射，在运行时获取程序每一个类型的成员和成员的信息 一般的对象类型在编译期就确定下来的，反射机制可以动态的创建对象并调用其属性； 反射的核心: JVM在运行时才动态加载类或调用方法/访问属性，不需要事先知道运行对象是谁 简单说，反射可以加载运行时才得知名称的.class文件，获悉完整结构，并生成对象实体，或对fields变量设值，或调用methods
+获取Class对象  Class.forName(String className) 直接获取一个对象的class  Class&amp;lt;?&amp;gt; clazz = int.class; Class&amp;lt;?&amp;gt; clazzInt = Integer.TYPE;  调用对象的getClass()方法:  StringBuilder str = new StringBuilder(&amp;#34;123&amp;#34;); Class&amp;lt;?&amp;gt; clazz = str.getClass();    ### &amp;lt;span id=&amp;quot;reflect_2&amp;quot;&amp;gt;创建实例&amp;lt;/span&amp;gt; 通过反射来生成对象有两种方式： 1.</description>
+    </item>
+    
+  </channel>
+</rss>

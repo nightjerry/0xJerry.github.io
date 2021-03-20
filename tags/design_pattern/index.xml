@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>design_pattern on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/design_pattern/</link>
+    <description>Recent content in design_pattern on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 25 Nov 2019 16:39:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/design_pattern/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>设计模式_创建型模式</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</link>
+      <pubDate>Mon, 25 Nov 2019 16:39:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</guid>
+      <description>#创建型模式 [TOC]
+工厂模式 Factory Pattern 相当于创建实例对象的new; 可能多做一些工作，但有更大的可扩展性和尽量少的修改量; 创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;
+使用场景：不同条件下创建不同实例时，即子类较多;
+核心思想:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；
+优点：扩展性高，屏蔽实现，调用方便；
+缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；
+ 复杂对象适合用工厂模式，简单对象使用new创建 任何需要生成复杂对象的地方，都可以使用工厂模式
+ //1.定义接口 public interface Animal{ void eat(); } //2.创建接口实体类(有共同性) public class Cat implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;cat eat fish&amp;#34;); } } public class Panda implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;panda eat bamboo&amp;#34;); } } //3.</description>
+    </item>
+    
+  </channel>
+</rss>

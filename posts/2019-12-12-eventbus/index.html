@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>EventBus源码分析 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="EventBus源码分析"/>
+<meta name="twitter:description" content="EventBus源码分析 [TOC]
+通过使用，分析eventbus源码实现
+1. EventBus.getDefault().register(this); 1.1 EventBus.getDefault() //使用双重校验锁(DCL)单例模式 static volatile EventBus defaultInstance; public static EventBus getDefault() { EventBus instance = defaultInstance; if (instance == null) { synchronized (EventBus.class) { instance = EventBus.defaultInstance; if (instance == null) { instance = EventBus.defaultInstance = new EventBus(); } } } return instance; } new EventBus() private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder(); private final Map&lt;Class&lt;?"/>
+
+    <meta property="og:title" content="EventBus源码分析" />
+<meta property="og:description" content="EventBus源码分析 [TOC]
+通过使用，分析eventbus源码实现
+1. EventBus.getDefault().register(this); 1.1 EventBus.getDefault() //使用双重校验锁(DCL)单例模式 static volatile EventBus defaultInstance; public static EventBus getDefault() { EventBus instance = defaultInstance; if (instance == null) { synchronized (EventBus.class) { instance = EventBus.defaultInstance; if (instance == null) { instance = EventBus.defaultInstance = new EventBus(); } } } return instance; } new EventBus() private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder(); private final Map&lt;Class&lt;?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-12-12-eventbus/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-12-12T15:38:00&#43;08:00" />
+<meta property="article:modified_time" content="2019-12-12T15:38:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">EventBus源码分析</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Dec 12, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          11 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h1 id="eventbus源码分析">EventBus源码分析</h1>
+<p>[TOC]</p>
+<p>通过使用，分析eventbus源码实现</p>
+<h2 id="1-eventbusgetdefaultregisterthis">1. EventBus.getDefault().register(this);</h2>
+<h3 id="11-eventbusgetdefault">1.1 EventBus.getDefault()</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//使用双重校验锁(DCL)单例模式
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">volatile</span> EventBus defaultInstance<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> EventBus <span style="color:#a6e22e">getDefault</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        EventBus instance <span style="color:#f92672">=</span> defaultInstance<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>instance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>EventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                instance <span style="color:#f92672">=</span> EventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultInstance</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>instance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    instance <span style="color:#f92672">=</span> EventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultInstance</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EventBus<span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> instance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="new-eventbus">new EventBus()</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> EventBusBuilder DEFAULT_BUILDER <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EventBusBuilder<span style="color:#f92672">();</span>
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;,</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>Subscription<span style="color:#f92672">&gt;&gt;</span> subscriptionsByEventType<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">,</span> List<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;&gt;&gt;</span> typesBySubscriber<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;,</span> Object<span style="color:#f92672">&gt;</span> stickyEvents<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> MainThreadSupport mainThreadSupport<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Poster mainThreadPoster<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> BackgroundPoster backgroundPoster<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> AsyncPoster asyncPoster<span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> SubscriberMethodFinder subscriberMethodFinder<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> eventInheritance<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EventBus</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">(</span>DEFAULT_BUILDER<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+EventBus<span style="color:#f92672">(</span>EventBusBuilder builder<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        logger <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">getLogger</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">//***key:订阅的事件，value: 订阅这个事件的所有订阅者集合
+</span><span style="color:#75715e"></span>        subscriptionsByEventType <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+        <span style="color:#75715e">//***key:订阅者对象，value: 订阅者订阅的事件集合
+</span><span style="color:#75715e"></span>        typesBySubscriber <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+        <span style="color:#75715e">//粘性事件 key:粘性事件的class对象, value:事件对象
+</span><span style="color:#75715e"></span>        stickyEvents <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+        mainThreadSupport <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">getMainThreadSupport</span><span style="color:#f92672">();</span>
+         <span style="color:#75715e">//事件主线程处理
+</span><span style="color:#75715e"></span>        mainThreadPoster <span style="color:#f92672">=</span> mainThreadSupport <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">?</span> mainThreadSupport<span style="color:#f92672">.</span><span style="color:#a6e22e">createPoster</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">//事件 Background 处理
+</span><span style="color:#75715e"></span>        backgroundPoster <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BackgroundPoster<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">//事件异步线程处
+</span><span style="color:#75715e"></span>        asyncPoster <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AsyncPoster<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+        indexCount <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfoIndexes</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">?</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfoIndexes</span><span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">()</span> <span style="color:#f92672">:</span> 0<span style="color:#f92672">;</span>
+
+        <span style="color:#75715e">//订阅者响应函数信息存储和查找类
+</span><span style="color:#75715e"></span>        subscriberMethodFinder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SubscriberMethodFinder<span style="color:#f92672">(</span>builder<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfoIndexes</span><span style="color:#75715e">/*null*/</span><span style="color:#f92672">,</span>
+                builder<span style="color:#f92672">.</span><span style="color:#a6e22e">strictMethodVerification</span><span style="color:#75715e">/*false*/</span><span style="color:#f92672">,</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">ignoreGeneratedIndex</span><span style="color:#75715e">/*false*/</span><span style="color:#f92672">);</span>
+
+        logSubscriberExceptions <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">logSubscriberExceptions</span><span style="color:#f92672">;</span>
+        logNoSubscriberMessages <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">logNoSubscriberMessages</span><span style="color:#f92672">;</span>
+        sendSubscriberExceptionEvent <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">sendSubscriberExceptionEvent</span><span style="color:#f92672">;</span>
+        sendNoSubscriberEvent <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">sendNoSubscriberEvent</span><span style="color:#f92672">;</span>
+        throwSubscriberException <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">throwSubscriberException</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">//是否支持事件继承
+</span><span style="color:#75715e"></span>        eventInheritance <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">eventInheritance</span><span style="color:#f92672">;</span>
+        executorService <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">executorService</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="new-eventbusbuilder--getmainthreadsupport">new EventBusBuilder &amp; getMainThreadSupport</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">EventBusBuilder<span style="color:#f92672">()</span> <span style="color:#f92672">{}</span>
+
+MainThreadSupport <span style="color:#a6e22e">getMainThreadSupport</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//首次调用为null
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>mainThreadSupport <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> mainThreadSupport<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>AndroidLogger<span style="color:#f92672">.</span><span style="color:#a6e22e">isAndroidLogAvailable</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//判断是否为android设备
+</span><span style="color:#75715e"></span>            Object looperOrNull <span style="color:#f92672">=</span> getAndroidMainLooperOrNull<span style="color:#f92672">();</span>
+            <span style="color:#75715e">//创建MainThreadSupport
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span> looperOrNull <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">:</span>
+                    <span style="color:#66d9ef">new</span> MainThreadSupport<span style="color:#f92672">.</span><span style="color:#a6e22e">AndroidHandlerMainThreadSupport</span><span style="color:#f92672">((</span>Looper<span style="color:#f92672">)</span> looperOrNull<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//获取looper对象
+</span><span style="color:#75715e"></span>Object <span style="color:#a6e22e">getAndroidMainLooperOrNull</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> Looper<span style="color:#f92672">.</span><span style="color:#a6e22e">getMainLooper</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// Not really a functional Android (e.g. &#34;Stub!&#34; maven dependencies)
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="mainthreadsupport">MainThreadSupport</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">MainThreadSupport</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isMainThread</span><span style="color:#f92672">();</span>
+
+    Poster <span style="color:#a6e22e">createPoster</span><span style="color:#f92672">(</span>EventBus eventBus<span style="color:#f92672">);</span>
+<span style="color:#75715e">//内部实现类
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AndroidHandlerMainThreadSupport</span> <span style="color:#66d9ef">implements</span> MainThreadSupport <span style="color:#f92672">{</span>
+
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Looper looper<span style="color:#f92672">;</span>
+
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">AndroidHandlerMainThreadSupport</span><span style="color:#f92672">(</span>Looper looper<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">looper</span> <span style="color:#f92672">=</span> looper<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isMainThread</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> looper <span style="color:#f92672">==</span> Looper<span style="color:#f92672">.</span><span style="color:#a6e22e">myLooper</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> Poster <span style="color:#a6e22e">createPoster</span><span style="color:#f92672">(</span>EventBus eventBus<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HandlerPoster<span style="color:#f92672">(</span>eventBus<span style="color:#f92672">,</span> looper<span style="color:#f92672">,</span> 10<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="handlerposter">HandlerPoster</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandlerPoster</span> <span style="color:#66d9ef">extends</span> Handler <span style="color:#66d9ef">implements</span> Poster <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PendingPostQueue queue<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> maxMillisInsideHandleMessage<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EventBus eventBus<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> handlerActive<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">HandlerPoster</span><span style="color:#f92672">(</span>EventBus eventBus<span style="color:#f92672">,</span> Looper looper<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> maxMillisInsideHandleMessage<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">(</span>looper<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">eventBus</span> <span style="color:#f92672">=</span> eventBus<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">maxMillisInsideHandleMessage</span> <span style="color:#f92672">=</span> maxMillisInsideHandleMessage<span style="color:#f92672">;</span>
+        queue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PendingPostQueue<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="12-register">1.2 register()</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">register</span><span style="color:#f92672">(</span>Object subscriber<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//获取订阅者的class对象 -- &#34;class 包名.类名&#34;
+</span><span style="color:#75715e"></span>        Class<span style="color:#f92672">&lt;?&gt;</span> subscriberClass <span style="color:#f92672">=</span> subscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">//通过subscriberMethodFinder来找到订阅者订阅了哪些事件
+</span><span style="color:#75715e"></span>        List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> subscriberMethods <span style="color:#f92672">=</span> subscriberMethodFinder<span style="color:#f92672">.</span><span style="color:#a6e22e">findSubscriberMethods</span><span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>SubscriberMethod subscriberMethod <span style="color:#f92672">:</span> subscriberMethods<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                subscribe<span style="color:#f92672">(</span>subscriber<span style="color:#f92672">,</span> subscriberMethod<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">/*
+</span><span style="color:#75715e"> *SubscriberMethod: 包含Method对象，响应订阅的线程ThreadMode，事件类型eventType，优先级priority,是否接收粘性sticky事件的boolean值
+</span><span style="color:#75715e"> */</span>
+</code></pre></div><h4 id="subscribermethodfinderfindsubscribermethods">subscriberMethodFinder.findSubscriberMethods</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;,</span> List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;&gt;</span> METHOD_CACHE <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">findSubscriberMethods</span><span style="color:#f92672">(</span>Class<span style="color:#f92672">&lt;?&gt;</span> subscriberClass<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//从缓存中取，取到直接返回
+</span><span style="color:#75715e"></span>        List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> subscriberMethods <span style="color:#f92672">=</span> METHOD_CACHE<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriberMethods <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> subscriberMethods<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+ <span style="color:#75715e">//是否忽略注解器生成的MyEventBusIndex类,默认false
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>ignoreGeneratedIndex<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//利用反射来读取订阅类中的订阅方法信息
+</span><span style="color:#75715e"></span>            subscriberMethods <span style="color:#f92672">=</span> findUsingReflection<span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            subscriberMethods <span style="color:#f92672">=</span> findUsingInfo<span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriberMethods<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Subscriber &#34;</span> <span style="color:#f92672">+</span> subscriberClass
+                    <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; and its super classes have no public methods with the @Subscribe annotation&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            METHOD_CACHE<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">,</span> subscriberMethods<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">return</span> subscriberMethods<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">findUsingInfo</span><span style="color:#f92672">(</span>Class<span style="color:#f92672">&lt;?&gt;</span> subscriberClass<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        FindState findState <span style="color:#f92672">=</span> prepareFindState<span style="color:#f92672">();</span>
+        findState<span style="color:#f92672">.</span><span style="color:#a6e22e">initForSubscriber</span><span style="color:#f92672">(</span>subscriberClass<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>findState<span style="color:#f92672">.</span><span style="color:#a6e22e">clazz</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfo</span> <span style="color:#f92672">=</span> getSubscriberInfo<span style="color:#f92672">(</span>findState<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfo</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                SubscriberMethod<span style="color:#f92672">[]</span> array <span style="color:#f92672">=</span> findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberInfo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getSubscriberMethods</span><span style="color:#f92672">();</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>SubscriberMethod subscriberMethod <span style="color:#f92672">:</span> array<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>findState<span style="color:#f92672">.</span><span style="color:#a6e22e">checkAdd</span><span style="color:#f92672">(</span>subscriberMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">method</span><span style="color:#f92672">,</span> subscriberMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">eventType</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                        findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethods</span><span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>subscriberMethod<span style="color:#f92672">);</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//使用反射获取
+</span><span style="color:#75715e"></span>        findUsingReflectionInSingleClass<span style="color:#f92672">(</span>findState<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            findState<span style="color:#f92672">.</span><span style="color:#a6e22e">moveToSuperclass</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> getMethodsAndRelease<span style="color:#f92672">(</span>findState<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="create-subscribermethod--add-to-list">create SubscriberMethod &amp; add to list</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">findUsingReflectionInSingleClass</span><span style="color:#f92672">(</span>FindState findState<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Method<span style="color:#f92672">[]</span> methods<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// This is faster than getMethods, especially when subscribers are fat classes like Activities
+</span><span style="color:#75715e"></span>            methods <span style="color:#f92672">=</span> findState<span style="color:#f92672">.</span><span style="color:#a6e22e">clazz</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethods</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable th<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
+</span><span style="color:#75715e"></span>            methods <span style="color:#f92672">=</span> findState<span style="color:#f92672">.</span><span style="color:#a6e22e">clazz</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getMethods</span><span style="color:#f92672">();</span>
+            findState<span style="color:#f92672">.</span><span style="color:#a6e22e">skipSuperClasses</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">//遍历方法
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Method method <span style="color:#f92672">:</span> methods<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">int</span> modifiers <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getModifiers</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">((</span>modifiers <span style="color:#f92672">&amp;</span> Modifier<span style="color:#f92672">.</span><span style="color:#a6e22e">PUBLIC</span><span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> 0 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">(</span>modifiers <span style="color:#f92672">&amp;</span> MODIFIERS_IGNORE<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">//获取参数列表数组
+</span><span style="color:#75715e"></span>                Class<span style="color:#f92672">&lt;?&gt;[]</span> parameterTypes <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameterTypes</span><span style="color:#f92672">();</span>
+                <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>parameterTypes<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">==</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#75715e">//获取注解
+</span><span style="color:#75715e"></span>                    Subscribe subscribeAnnotation <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>Subscribe<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscribeAnnotation <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        Class<span style="color:#f92672">&lt;?&gt;</span> eventType <span style="color:#f92672">=</span> parameterTypes<span style="color:#f92672">[</span>0<span style="color:#f92672">];</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>findState<span style="color:#f92672">.</span><span style="color:#a6e22e">checkAdd</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> eventType<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                            ThreadMode threadMode <span style="color:#f92672">=</span> subscribeAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">threadMode</span><span style="color:#f92672">();</span>
+                            <span style="color:#75715e">//创建subscriberMethod并加入到集合中
+</span><span style="color:#75715e"></span>                            findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethods</span><span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> SubscriberMethod<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> eventType<span style="color:#f92672">,</span> threadMode<span style="color:#f92672">,</span>
+                                    subscribeAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">priority</span><span style="color:#f92672">(),</span> subscribeAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">sticky</span><span style="color:#f92672">()));</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>strictMethodVerification <span style="color:#f92672">&amp;&amp;</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">isAnnotationPresent</span><span style="color:#f92672">(</span>Subscribe<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                    String methodName <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaringClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;.&#34;</span> <span style="color:#f92672">+</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">();</span>
+                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;@Subscribe method &#34;</span> <span style="color:#f92672">+</span> methodName <span style="color:#f92672">+</span>
+                            <span style="color:#e6db74">&#34;must have exactly 1 parameter but has &#34;</span> <span style="color:#f92672">+</span> parameterTypes<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>strictMethodVerification <span style="color:#f92672">&amp;&amp;</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">isAnnotationPresent</span><span style="color:#f92672">(</span>Subscribe<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                String methodName <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaringClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;.&#34;</span> <span style="color:#f92672">+</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">();</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span>methodName <span style="color:#f92672">+</span>
+                        <span style="color:#e6db74">&#34; is a illegal @Subscribe method: must be public, non-static, and non-abstract&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="加入到状态池中">加入到状态池中</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getMethodsAndRelease</span><span style="color:#f92672">(</span>FindState findState<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        List<span style="color:#f92672">&lt;</span>SubscriberMethod<span style="color:#f92672">&gt;</span> subscriberMethods <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span>findState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethods</span><span style="color:#f92672">);</span>
+        findState<span style="color:#f92672">.</span><span style="color:#a6e22e">recycle</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>FIND_STATE_POOL<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> POOL_SIZE<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>FIND_STATE_POOL<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    FIND_STATE_POOL<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> findState<span style="color:#f92672">;</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> subscriberMethods<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="subscribe必须在同步代码块里调用">subscribe(必须在同步代码块里调用)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">subscribe</span><span style="color:#f92672">(</span>Object subscriber<span style="color:#f92672">,</span> SubscriberMethod subscriberMethod<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//订阅事件
+</span><span style="color:#75715e"></span>        Class<span style="color:#f92672">&lt;?&gt;</span> eventType <span style="color:#f92672">=</span> subscriberMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">eventType</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">//订阅者
+</span><span style="color:#75715e"></span>        Subscription newSubscription <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Subscription<span style="color:#f92672">(</span>subscriber<span style="color:#f92672">,</span> subscriberMethod<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//key:订阅的事件，value: 订阅这个事件的所有订阅者集合
+</span><span style="color:#75715e"></span>        CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>Subscription<span style="color:#f92672">&gt;</span> subscriptions <span style="color:#f92672">=</span> subscriptionsByEventType<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>eventType<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriptions <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            subscriptions <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;&gt;();</span>
+            subscriptionsByEventType<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>eventType<span style="color:#f92672">,</span> subscriptions<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//已经添加，则抛出异常
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span>newSubscription<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Subscriber &#34;</span> <span style="color:#f92672">+</span> subscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; already registered to event &#34;</span>
+                        <span style="color:#f92672">+</span> eventType<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+<span style="color:#75715e">//根据优先级添加订阅者，如果没有，则添加到集合末尾
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">//遍历订阅者集合，添加新订阅者
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;=</span> size<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>i <span style="color:#f92672">==</span> size <span style="color:#f92672">||</span> subscriberMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">priority</span> <span style="color:#f92672">&gt;</span> subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">subscriberMethod</span><span style="color:#f92672">.</span><span style="color:#a6e22e">priority</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//add(index, value): 向指定位置插入元素，index之后到元素向后移动，(index &lt;= size,否则报错)
+</span><span style="color:#75715e"></span>                subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>i<span style="color:#f92672">,</span> newSubscription<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+<span style="color:#75715e">//key:订阅者对象，value: 订阅者订阅的事件集合
+</span><span style="color:#75715e"></span>        List<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;&gt;</span> subscribedEvents <span style="color:#f92672">=</span> typesBySubscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>subscriber<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscribedEvents <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            subscribedEvents <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+            typesBySubscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>subscriber<span style="color:#f92672">,</span> subscribedEvents<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">//添加新事件
+</span><span style="color:#75715e"></span>        subscribedEvents<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>eventType<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriberMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">sticky</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>eventInheritance<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">// Existing sticky events of all subclasses of eventType have to be considered.
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// Note: Iterating over all events may be inefficient with lots of sticky events,
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// thus data structure should be changed to allow a more efficient lookup
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// (e.g. an additional map storing sub classes of super classes: Class -&gt; List&lt;Class&gt;).
+</span><span style="color:#75715e"></span>                Set<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;,</span> Object<span style="color:#f92672">&gt;&gt;</span> entries <span style="color:#f92672">=</span> stickyEvents<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">();</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;,</span> Object<span style="color:#f92672">&gt;</span> entry <span style="color:#f92672">:</span> entries<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    Class<span style="color:#f92672">&lt;?&gt;</span> candidateEventType <span style="color:#f92672">=</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">();</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>eventType<span style="color:#f92672">.</span><span style="color:#a6e22e">isAssignableFrom</span><span style="color:#f92672">(</span>candidateEventType<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                        Object stickyEvent <span style="color:#f92672">=</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">();</span>
+                        checkPostStickyEventToSubscription<span style="color:#f92672">(</span>newSubscription<span style="color:#f92672">,</span> stickyEvent<span style="color:#f92672">);</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                Object stickyEvent <span style="color:#f92672">=</span> stickyEvents<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>eventType<span style="color:#f92672">);</span>
+                checkPostStickyEventToSubscription<span style="color:#f92672">(</span>newSubscription<span style="color:#f92672">,</span> stickyEvent<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h2 id="2-eventbusgetdefaultposthello-world">2. EventBus.getDefault().post(&ldquo;hello world&rdquo;);</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">post</span><span style="color:#f92672">(</span>Object event<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        PostingThreadState postingState <span style="color:#f92672">=</span> currentPostingThreadState<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+        List<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> eventQueue <span style="color:#f92672">=</span> postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">eventQueue</span><span style="color:#f92672">;</span>
+  <span style="color:#75715e">//队列中添加事件
+</span><span style="color:#75715e"></span>        eventQueue<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>event<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isPosting</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isMainThread</span> <span style="color:#f92672">=</span> isMainThread<span style="color:#f92672">();</span>
+            postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isPosting</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">canceled</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Internal error. Abort state was not reset&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">while</span> <span style="color:#f92672">(!</span>eventQueue<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                  <span style="color:#75715e">//发送单个事件
+</span><span style="color:#75715e"></span>                    postSingleEvent<span style="color:#f92672">(</span>eventQueue<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>0<span style="color:#f92672">),</span> postingState<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+                postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isPosting</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isMainThread</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+</code></pre></div><h3 id="currentpostingthreadstateget">currentPostingThreadState.get</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>PostingThreadState<span style="color:#f92672">&gt;</span> currentPostingThreadState <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;</span>PostingThreadState<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">protected</span> PostingThreadState <span style="color:#a6e22e">initialValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PostingThreadState<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+</code></pre></div><h4 id="threadlocal"><strong>ThreadLocal</strong></h4>
+<h5 id="threadlocal介绍">ThreadLocal介绍</h5>
+<p><code>线程特有对象(TSO, Thread Specific Object)</code>: 一个实例只能被一个线程访问的对象
+<code>TSO</code>优点:</p>
+<ul>
+<li>保障了对非线程安全对象的访问的线程安全</li>
+</ul>
+<ul>
+<li>避免了锁的开销</li>
+<li>减少对象的创建次数</li>
+<li>具有线程安全性</li>
+</ul>
+<p><code>ThreadLocal&lt;T&gt;</code>是线程访问其<code>TSO</code>的代理(proxy),即各个线程通过这个对象创建并访问各自的线程特有对象
+一个线程可以使用不同的ThreadLocal实例来创建并访问不同的<code>TSO</code></p>
+<p>ThreadLocal被称为<code>线程局部变量(Thread-local Variable)</code>
+ThreadLocal常用方法</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>功能</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>public T get()</td>
+<td>获取与该线程局部变量关联的当前线程的线程特有对象</td>
+<td></td>
+</tr>
+<tr>
+<td>public void set(T value)</td>
+<td>设置该线程局部变量所对应的当前线程的TSO</td>
+<td></td>
+</tr>
+<tr>
+<td>protected T initialValue()</td>
+<td>初始化，返回TSO(默认返回null，需重写)</td>
+<td></td>
+</tr>
+<tr>
+<td>public void remove()</td>
+<td>删除ThreadLocal与TSO的关联关系</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>ThreadLocal的<code>initialValue</code>默认返回值为null，需重写.
+当线程初次执行<code>ThreadLocal.get()</code>时，ThreadLocal.get()会调用<code>initialValue()</code>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ThreadLocal</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">protected</span> T <span style="color:#a6e22e">initialValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> T <span style="color:#a6e22e">get</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        Thread t <span style="color:#f92672">=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">();</span>
+        ThreadLocalMap map <span style="color:#f92672">=</span> getMap<span style="color:#f92672">(</span>t<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>map <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            ThreadLocalMap<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span> e <span style="color:#f92672">=</span> map<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntry</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>e <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#a6e22e">@SuppressWarnings</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;unchecked&#34;</span><span style="color:#f92672">)</span>
+                T result <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span>e<span style="color:#f92672">.</span><span style="color:#a6e22e">value</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> setInitialValue<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    ThreadLocalMap <span style="color:#a6e22e">getMap</span><span style="color:#f92672">(</span>Thread t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> t<span style="color:#f92672">.</span><span style="color:#a6e22e">threadLocals</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> T <span style="color:#a6e22e">setInitialValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        T value <span style="color:#f92672">=</span> initialValue<span style="color:#f92672">();</span>
+        Thread t <span style="color:#f92672">=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">();</span>
+        ThreadLocalMap map <span style="color:#f92672">=</span> getMap<span style="color:#f92672">(</span>t<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>map <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+            map<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span>
+            createMap<span style="color:#f92672">(</span>t<span style="color:#f92672">,</span> value<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> value<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>ThreadLocal可能导致内存泄漏，伪内存泄漏.</p>
+<blockquote>
+<p>内存泄漏(Memory Leak): 对象永远无法被垃圾回收导致其占用java虚拟机内存无法被释放. 持续的内存泄漏导致jvm内存减少，jvm内存溢出，甚至jvm宕机
+伪内存泄漏： 对象占用的内存空间可能会被回收，也可能无法被回收</p>
+</blockquote>
+<h4 id="threadlocal-内部实现">ThreadLocal 内部实现</h4>
+<p>每个线程内部会维护一个类似HashMap的对象，称为<code>ThreadLocalMap</code>
+ThreadLocalMap内部有若干<code>Entry</code>(key/value结构), Entry的key为<code>ThreadLocal实例</code>,value为<code>TSO</code>.
+Entry对ThreadLocal对象的引用是一个<code>弱引用(weak Reference)</code>,不会阻止被引用的ThreadLocal实例被垃圾回收,当被回收后，Entry的key置为null.此时Entry为<code>无效条目(stale entry)</code>
+Entry对<code>TSO</code>是强引用，如果<code>无效条目</code>对其有可达强引用，无效条目会阻止引用的<code>TSO</code>被垃圾回收.
+鉴于此，当<code>ThreadLocalMap</code>中有新的key/value映射关系被创建时 (即新的Entry被加到ThreadLocalMap)，ThreadLocalMap会将<code>无效条目(stale entry)</code>清理掉（相当于复用无效条目）.</p>
+<p><em>伪内存泄漏发生在新Entry添加到ThreadLocalMap之前</em></p>
+<pre><code class="language-mermaid" data-lang="mermaid">graph LR
+A[Thread] --&gt;|threadLocals|B[ThreadLocalMap]
+	B --&gt; |entries|C[Entry]
+		C -.-&gt;|key| D[ThreadLocal]
+		C --&gt;|value| E[TSO]
+</code></pre><p>在web应用中，为规避ThreadLocal可能导致的(伪)内存泄漏,使用<code>javax.servlet.Filter</code>接口实现类的<code>doFilter</code>方法中调用<code>ThreadLocal.remove()</code></p>
+<h4 id="tso线程特有对象应用场景"><strong>TSO</strong>(线程特有对象)应用场景</h4>
+<ul>
+<li>使用了非线程安全对象，又不引入锁</li>
+<li>使用了线程安全对象，希望避免使用的锁的开销及相关问题</li>
+<li>隐式参数传递</li>
+<li>特定于线程的单例模式</li>
+</ul>
+<h3 id="postingthreadstate">PostingThreadState</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostingThreadState</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> eventQueue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+        <span style="color:#66d9ef">boolean</span> isPosting<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">boolean</span> isMainThread<span style="color:#f92672">;</span>
+        Subscription subscription<span style="color:#f92672">;</span>
+        Object event<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">boolean</span> canceled<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="postsingleevent">postSingleEvent</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">postSingleEvent</span><span style="color:#f92672">(</span>Object event<span style="color:#f92672">,</span> PostingThreadState postingState<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Error <span style="color:#f92672">{</span>
+        Class<span style="color:#f92672">&lt;?&gt;</span> eventClass <span style="color:#f92672">=</span> event<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">boolean</span> subscriptionFound <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+  <span style="color:#75715e">//是否触发订阅了该事件(eventClass)的父类,以及接口的类的响应方法
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>eventInheritance<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            List<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;&gt;</span> eventTypes <span style="color:#f92672">=</span> lookupAllEventTypes<span style="color:#f92672">(</span>eventClass<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">int</span> countTypes <span style="color:#f92672">=</span> eventTypes<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> h <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> h <span style="color:#f92672">&lt;</span> countTypes<span style="color:#f92672">;</span> h<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                Class<span style="color:#f92672">&lt;?&gt;</span> clazz <span style="color:#f92672">=</span> eventTypes<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>h<span style="color:#f92672">);</span>
+                subscriptionFound <span style="color:#f92672">|=</span> postSingleEventForEventType<span style="color:#f92672">(</span>event<span style="color:#f92672">,</span> postingState<span style="color:#f92672">,</span> clazz<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            subscriptionFound <span style="color:#f92672">=</span> postSingleEventForEventType<span style="color:#f92672">(</span>event<span style="color:#f92672">,</span> postingState<span style="color:#f92672">,</span> eventClass<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>subscriptionFound<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>logNoSubscriberMessages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                logger<span style="color:#f92672">.</span><span style="color:#a6e22e">log</span><span style="color:#f92672">(</span>Level<span style="color:#f92672">.</span><span style="color:#a6e22e">FINE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;No subscribers registered for event &#34;</span> <span style="color:#f92672">+</span> eventClass<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>sendNoSubscriberEvent <span style="color:#f92672">&amp;&amp;</span> eventClass <span style="color:#f92672">!=</span> NoSubscriberEvent<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">&amp;&amp;</span>
+                    eventClass <span style="color:#f92672">!=</span> SubscriberExceptionEvent<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                post<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> NoSubscriberEvent<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> event<span style="color:#f92672">));</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="postsingleeventforeventtype">postSingleEventForEventType</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//根据事件类型eventType发送单个事件
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">postSingleEventForEventType</span><span style="color:#f92672">(</span>Object event<span style="color:#f92672">,</span> PostingThreadState postingState<span style="color:#f92672">,</span> Class<span style="color:#f92672">&lt;?&gt;</span> eventClass<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+  <span style="color:#75715e">//subscriptionsByEventType(key:订阅的事件，value: 订阅这个事件的所有订阅者集合)
+</span><span style="color:#75715e"></span>        CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>Subscription<span style="color:#f92672">&gt;</span> subscriptions<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          <span style="color:#75715e">//获取订阅了这个事件的Subscription列表.
+</span><span style="color:#75715e"></span>            subscriptions <span style="color:#f92672">=</span> subscriptionsByEventType<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>eventClass<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriptions <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span><span style="color:#75715e">//遍历所有的订阅者
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Subscription subscription <span style="color:#f92672">:</span> subscriptions<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">event</span> <span style="color:#f92672">=</span> event<span style="color:#f92672">;</span>
+                postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> subscription<span style="color:#f92672">;</span>
+              <span style="color:#75715e">//是否被中断
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">boolean</span> aborted <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                  <span style="color:#75715e">//分发给订阅者
+</span><span style="color:#75715e"></span>                    postToSubscription<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">,</span> postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">isMainThread</span><span style="color:#f92672">);</span>
+                    aborted <span style="color:#f92672">=</span> postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">canceled</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+                    postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">event</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                    postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                    postingState<span style="color:#f92672">.</span><span style="color:#a6e22e">canceled</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>aborted<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="posttosubscription">postToSubscription</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//分发给订阅者
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">postToSubscription</span><span style="color:#f92672">(</span>Subscription subscription<span style="color:#f92672">,</span> Object event<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> isMainThread<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+  <span style="color:#75715e">//线程模式
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">switch</span> <span style="color:#f92672">(</span>subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethod</span><span style="color:#f92672">.</span><span style="color:#a6e22e">threadMode</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">case</span> POSTING<span style="color:#f92672">:</span>
+                invokeSubscriber<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">case</span> MAIN<span style="color:#f92672">:</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>isMainThread<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    invokeSubscriber<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                    mainThreadPoster<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">case</span> MAIN_ORDERED<span style="color:#f92672">:</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>mainThreadPoster <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    mainThreadPoster<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                    <span style="color:#75715e">// temporary: technically not correct as poster not decoupled from subscriber
+</span><span style="color:#75715e"></span>                    invokeSubscriber<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">case</span> BACKGROUND<span style="color:#f92672">:</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>isMainThread<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    backgroundPoster<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                    invokeSubscriber<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">case</span> ASYNC<span style="color:#f92672">:</span>
+                asyncPoster<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Unknown thread mode: &#34;</span> <span style="color:#f92672">+</span> subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethod</span><span style="color:#f92672">.</span><span style="color:#a6e22e">threadMode</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="invokesubscriber">invokeSubscriber</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">invokeSubscriber</span><span style="color:#f92672">(</span>Subscription subscription<span style="color:#f92672">,</span> Object event<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//使用反射，执行调用者类中的方法
+</span><span style="color:#75715e"></span>            subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriberMethod</span><span style="color:#f92672">.</span><span style="color:#a6e22e">method</span><span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriber</span><span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>InvocationTargetException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            handleSubscriberException<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">,</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">getCause</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IllegalAccessException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Unexpected exception&#34;</span><span style="color:#f92672">,</span> e<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="threadmodemain">ThreadMode.Main</h4>
+<p>当事件需要在主线程执行时，首先判断当前线程是否为主线程，如果是，直接调用<code>invokeSubscriber()</code>函数；如果不是，添加到主线程事件处理队列中。主线程事件处理的类是<code>HandlerPoster</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandlerPoster</span> <span style="color:#66d9ef">extends</span> Handler <span style="color:#66d9ef">implements</span> Poster <span style="color:#f92672">{</span>
+<span style="color:#75715e">//event队列
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PendingPostQueue queue<span style="color:#f92672">;</span>
+    <span style="color:#75715e">//内部发送消息时间间隔 (thinking: 此变量的意义)
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> maxMillisInsideHandleMessage<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EventBus eventBus<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> handlerActive<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">//在eventbus创建时初始化
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">HandlerPoster</span><span style="color:#f92672">(</span>EventBus eventBus<span style="color:#f92672">,</span> Looper looper<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> maxMillisInsideHandleMessage<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">(</span>looper<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">eventBus</span> <span style="color:#f92672">=</span> eventBus<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">maxMillisInsideHandleMessage</span> <span style="color:#f92672">=</span> maxMillisInsideHandleMessage<span style="color:#f92672">;</span>
+        queue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PendingPostQueue<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">/** 继承自poster
+</span><span style="color:#75715e">      *向队尾添加事件，并发送
+</span><span style="color:#75715e">      */</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>Subscription subscription<span style="color:#f92672">,</span> Object event<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        PendingPost pendingPost <span style="color:#f92672">=</span> PendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">obtainPendingPost</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//同步锁
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            queue<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+            <span style="color:#75715e">//确保同一时间只发送一条消息
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>handlerActive<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                handlerActive <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>sendMessage<span style="color:#f92672">(</span>obtainMessage<span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Could not send handler message&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleMessage</span><span style="color:#f92672">(</span>Message msg<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">boolean</span> rescheduled <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">long</span> started <span style="color:#f92672">=</span> SystemClock<span style="color:#f92672">.</span><span style="color:#a6e22e">uptimeMillis</span><span style="color:#f92672">();</span>
+            <span style="color:#75715e">//循环取任务并发送
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                PendingPost pendingPost <span style="color:#f92672">=</span> queue<span style="color:#f92672">.</span><span style="color:#a6e22e">poll</span><span style="color:#f92672">();</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>pendingPost <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        <span style="color:#75715e">// Check again, this time in synchronized
+</span><span style="color:#75715e"></span>                        pendingPost <span style="color:#f92672">=</span> queue<span style="color:#f92672">.</span><span style="color:#a6e22e">poll</span><span style="color:#f92672">();</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>pendingPost <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                            handlerActive <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                            <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#75715e">//发送事件
+</span><span style="color:#75715e"></span>                eventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">invokeSubscriber</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">long</span> timeInMethod <span style="color:#f92672">=</span> SystemClock<span style="color:#f92672">.</span><span style="color:#a6e22e">uptimeMillis</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> started<span style="color:#f92672">;</span>
+                <span style="color:#75715e">//超过时间间隔，再次sendMessage, (保证10s内handler执行结束)
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>timeInMethod <span style="color:#f92672">&gt;=</span> maxMillisInsideHandleMessage<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>sendMessage<span style="color:#f92672">(</span>obtainMessage<span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+                        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> EventBusException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Could not send handler message&#34;</span><span style="color:#f92672">);</span>
+                    <span style="color:#f92672">}</span>
+                    rescheduled <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+                    <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+            handlerActive <span style="color:#f92672">=</span> rescheduled<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//EventBus.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">invokeSubscriber</span><span style="color:#f92672">(</span>PendingPost pendingPost<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Object event <span style="color:#f92672">=</span> pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">event</span><span style="color:#f92672">;</span>
+        Subscription subscription <span style="color:#f92672">=</span> pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">//释放已执行的事件
+</span><span style="color:#75715e"></span>        PendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">releasePendingPost</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+        <span style="color:#75715e">//判断是否解除订阅关系[见下面unsubscribeByEventType]
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">active</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            invokeSubscriber<span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p>简而言之，主线程的事件就是通过Handler处理，内部维护一个队列<code>PendingPostQueue</code>，<code>PendingPostQueue</code>内部存储的是<code>PendingPost</code></p>
+<h4 id="事件任务---pendingpost">事件任务 - PendingPost</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PendingPost</span> <span style="color:#f92672">{</span>
+<span style="color:#75715e">//事件缓存池
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> List<span style="color:#f92672">&lt;</span>PendingPost<span style="color:#f92672">&gt;</span> pendingPostPool <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>PendingPost<span style="color:#f92672">&gt;();</span>
+
+    Object event<span style="color:#f92672">;</span>
+    Subscription subscription<span style="color:#f92672">;</span>
+    PendingPost next<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">PendingPost</span><span style="color:#f92672">(</span>Object event<span style="color:#f92672">,</span> Subscription subscription<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">event</span> <span style="color:#f92672">=</span> event<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> subscription<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">//创建PendingPost
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> PendingPost <span style="color:#a6e22e">obtainPendingPost</span><span style="color:#f92672">(</span>Subscription subscription<span style="color:#f92672">,</span> Object event<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>pendingPostPool<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> pendingPostPool<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+            <span style="color:#75715e">//如果缓存中有则从中取出赋值，避免多次创建
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>size <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                PendingPost pendingPost <span style="color:#f92672">=</span> pendingPostPool<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>size <span style="color:#f92672">-</span> 1<span style="color:#f92672">);</span>
+                pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">event</span> <span style="color:#f92672">=</span> event<span style="color:#f92672">;</span>
+                pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> subscription<span style="color:#f92672">;</span>
+                pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">return</span> pendingPost<span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PendingPost<span style="color:#f92672">(</span>event<span style="color:#f92672">,</span> subscription<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">//已执行的任务置空，并用缓存池缓存
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">releasePendingPost</span><span style="color:#f92672">(</span>PendingPost pendingPost<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">event</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">subscription</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        pendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>pendingPostPool<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// Don&#39;t let the pool grow indefinitely
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>pendingPostPool<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">()</span> <span style="color:#f92672">&lt;</span> 10000<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                pendingPostPool<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="任务队列---pendingpostqueue">任务队列 - PendingPostQueue</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PendingPostQueue</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//FIFO
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> PendingPost head<span style="color:#f92672">;</span><span style="color:#75715e">//队头
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> PendingPost tail<span style="color:#f92672">;</span><span style="color:#75715e">//队尾
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//入队，需要同步锁
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>PendingPost pendingPost<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>pendingPost <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> NullPointerException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;null cannot be enqueued&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tail <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            tail<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> pendingPost<span style="color:#f92672">;</span>
+            tail <span style="color:#f92672">=</span> pendingPost<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>head <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            head <span style="color:#f92672">=</span> tail <span style="color:#f92672">=</span> pendingPost<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Head present, but no tail&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        notifyAll<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">//出队
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">synchronized</span> PendingPost <span style="color:#a6e22e">poll</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        PendingPost pendingPost <span style="color:#f92672">=</span> head<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>head <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            head <span style="color:#f92672">=</span> head<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>head <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                tail <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> pendingPost<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">synchronized</span> PendingPost <span style="color:#a6e22e">poll</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> maxMillisToWait<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>head <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            wait<span style="color:#f92672">(</span>maxMillisToWait<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> poll<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="threadmodeasync">ThreadMode.ASYNC</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//没有同步锁
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AsyncPoster</span> <span style="color:#66d9ef">implements</span> Runnable<span style="color:#f92672">,</span> Poster <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> PendingPostQueue queue<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> EventBus eventBus<span style="color:#f92672">;</span>
+
+    AsyncPoster<span style="color:#f92672">(</span>EventBus eventBus<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">eventBus</span> <span style="color:#f92672">=</span> eventBus<span style="color:#f92672">;</span>
+        queue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> PendingPostQueue<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>Subscription subscription<span style="color:#f92672">,</span> Object event<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        PendingPost pendingPost <span style="color:#f92672">=</span> PendingPost<span style="color:#f92672">.</span><span style="color:#a6e22e">obtainPendingPost</span><span style="color:#f92672">(</span>subscription<span style="color:#f92672">,</span> event<span style="color:#f92672">);</span>
+        queue<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+        <span style="color:#75715e">/**
+</span><span style="color:#75715e">          *ExecutorService在EventBusBuilder中创建
+</span><span style="color:#75715e">          */</span>
+        eventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">getExecutorService</span><span style="color:#f92672">().</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        PendingPost pendingPost <span style="color:#f92672">=</span> queue<span style="color:#f92672">.</span><span style="color:#a6e22e">poll</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>pendingPost <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;No pending post available&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        eventBus<span style="color:#f92672">.</span><span style="color:#a6e22e">invokeSubscriber</span><span style="color:#f92672">(</span>pendingPost<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//EventBusBuilder.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">static</span> ExecutorService DEFAULT_EXECUTOR_SERVICE <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newCachedThreadPool</span><span style="color:#f92672">();</span>
+
+newCachedThreadPool<span style="color:#f92672">():</span> 适用于执行大量耗时较短且提交比较频繁的任务<span style="color:#f92672">.</span>
+如果任务执行耗时较长<span style="color:#960050;background-color:#1e0010">，</span>可能导致线程池中的工作者线程无限制的增加<span style="color:#960050;background-color:#1e0010">，</span>从而导致过多的上下文切换<span style="color:#960050;background-color:#1e0010">，</span>最后系统变慢<span style="color:#960050;background-color:#1e0010">，</span>卡顿<span style="color:#f92672">.</span>
+
+该方法的返回值等同于<span style="color:#960050;background-color:#1e0010">：</span>
+<span style="color:#66d9ef">new</span> ThreadPoolExecutor<span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> Integer<span style="color:#f92672">.</span><span style="color:#a6e22e">MAX_VALUE</span><span style="color:#f92672">,</span> 60L<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> SynchronousQueue<span style="color:#f92672">&lt;</span>Runnable<span style="color:#f92672">&gt;());</span>
+即核心线程池大小为0<span style="color:#960050;background-color:#1e0010">，</span>最大线程池大小max_value<span style="color:#f92672">,</span>工作者线程允许的最大空闲时间为60秒<span style="color:#960050;background-color:#1e0010">，</span>内部以SynchronousQueue为工作队列的线程池<span style="color:#f92672">.</span>
+</code></pre></div><p>这里为什么用Executor，而不是直接使用Thread.start()?<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
+<h4 id="threadmodebackground">ThreadMode.BACKGROUND</h4>
+<p>后台线程与异步线程同样实现了<code>Runnable</code>接口, 区别是后台线程在入队出队时使用了同步锁，而异步线程没有</p>
+<h3 id="强引用软引用弱引用">强引用，软引用，弱引用</h3>
+<table>
+<thead>
+<tr>
+<th>引用类型</th>
+<th>被垃圾回收时间</th>
+<th>用途</th>
+<th>生存时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>强引用(StrongReference)</td>
+<td>nerver</td>
+<td>对象的一般状态</td>
+<td>jvm停止运行时终止</td>
+</tr>
+<tr>
+<td>软引用(SoftReference)</td>
+<td>在内存不足时</td>
+<td>对象缓存</td>
+<td>内存不足时终止</td>
+</tr>
+<tr>
+<td>弱引用(weakReference)</td>
+<td>在垃圾回收时</td>
+<td>对象缓存</td>
+<td>gc运行后终止</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-eventbusgetdefaultunregisterthis">3. EventBus.getDefault().unregister(this)</h2>
+<p>解除注册</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unregister</span><span style="color:#f92672">(</span>Object subscriber<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+  <span style="color:#75715e">/**
+</span><span style="color:#75715e">  	*typesBySubscriber  -&gt; Map&lt;Object, List&lt;Class&lt;?&gt;&gt;&gt;
+</span><span style="color:#75715e">  	* (key:订阅者对象，value: 订阅者订阅的事件集合)
+</span><span style="color:#75715e">  	*/</span>
+        List<span style="color:#f92672">&lt;</span>Class<span style="color:#f92672">&lt;?&gt;&gt;</span> subscribedTypes <span style="color:#f92672">=</span> typesBySubscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>subscriber<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscribedTypes <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Class<span style="color:#f92672">&lt;?&gt;</span> eventType <span style="color:#f92672">:</span> subscribedTypes<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                unsubscribeByEventType<span style="color:#f92672">(</span>subscriber<span style="color:#f92672">,</span> eventType<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            typesBySubscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>subscriber<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            logger<span style="color:#f92672">.</span><span style="color:#a6e22e">log</span><span style="color:#f92672">(</span>Level<span style="color:#f92672">.</span><span style="color:#a6e22e">WARNING</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Subscriber to unregister was not registered before: &#34;</span> <span style="color:#f92672">+</span> subscriber<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="unsubscribebyeventtype-解除事件订阅者关系">unsubscribeByEventType 解除事件/订阅者关系</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unsubscribeByEventType</span><span style="color:#f92672">(</span>Object subscriber<span style="color:#f92672">,</span> Class<span style="color:#f92672">&lt;?&gt;</span> eventType<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+  <span style="color:#75715e">/**subscriptionsByEventType -&gt; Map&lt;Class&lt;?&gt;, CopyOnWriteArrayList&lt;Subscription&gt;&gt;
+</span><span style="color:#75715e">  *  key:订阅的事件，value: 订阅这个事件的所有订阅者集合
+</span><span style="color:#75715e">  */</span>
+        List<span style="color:#f92672">&lt;</span>Subscription<span style="color:#f92672">&gt;</span> subscriptions <span style="color:#f92672">=</span> subscriptionsByEventType<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>eventType<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscriptions <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> size<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                Subscription subscription <span style="color:#f92672">=</span> subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+              <span style="color:#75715e">//是要移除的订阅者
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">subscriber</span> <span style="color:#f92672">==</span> subscriber<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    subscription<span style="color:#f92672">.</span><span style="color:#a6e22e">active</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                    subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+                    i<span style="color:#f92672">--;</span>
+                    size<span style="color:#f92672">--;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p>以上，简单的eventbus流程结束。</p>
+<p><code>Map&lt;Class&lt;?&gt;, CopyOnWriteArrayList&lt;Subscription&gt;&gt;   subscriptionsByEventType</code>和<code>Map&lt;Object, List&lt;Class&lt;?&gt;&gt;&gt;  typesBySubscriber</code>很重要</p>
+<p>事件(eventType)和订阅者(subscriber)是多对多的关系, <code>subscriptionsByEventType</code>维护<code>事件/订阅者集合</code>,
+<code>typesBySubscriber</code>维护<code>订阅者/订阅者订阅的事件集合</code>;</p>
+<p><code>SubscriberMethod</code>是订阅者方法model, 包含有订阅者方法，线程，事件，优先级，是否粘性；</p>
+<p><code>Subscription</code>包含了订阅者(subscriber)，<code>SubscriberMethod</code></p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>Thread与Executor区别
+Thread和Executor都是Java里用来并发执行一些code，通过继承java.lang.Thread类或者是实现java.lang.Runnable接口来实现；而Executor是一个接口，也提供了并发执行的能力，但是是通过线程池的形式，这对于大型Java应用来说更加适用.
+区别如下:</p>
+<ul>
+<li>Thread是一个类，Executor是一个接口；</li>
+<li>Executor是并发计算的一个抽象，它允许代码以托管的方式运行，而Thread则是并发运行代码的一个具体实现；</li>
+<li>Executor把任务本身和执行过程解耦，这在Thread是紧密结合在一起的；</li>
+<li>Executor提供了一个executor方法接受一个Runnable对象，而Thread是在构造方法里传入一个Runnable对象，这里会造成一个问题，Executor可以执行不同类型的Runnable对象，而Thread不行，这是一个非常大的区别；</li>
+</ul>
+ <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></li>
+</ol>
+</section>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

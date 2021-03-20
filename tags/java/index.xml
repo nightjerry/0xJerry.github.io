@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>java on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/java/</link>
+    <description>Recent content in java on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 20 Dec 2019 09:28:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Binder机制</title>
+      <link>https://nightjerry.github.io/posts/2019-12-20-binder/</link>
+      <pubDate>Fri, 20 Dec 2019 09:28:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-20-binder/</guid>
+      <description>[TOC]
+IPC是Inter-Processs Communication的缩写，意为进程间通信. android启动多进程方式: 在AndroidManifest.xml中给Activity/Service/ContentProvider指定android:process属性
+&amp;lt;activity android:name=&amp;#34;com.jerry.MainActivity&amp;#34; &amp;gt; &amp;lt;intent-filter&amp;gt; &amp;lt;action android:name=&amp;#34;android.intent.action.MAIN&amp;#34;/&amp;gt; &amp;lt;category android:name=&amp;#34;android.intent.category.LAUNCHER&amp;#34;/&amp;gt; &amp;lt;/intent-filter&amp;gt; &amp;lt;/activity&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.SecondActivity&amp;#34; android:process=&amp;#34;:remote&amp;#34; /&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.ThridActivity&amp;#34; android:process=&amp;#34;com.jerry.remote&amp;#34; /&amp;gt; 以上增加了两个进程，如果包名为com.jerry，当启动SecondActivity时，系统创建一个单独的进程，进程名称为&amp;quot;com.jerry:remote&amp;quot;;当启动ThridActivity时，进程名为com.jerry.remote 在命令行通过adb shell ps | grep 包名查看进程信息 多进程会引入的问题：
+ 静态成员和单例模式完全失效； 线程同步机制失效； SharedPreferences 的可靠性下降； Application会多次创建;  Serializable serialVersionUID的作用: 序列化后的数据中的serialVersionUID只有和当前类的serialVersionUID相同才能正常被反序列化. 如果不手动指定serialVersionUID，反序列化时当前类有改动(增加或删除变量),系统会重新计算当前类的hash值并把它赋值给serialVersionUID，此时serialVersionUID与序列化数据中的serialVersionUID不同，导致反序列化失败.
+Parcelable接口 一种序列化方式，对象实现此接口，可以通过Intent和Binder传递
+public class User implements Parcelable { public int userId; public String userName; public boolean isMale; public Book book; public User() {} public User(int userId, String userName, boolean isMale) { this.</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析之AbstractProcessor</title>
+      <link>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</link>
+      <pubDate>Fri, 13 Dec 2019 10:20:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/</guid>
+      <description>EventBus源码分析之AbstractProcessor [TOC]
+AbstractProcessor 注解处理器 目前很多Android库都是使用注解的方式实现的.处理注解分两种，
+ 运行时(Runtime)通过反射机制运行处理的注解， 编译时(Compile time)通过注解处理器处理的注解  AbstractProcessor简介 注解处理器是javac中的，在编译时扫描和处理注解的工具 可以生成java代码，组成.java文件 抽象处理器AbstractProcessor,每个注解处理器都要继承它
+import java.util.Set; import javax.annotation.processing.AbstractProcessor; import javax.annotation.processing.ProcessingEnvironment; import javax.annotation.processing.RoundEnvironment; import javax.lang.model.SourceVersion; import javax.lang.model.element.TypeElement; public class MyProcessor extends AbstractProcessor { /** * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。 * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer */ @Override public synchronized void init(ProcessingEnvironment processingEnvironment) { super.init(processingEnvironment); } /** * 相当于每个处理器的主函数main()。 * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件 * @param set * @param roundEnvironment 可以查询出包含特定注解的被注解元素 * @return */ @Override public boolean process(Set&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>EventBus源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-12-12-eventbus/</link>
+      <pubDate>Thu, 12 Dec 2019 15:38:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-12-eventbus/</guid>
+      <description>EventBus源码分析 [TOC]
+通过使用，分析eventbus源码实现
+1. EventBus.getDefault().register(this); 1.1 EventBus.getDefault() //使用双重校验锁(DCL)单例模式 static volatile EventBus defaultInstance; public static EventBus getDefault() { EventBus instance = defaultInstance; if (instance == null) { synchronized (EventBus.class) { instance = EventBus.defaultInstance; if (instance == null) { instance = EventBus.defaultInstance = new EventBus(); } } } return instance; } new EventBus() private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder(); private final Map&amp;lt;Class&amp;lt;?</description>
+    </item>
+    
+    <item>
+      <title>注解</title>
+      <link>https://nightjerry.github.io/posts/2019-12-11-annotation/</link>
+      <pubDate>Wed, 11 Dec 2019 14:34:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-11-annotation/</guid>
+      <description>[TOC]
+注解通过@interface关键字进行定义
+public @interface TestAnnotation{ //定义了名为TestAnnotation的注解 } 元注解 元注解是基本注解，是注解的注解，用到自定义的注解上 元注解有5种: @Retention,@Documented,@Target,@Inherited,@Repeatable
+@Retention 是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间. 取值如下:
+ RetentionPolicy.SOURCE 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视 RetentionPolicy.CLASS 注解只被保留到编译进行的时候，不会被加载到JVM中 RetentionPolicy.RUNTIME 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们  @Documented 此注解与文档有关，作用是将注解中的元素包含到javadoc中
+@Target 指定注解使用的场景，如类上，方法上，成员变量，方法参数等 取值如下:
+ ElementType.ANNOTATION_TYPE 给一个注解进行注解 ElementType.CONSTRUCTOR 用在构造方法上 ElementType.FIELD 给属性进行注解 ElementType.LOCAL_VARIABLE 给局部变量进行注解 ElementType.METHOD 用在函数上 ElementType.PACKAGE 对包进行注解 ElementType.PARAMETER 对方法中的参数注解 ElementType.TYPE 给类型注解，(类，接口，枚举)  @Inherited 继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解
+@Inherited @Retention(RetentionPolicy.RUNTIME) @interface Test { } @Test public class A {} public class B extends A { } 注解Test被@Inherited修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解</description>
+    </item>
+    
+    <item>
+      <title>okhttp3部分源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</link>
+      <pubDate>Mon, 25 Nov 2019 17:21:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</guid>
+      <description>okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&amp;lt;T&amp;gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&amp;lt;Integer&amp;gt; demo1 = new Demo&amp;lt;Integer&amp;gt;(); Demo&amp;lt;String&amp;gt; demo2 = new Demo&amp;lt;String&amp;gt;(); demo1.</description>
+    </item>
+    
+    <item>
+      <title>设计模式_创建型模式</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</link>
+      <pubDate>Mon, 25 Nov 2019 16:39:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/</guid>
+      <description>#创建型模式 [TOC]
+工厂模式 Factory Pattern 相当于创建实例对象的new; 可能多做一些工作，但有更大的可扩展性和尽量少的修改量; 创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;
+使用场景：不同条件下创建不同实例时，即子类较多;
+核心思想:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；
+优点：扩展性高，屏蔽实现，调用方便；
+缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；
+ 复杂对象适合用工厂模式，简单对象使用new创建 任何需要生成复杂对象的地方，都可以使用工厂模式
+ //1.定义接口 public interface Animal{ void eat(); } //2.创建接口实体类(有共同性) public class Cat implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;cat eat fish&amp;#34;); } } public class Panda implements Animal{ @Override public void eat(){ System.out.println(&amp;#34;panda eat bamboo&amp;#34;); } } //3.</description>
+    </item>
+    
+    <item>
+      <title>retrofit源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-retrofit/</link>
+      <pubDate>Mon, 25 Nov 2019 16:36:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-retrofit/</guid>
+      <description>retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class.</description>
+    </item>
+    
+    <item>
+      <title>java 线程池</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</link>
+      <pubDate>Mon, 25 Nov 2019 16:33:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-threadpool/</guid>
+      <description>线程池ThreadPool [TOC]
+线程是一种昂贵的资源，开销有以下几种：
+ 线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销 线程的销毁 线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源 线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目   线程工厂ThreadFactory 创建线程的工厂方法,ThreadFactory接口是工厂方法模式的一个实例；
+public Thread newThread(Runnable r) //用于创建线程，r代表线程需要执行的任务 线程池执行状态分析 线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；
+线程池可看作是生产者——消费者模式的一种服务 内部维护的工作者线程相当于消费者线程； 线程池的客户端线程相当于生产者线程； 线程池内部缓存队列相当于传输通道； 客户端提交给线程池的任务相当于‘产品’;
+线程池java.util.concurrent.ThreadPoolExecutor，ThreadPoolExecutor.submit提交任务
+public Future&amp;lt;?&amp;gt; submit(Runnable task) //task代表客户端需要线程池执行的任务 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&amp;lt;Runnable&amp;gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) //corePoolSize : 指定线程池核心线程数 //maximumPoolSize : 线程池最大线程数 //keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间 //workQueue : 工作队列的阻塞队列，相当于传输通道 //threadFactory : 用于创建工作者线程的线程工厂 //handler:  初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理； 当创建的线程池数量等于核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的BlockingQueue.</description>
+    </item>
+    
+    <item>
+      <title>java 反射</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</link>
+      <pubDate>Mon, 25 Nov 2019 16:30:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-java-reflection/</guid>
+      <description>反射Reflection 获取Class对象 创建实例 获取方法 获取类的成员变量 调用方法 访问私有方法 修改私有常量 进阶
+ 静态函数 反射接口 —— 动态代理 kotlin中函数类型作为参数的反射  反射android自定义application
+通过反射，在运行时获取程序每一个类型的成员和成员的信息 一般的对象类型在编译期就确定下来的，反射机制可以动态的创建对象并调用其属性； 反射的核心: JVM在运行时才动态加载类或调用方法/访问属性，不需要事先知道运行对象是谁 简单说，反射可以加载运行时才得知名称的.class文件，获悉完整结构，并生成对象实体，或对fields变量设值，或调用methods
+获取Class对象  Class.forName(String className) 直接获取一个对象的class  Class&amp;lt;?&amp;gt; clazz = int.class; Class&amp;lt;?&amp;gt; clazzInt = Integer.TYPE;  调用对象的getClass()方法:  StringBuilder str = new StringBuilder(&amp;#34;123&amp;#34;); Class&amp;lt;?&amp;gt; clazz = str.getClass();    ### &amp;lt;span id=&amp;quot;reflect_2&amp;quot;&amp;gt;创建实例&amp;lt;/span&amp;gt; 通过反射来生成对象有两种方式： 1.</description>
+    </item>
+    
+    <item>
+      <title>&lt;算法&gt;_查找</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</link>
+      <pubDate>Mon, 25 Nov 2019 09:28:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</guid>
+      <description>##算法 [TOC]
+顺序查找(基于无序链表) public class SequentialSearchST&amp;lt;Key, Value&amp;gt; { private Node first;//链表首结点  private class Node { Key key; Value val; Node next; public Node(Key key, Value val, Node next){ this.key = key; this.val = val; this.next= next; } } public Value get(key key){ for (Node x = first; x!= null; x=x.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>java 线程池 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="java 线程池"/>
+<meta name="twitter:description" content="线程池ThreadPool [TOC]
+线程是一种昂贵的资源，开销有以下几种：
+ 线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销 线程的销毁 线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源 线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目   线程工厂ThreadFactory 创建线程的工厂方法,ThreadFactory接口是工厂方法模式的一个实例；
+public Thread newThread(Runnable r) //用于创建线程，r代表线程需要执行的任务 线程池执行状态分析 线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；
+线程池可看作是生产者——消费者模式的一种服务 内部维护的工作者线程相当于消费者线程； 线程池的客户端线程相当于生产者线程； 线程池内部缓存队列相当于传输通道； 客户端提交给线程池的任务相当于‘产品’;
+线程池java.util.concurrent.ThreadPoolExecutor，ThreadPoolExecutor.submit提交任务
+public Future&lt;?&gt; submit(Runnable task) //task代表客户端需要线程池执行的任务 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) //corePoolSize : 指定线程池核心线程数 //maximumPoolSize : 线程池最大线程数 //keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间 //workQueue : 工作队列的阻塞队列，相当于传输通道 //threadFactory : 用于创建工作者线程的线程工厂 //handler:  初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理； 当创建的线程池数量等于核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的BlockingQueue."/>
+
+    <meta property="og:title" content="java 线程池" />
+<meta property="og:description" content="线程池ThreadPool [TOC]
+线程是一种昂贵的资源，开销有以下几种：
+ 线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销 线程的销毁 线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源 线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目   线程工厂ThreadFactory 创建线程的工厂方法,ThreadFactory接口是工厂方法模式的一个实例；
+public Thread newThread(Runnable r) //用于创建线程，r代表线程需要执行的任务 线程池执行状态分析 线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；
+线程池可看作是生产者——消费者模式的一种服务 内部维护的工作者线程相当于消费者线程； 线程池的客户端线程相当于生产者线程； 线程池内部缓存队列相当于传输通道； 客户端提交给线程池的任务相当于‘产品’;
+线程池java.util.concurrent.ThreadPoolExecutor，ThreadPoolExecutor.submit提交任务
+public Future&lt;?&gt; submit(Runnable task) //task代表客户端需要线程池执行的任务 public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) //corePoolSize : 指定线程池核心线程数 //maximumPoolSize : 线程池最大线程数 //keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间 //workQueue : 工作队列的阻塞队列，相当于传输通道 //threadFactory : 用于创建工作者线程的线程工厂 //handler:  初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理； 当创建的线程池数量等于核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的BlockingQueue." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-java-threadpool/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T16:33:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T16:33:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">java 线程池</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h2 id="线程池threadpool">线程池ThreadPool</h2>
+<p>[TOC]</p>
+<p>线程是一种昂贵的资源，开销有以下几种：</p>
+<ul>
+<li>线程的创建与启动的开销. 与普通的对象相比，线程还占用了额外的存储空间 —— 栈空间； 线程的启动回产生线程调度开销</li>
+<li>线程的销毁</li>
+<li>线程调度的开销. 线程调度会导致上下文切换，增加处理器资源的消耗，减少了应用程序本身可以使用的处理器资源</li>
+<li>线程的数量受限于系统拥有的处理器数目，上限等于处理器的数目</li>
+</ul>
+<hr>
+<h3 id="线程工厂threadfactory">线程工厂ThreadFactory</h3>
+<p>创建线程的工厂方法,<code>ThreadFactory</code>接口是工厂方法模式的一个实例；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> Thread <span style="color:#a6e22e">newThread</span><span style="color:#f92672">(</span>Runnable r<span style="color:#f92672">)</span>
+<span style="color:#75715e">//用于创建线程，r代表线程需要执行的任务
+</span></code></pre></div><h3 id="线程池执行状态分析">线程池执行状态分析</h3>
+<p>线程池内部预先创建一定数量的工作者线程，客户端讲需要执行的任务作为对象提交给线程池，线程池可能讲这些任务缓存在工作队列中，线程池内部的各个工作者线程则从队列中取出任务并执行；</p>
+<p>线程池可看作是生产者——消费者模式的一种服务
+内部维护的工作者线程相当于消费者线程；
+线程池的客户端线程相当于生产者线程；
+线程池内部缓存队列相当于传输通道；
+客户端提交给线程池的任务相当于‘产品’;</p>
+<p>线程池<code>java.util.concurrent.ThreadPoolExecutor</code>，<code>ThreadPoolExecutor.submit</code>提交任务</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> Future<span style="color:#f92672">&lt;?&gt;</span> submit<span style="color:#f92672">(</span>Runnable task<span style="color:#f92672">)</span>
+<span style="color:#75715e">//task代表客户端需要线程池执行的任务
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ThreadPoolExecutor</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> corePoolSize<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> maximumPoolSize<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> keepAliveTime<span style="color:#f92672">,</span> TimeUnit unit<span style="color:#f92672">,</span> BlockingQueue<span style="color:#f92672">&lt;</span>Runnable<span style="color:#f92672">&gt;</span> workQueue<span style="color:#f92672">,</span> ThreadFactory threadFactory<span style="color:#f92672">,</span> RejectedExecutionHandler handler<span style="color:#f92672">)</span>
+<span style="color:#75715e">//corePoolSize : 指定线程池核心线程数
+</span><span style="color:#75715e">//maximumPoolSize : 线程池最大线程数
+</span><span style="color:#75715e">//keepAliveTime，unit一起使用，指定线程池空闲(Idle)线程的最大存活时间
+</span><span style="color:#75715e">//workQueue : 工作队列的阻塞队列，相当于传输通道
+</span><span style="color:#75715e">//threadFactory : 用于创建工作者线程的线程工厂
+</span><span style="color:#75715e">//handler:
+</span></code></pre></div><ol>
+<li>初始状态下，客户端每提交一个任务，线程池创建一个工作者线程来处理；</li>
+<li>当创建的线程池数量<strong>等于</strong>核心线程池大小的时候，新来的任务会存入工作队列之中；由线程池中的工作者线程负责取出执行。线程池将任务存入工作队列执行的<strong>BlockingQueue.offer(E e),是非阻塞方法</strong><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> ，工作队列满不会使客户端线程暂停;</li>
+<li>当工作队列满时，线程池会创建新的工作者线程，知道当前线程池达到最大线程池大小；线程池通过<code>threadFactory.newThread</code>创建工作者线程，如果创建线程池时没有指定线程工厂，会使用<code>Executors.defaultThreadFactory()</code>返回的默认线程</li>
+<li><code>线程池饱和(Saturated)</code>,即工作者队列满且线程池达到最大线程数的情况下，客户端试图提交的任务会被<strong>拒绝Reject</strong>; 为提高线程池的可靠性，<code>RejectedExecutionHandler</code>接口用于封装被拒绝的任务的处理策略，其接口方法如下</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rejectedExecution</span><span style="color:#f92672">(</span>Runnable r<span style="color:#f92672">,</span> ThreadPoolExecutor executor<span style="color:#f92672">)</span>
+<span style="color:#75715e">//r : 被拒绝的任务
+</span><span style="color:#75715e">//executor : 拒绝任务r的线程池
+</span></code></pre></div><blockquote>
+<p><code>RejectedExecutionHandler</code>可通过ThreadPoolExecutor构造函数设置，或者方法<code>setRejectedExecutionHandler()</code></p>
+</blockquote>
+<p>ThreadPoolExecutor提供了RejectedExecutionHandler的实现类，如果无法满足需求，可以自行实现</p>
+<table>
+<thead>
+<tr>
+<th>实现类</th>
+<th>所实现的处理策略</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ThreadPoolExecutor.AbortPolicy</td>
+<td>直接抛出异常</td>
+<td></td>
+</tr>
+<tr>
+<td>ThreadPoolExecutor.DiscardPolicy</td>
+<td>丢弃当前被拒绝的任务(不抛出异常)</td>
+<td></td>
+</tr>
+<tr>
+<td>ThreadPoolExecutor.DiscardOldestPolicy</td>
+<td>将工作队列中最老的任务丢弃，然后重新尝试接纳被拒绝的任务</td>
+<td></td>
+</tr>
+<tr>
+<td>ThreadPoolExecutor.CallerRunsPolicy</td>
+<td>在客户端线程中执行被拒绝的任务</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>5 当前线程池大小<strong>超过</strong>线程池核心大小时，超过线程池核心大小的工作者线程空闲(即队列中没有待处理任务)时间达到keepAliveTime所指定的时间后，就会被清理掉(从线程池中移除)。空闲清理机制有利于节约有限的线程资源；不合理设置keepAliveTime(特别是设置太小)会导致线程的频繁清理和创建，反而增加了开销</p>
+<blockquote>
+<p>核心线程是逐渐被创建与启动的，使用<code>ThreadPoolExecutor.prestartAllCoreThreads()</code>使线程池在未接收到任何任务的情况下预先创建并启动，减少任务被线程池处理时所需的等待时间</p>
+</blockquote>
+<h3 id="线程池的关闭">线程池的关闭</h3>
+<p><code>ThreadPoolExecutor.shutdown() / shutdownNow()</code>用来关闭线程池
+<code>shutdown</code>:已提交的任务会被继续执行，新提交的任务会像线程池饱和时那样被拒绝;<code>shutdown</code>返回的时候线程池<strong>可能</strong>尚未关闭(即线程池中可能有还有工作者线程正执行任务)，可使用<code>ThreadPoolExecutor.awaitTermination(long timeout, TimeUnit unit)</code>等待线程池关闭结束
+<code>shutdownNow</code>: 正在执行的任务会被停止(通过<code>Thread.interrupt</code>停止)，队列中的任务不会被执行；该方法返回值时已提交而未执行的任务列表</p>
+<h3 id="任务的处理结果">任务的处理结果</h3>
+<p>使用<code>ThreadPoolExecutor.submit(Runnable)</code>不关心任务的处理结果；如果客户端关心处理结果，可使用<code>ThreadPoolExecutor.submit(Callable&lt;T&gt; task)</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Future<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span>Callable<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> task<span style="color:#f92672">)</span>
+</code></pre></div><p><code>java.util.concurrent.Callable</code>相当于增强型的Runnable接口，其唯一方法声明如下，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">V <span style="color:#a6e22e">call</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception
+</code></pre></div><blockquote>
+<p>call方法的返回值代表相应任务的处理结果，在执行中可以抛出异常；而Runnable接口的run方法既无返回值也不能抛异常; <code>Executors.callable(Runnable task, T result)</code>能将Runnable接口转为Callable接口实例</p>
+</blockquote>
+<p><code>submit</code>的返回值类型为<code>java.util.concurrent.Future</code>, <code>Future.get()</code>用来获取task参数所指定的任务的处理结果，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">V <span style="color:#a6e22e">get</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> InterruptedException<span style="color:#f92672">,</span> ExecutionException
+</code></pre></div><h3 id="线程池死锁">线程池死锁</h3>
+<p>线程池中执行任务时，向<strong>同一线程池</strong>提交另一个任务，而前一个任务的执行结束依赖于后一个任务的执行结果，后一个任务的执行又依赖前一个任务执行结果，导致死锁</p>
+<blockquote>
+<p>同一线程池只能用于执行相互独立的任务；有依赖关系的任务需要提交不同的线程池执行以避免死锁</p>
+</blockquote>
+<h2 id="threadlocal">ThreadLocal</h2>
+<p><code>ThreadLocal</code>是线程内部的数据存储类，可以在指定的线程中存储数据，只有指定线程中可以获取。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> ThreadLocal<span style="color:#f92672">&lt;</span>Boolean<span style="color:#f92672">&gt;</span> mBoolean <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;</span>Boolean<span style="color:#f92672">&gt;();</span>
+
+mBoolean<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+Log<span style="color:#f92672">.</span><span style="color:#a6e22e">d</span><span style="color:#f92672">(</span>TAG<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;[Thread#main]mBoolean=&#34;</span><span style="color:#f92672">+</span>mBoolean<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+
+<span style="color:#66d9ef">new</span> Thread<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Thread#1&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">(){</span>
+        mBoolean<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+        Log<span style="color:#f92672">.</span><span style="color:#a6e22e">d</span><span style="color:#f92672">(</span>TAG<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;[Thread#1]mBoolean=&#34;</span><span style="color:#f92672">+</span>mBoolean<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
+
+<span style="color:#66d9ef">new</span> Thread<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Thread#2&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">(){</span>
+        Log<span style="color:#f92672">.</span><span style="color:#a6e22e">d</span><span style="color:#f92672">(</span>TAG<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;[Thread#2]mBoolean=&#34;</span><span style="color:#f92672">+</span>mBoolean<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
+</code></pre></div><p>执行结果:</p>
+<pre><code>[Thread#main]mBoolean=true
+[Thread#1]mBoolean=false
+[Thread#2]mBoolean=null
+</code></pre><p><code>ThreadLocal</code>内部有一个数组<code>Object[] table</code>,<code>ThreadLocal</code>的值就存在这个table中，</p>
+<h2 id="synchronized">synchronized</h2>
+<p><code>synchronized</code>是内部锁，能保障原子性，可见性和有序性。</p>
+<h2 id="volatile">volatile</h2>
+<p>关键字<code>volatile</code>用来修饰成员变量，告知程序任何对该变量的访问需要从共享内存中获取，对变量的改变必须同步刷新到共享内存,保证所有线程对变量访问的可见性.</p>
+<p>保障可见性，有序性，保障<code>long/double</code>型变量的原子性
+单例模式中，DCL分析</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> DCLSingletion instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> DCLSingletion <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">null</span> <span style="color:#f92672">==</span> instance<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//操作1
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>DCLSingletion<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">null</span> <span style="color:#f92672">==</span> instance<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//操作2
+</span><span style="color:#75715e"></span>                instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DCLSingletion<span style="color:#f92672">();</span><span style="color:#75715e">//操作3
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>在操作3中，可以分解为几个独立的子操作</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">objRef <span style="color:#f92672">=</span> allocate<span style="color:#f92672">(</span>DCLSingletion<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span><span style="color:#75715e">//子操作1:分配对象所需的存储空间
+</span><span style="color:#75715e"></span>invokeConstructor<span style="color:#f92672">(</span>objRef<span style="color:#f92672">);</span><span style="color:#75715e">//子操作2:初始化objRef引用的对象
+</span><span style="color:#75715e"></span>instance <span style="color:#f92672">=</span> objRef<span style="color:#f92672">;</span> <span style="color:#75715e">//子操作3:将对象应用写入共享变量
+</span></code></pre></div><p>临界区内的操作可以被冲排序，JIT编译器可能将上述的子操作重排序为：子操作1 -&gt; 子操作3 -&gt; 子操作2</p>
+<blockquote>
+<p>一个线程执行操作1时发现instance不为null，该线程直接返回instance变量所引用的实例，而这个实例可能时未出初始化完毕的，这就可能导致程序出错；
+用<code>volatile</code>关键字修饰instance即可解决此问题</p>
+</blockquote>
+<section class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1" role="doc-endnote">
+<p>阻塞/非阻塞是从CPU消耗上来看的
+阻塞就是CPU停下来等待一个慢的操作完成CPU才能做其他事情；
+非阻塞就是耗时任务执行时，CPU去做其他事；当耗时任务完成了，CPU再接着完成后续的操作；
+例如：堵车，阻塞就是司机什么也不做，专注跟车；非阻塞就是前车不动时，司机看报玩手机；前面开走了，司机继续开车。 <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

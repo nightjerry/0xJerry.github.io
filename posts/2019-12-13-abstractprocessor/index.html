@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>EventBus源码分析之AbstractProcessor // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="EventBus源码分析之AbstractProcessor"/>
+<meta name="twitter:description" content="EventBus源码分析之AbstractProcessor [TOC]
+AbstractProcessor 注解处理器 目前很多Android库都是使用注解的方式实现的.处理注解分两种，
+ 运行时(Runtime)通过反射机制运行处理的注解， 编译时(Compile time)通过注解处理器处理的注解  AbstractProcessor简介 注解处理器是javac中的，在编译时扫描和处理注解的工具 可以生成java代码，组成.java文件 抽象处理器AbstractProcessor,每个注解处理器都要继承它
+import java.util.Set; import javax.annotation.processing.AbstractProcessor; import javax.annotation.processing.ProcessingEnvironment; import javax.annotation.processing.RoundEnvironment; import javax.lang.model.SourceVersion; import javax.lang.model.element.TypeElement; public class MyProcessor extends AbstractProcessor { /** * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。 * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer */ @Override public synchronized void init(ProcessingEnvironment processingEnvironment) { super.init(processingEnvironment); } /** * 相当于每个处理器的主函数main()。 * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件 * @param set * @param roundEnvironment 可以查询出包含特定注解的被注解元素 * @return */ @Override public boolean process(Set&lt;?"/>
+
+    <meta property="og:title" content="EventBus源码分析之AbstractProcessor" />
+<meta property="og:description" content="EventBus源码分析之AbstractProcessor [TOC]
+AbstractProcessor 注解处理器 目前很多Android库都是使用注解的方式实现的.处理注解分两种，
+ 运行时(Runtime)通过反射机制运行处理的注解， 编译时(Compile time)通过注解处理器处理的注解  AbstractProcessor简介 注解处理器是javac中的，在编译时扫描和处理注解的工具 可以生成java代码，组成.java文件 抽象处理器AbstractProcessor,每个注解处理器都要继承它
+import java.util.Set; import javax.annotation.processing.AbstractProcessor; import javax.annotation.processing.ProcessingEnvironment; import javax.annotation.processing.RoundEnvironment; import javax.lang.model.SourceVersion; import javax.lang.model.element.TypeElement; public class MyProcessor extends AbstractProcessor { /** * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。 * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer */ @Override public synchronized void init(ProcessingEnvironment processingEnvironment) { super.init(processingEnvironment); } /** * 相当于每个处理器的主函数main()。 * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件 * @param set * @param roundEnvironment 可以查询出包含特定注解的被注解元素 * @return */ @Override public boolean process(Set&lt;?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-12-13-abstractprocessor/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-12-13T10:20:00&#43;08:00" />
+<meta property="article:modified_time" content="2019-12-13T10:20:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">EventBus源码分析之AbstractProcessor</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Dec 13, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h1 id="eventbus源码分析之abstractprocessor">EventBus源码分析之AbstractProcessor</h1>
+<p>[TOC]</p>
+<h2 id="abstractprocessor-注解处理器">AbstractProcessor 注解处理器</h2>
+<p>目前很多Android库都是使用注解的方式实现的.处理注解分两种，</p>
+<ul>
+<li>运行时(Runtime)通过反射机制运行处理的注解，</li>
+<li>编译时(Compile time)通过注解处理器处理的注解</li>
+</ul>
+<h3 id="abstractprocessor简介">AbstractProcessor简介</h3>
+<p>注解处理器是javac中的，在编译时扫描和处理注解的工具
+可以生成java代码，组成.java文件
+抽象处理器<code>AbstractProcessor</code>,每个注解处理器都要继承它</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">import</span> java.util.Set<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.annotation.processing.AbstractProcessor<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.annotation.processing.ProcessingEnvironment<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.annotation.processing.RoundEnvironment<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.lang.model.SourceVersion<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.lang.model.element.TypeElement<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyProcessor</span> <span style="color:#66d9ef">extends</span> AbstractProcessor <span style="color:#f92672">{</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 特殊的init()方法，它会被注解处理工具调用，并输入ProcessingEnviroment参数。
+</span><span style="color:#75715e">     * @param processingEnvironment 提供很多有用的工具类Elements,Types和Filer
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>ProcessingEnvironment processingEnvironment<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>processingEnvironment<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 相当于每个处理器的主函数main()。
+</span><span style="color:#75715e">     * 在这里写你的扫描、评估和处理注解的代码，以及生成Java文件
+</span><span style="color:#75715e">     * @param set
+</span><span style="color:#75715e">     * @param roundEnvironment 可以查询出包含特定注解的被注解元素
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">process</span><span style="color:#f92672">(</span>Set<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> TypeElement<span style="color:#f92672">&gt;</span> set<span style="color:#f92672">,</span> RoundEnvironment roundEnvironment<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 注解处理器是注册给哪个注解的
+</span><span style="color:#75715e">     * 等同于@SupportedAnnotationTypes(&#34;注解类全路径&#34;)
+</span><span style="color:#75715e">     * @return 包含本处理器想要处理的注解类型的合法全称(包名.类名)
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getSupportedAnnotationTypes</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getSupportedAnnotationTypes</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getSupportedOptions</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getSupportedOptions</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * 使用的Java版本。通常返回SourceVersion.latestSupported()。
+</span><span style="color:#75715e">     * 如有指定版本，如Java7，返回SourceVersion.RELEASE_7
+</span><span style="color:#75715e">     * 通过@SupportedSourceVersion可以代替此方法
+</span><span style="color:#75715e">     * @return
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> SourceVersion <span style="color:#a6e22e">getSupportedSourceVersion</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getSupportedSourceVersion</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="方法详解">方法详解</h3>
+<p><code>init</code>可以获取有用的工具类</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>ProcessingEnvironment processingEnvironment<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>processingEnvironment<span style="color:#f92672">);</span>
+        Types typeUtils <span style="color:#f92672">=</span> processingEnvironment<span style="color:#f92672">.</span><span style="color:#a6e22e">getTypeUtils</span><span style="color:#f92672">();</span>
+        Elements elementUtils <span style="color:#f92672">=</span> processingEnvironment<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementUtils</span><span style="color:#f92672">();</span>
+        Filer filer <span style="color:#f92672">=</span> processingEnvironment<span style="color:#f92672">.</span><span style="color:#a6e22e">getFiler</span><span style="color:#f92672">();</span>
+        Messager messager <span style="color:#f92672">=</span> processingEnvironment<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessager</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p><code>Types</code> 提供了和类型相关的一些操作，如获取父类、判断两个类是不是父子关系等
+<code>Elements</code> 提供了一些和元素相关的操作，如获取所在包的包名等
+<code>Filer</code>用于文件操作,用它创建生成的代码文件
+<code>Messager</code> 用于打印日志信息,可以打印出Element所在的源代码，也可抛出异常。靠默认的错误打印有时很难找出错误的地方,用它去添加更直观的日志打印</p>
+<h4 id="element的子接口">Element的子接口</h4>
+<p><code>process </code> 方法中使用<code>getElementsAnnotatedWith</code>获取到的都是Element接口,其实我们用Element.getKind获取到类型之后可以将他们强转成对应的子接口</p>
+<ul>
+<li><code>TypeElement</code>：表示一个类或接口程序元素。</li>
+<li><code>PackageElement</code>：表示一个包程序元素。</li>
+<li><code>VariableElement</code>：表示一个属性、enum 常量、方法或构造方法参数、局部变量或异常参数。</li>
+<li><code>ExecutableElement</code>：表示某个类或接口的方法、构造方法或初始化程序（静态或实例），包括注释类型元素。</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.example<span style="color:#f92672">;</span>    <span style="color:#75715e">// PackageElement
+</span><span style="color:#75715e"></span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>      <span style="color:#75715e">// TypeElement
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> a<span style="color:#f92672">;</span>      <span style="color:#75715e">// VariableElement
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">private</span> Foo other<span style="color:#f92672">;</span>  <span style="color:#75715e">// VariableElement
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Foo</span> <span style="color:#f92672">()</span> <span style="color:#f92672">{}</span>    <span style="color:#75715e">// ExecuteableElement
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setA</span> <span style="color:#f92672">(</span>  <span style="color:#75715e">// ExecuteableElement
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">int</span> newA    <span style="color:#75715e">// TypeElement
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">)</span> <span style="color:#f92672">{}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="elements常用的api">Element(s)常用的api</h4>
+<p>获取类名：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Element<span style="color:#f92672">.</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span> <span style="color:#75715e">// 获取类名
+</span><span style="color:#75715e"></span>Element<span style="color:#f92672">.</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span> <span style="color:#75715e">//获取类的全名
+</span></code></pre></div><p>获取所在的包名:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Elements<span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageOf</span><span style="color:#f92672">(</span>Element<span style="color:#f92672">).</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+</code></pre></div><p>获取所在的类:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Element<span style="color:#f92672">.</span><span style="color:#a6e22e">getEnclosingElement</span><span style="color:#f92672">();</span>
+</code></pre></div><p>获取父类:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Types<span style="color:#f92672">.</span><span style="color:#a6e22e">directSupertypes</span><span style="color:#f92672">(</span>Element<span style="color:#f92672">.</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">());</span>
+</code></pre></div><p>获取标注对象的类型:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Element<span style="color:#f92672">.</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">();</span>
+</code></pre></div><p><code>@AutoService(Processor.class)</code> 是google开发的注解处理器，全路径为<code>com.google.auto.service.AutoService</code>,用来生成<code>META-INF/services/javax.annotation.processing.Processor</code>文件的</p>
+<p>在gradle中引入,方式如下:</p>
+<pre><code>implementation 'com.google.auto.service:auto-service:1.0-rc6'
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Target</span><span style="color:#f92672">({</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">TYPE</span><span style="color:#f92672">})</span> <span style="color:#75715e">//定义在注解的作用域，类上
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">CLASS</span><span style="color:#f92672">)</span> <span style="color:#75715e">//
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> MyAnnotation <span style="color:#f92672">{</span>
+    String <span style="color:#a6e22e">name</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;unkown&#34;</span><span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">age</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> 0<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@SupportedAnnotationTypes</span><span style="color:#f92672">({</span><span style="color:#e6db74">&#34;com.okay.processor.MyAnnotation&#34;</span><span style="color:#f92672">})</span>
+<span style="color:#a6e22e">@AutoService</span><span style="color:#f92672">(</span>Processor<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyProcessor</span> <span style="color:#66d9ef">extends</span> AbstractProcessor <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>ProcessingEnvironment processingEnvironment<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>processingEnvironment<span style="color:#f92672">);</span>
+        Types typeUtils <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getTypeUtils</span><span style="color:#f92672">();</span>
+        mElementUtils <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementUtils</span><span style="color:#f92672">();</span>
+        mFiler <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getFiler</span><span style="color:#f92672">();</span>
+        mMessager <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessager</span><span style="color:#f92672">();</span>
+
+    <span style="color:#f92672">}</span>
+    Elements mElementUtils<span style="color:#f92672">;</span>
+    Messager mMessager<span style="color:#f92672">;</span>
+    Filer mFiler<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">process</span><span style="color:#f92672">(</span>Set<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> TypeElement<span style="color:#f92672">&gt;</span> set<span style="color:#f92672">,</span> RoundEnvironment roundEnvironment<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//getElementsAnnotatedWith: 返回所有被注解了@MyAnnotation的元素的列表
+</span><span style="color:#75715e"></span>        Set<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> Element<span style="color:#f92672">&gt;</span> elements <span style="color:#f92672">=</span> roundEnvironment<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementsAnnotatedWith</span><span style="color:#f92672">(</span>
+                MyAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Element element <span style="color:#f92672">:</span> elements<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//检查被注解的元素是否是 类
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>element<span style="color:#f92672">.</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> ElementKind<span style="color:#f92672">.</span><span style="color:#a6e22e">CLASS</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                mMessager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ERROR</span><span style="color:#f92672">,</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;only class can be &#34;</span> <span style="color:#f92672">+</span>
+                                                                                    <span style="color:#e6db74">&#34;annotated &#34;</span> <span style="color:#f92672">+</span>
+                                                                                    <span style="color:#e6db74">&#34;with @%s&#34;</span><span style="color:#f92672">,</span>
+                                                                            MyAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">()));</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+            analysisAnnotated<span style="color:#f92672">(</span>element<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> String SUFFIX <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AUTO&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">//拼接类
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">analysisAnnotated</span><span style="color:#f92672">(</span>Element element<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        MyAnnotation annotation <span style="color:#f92672">=</span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>MyAnnotation<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        String name <span style="color:#f92672">=</span> annotation<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">int</span> age <span style="color:#f92672">=</span> annotation<span style="color:#f92672">.</span><span style="color:#a6e22e">age</span><span style="color:#f92672">();</span>
+        String newClassName <span style="color:#f92672">=</span> name<span style="color:#f92672">+</span>SUFFIX<span style="color:#f92672">;</span>
+        StringBuilder sb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">()</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;package com.okay.processor.auto;\n\n&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;public class &#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>newClassName<span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34; {\n\n&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//start class
+</span><span style="color:#75715e"></span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\tpublic String getMsg() {\n&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//start method
+</span><span style="color:#75715e"></span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\t\treturn \&#34;&#34;</span><span style="color:#f92672">)</span>  <span style="color:#75715e">//start return
+</span><span style="color:#75715e"></span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>name<span style="color:#f92672">).</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>age<span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\&#34;;\n&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//end return
+</span><span style="color:#75715e"></span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\t}\n&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//end method
+</span><span style="color:#75715e"></span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;}\n&#34;</span><span style="color:#f92672">);</span>    <span style="color:#75715e">//end class
+</span><span style="color:#75715e"></span>
+        writeFile<span style="color:#f92672">(</span>element<span style="color:#f92672">,</span>newClassName<span style="color:#f92672">,</span> sb<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeFile</span><span style="color:#f92672">(</span>Element element<span style="color:#f92672">,</span>String className<span style="color:#f92672">,</span> String content<span style="color:#f92672">){</span>
+        String packageName <span style="color:#f92672">=</span> mElementUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageOf</span><span style="color:#f92672">(</span>element<span style="color:#f92672">).</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+ <span style="color:#75715e">//       String packageName = &#34;com.okay.processor.auto.&#34;;
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            JavaFileObject sourceFile <span style="color:#f92672">=</span> mFiler<span style="color:#f92672">.</span><span style="color:#a6e22e">createSourceFile</span><span style="color:#f92672">(</span>packageName <span style="color:#f92672">+</span> className<span style="color:#f92672">);</span>
+            Writer writer <span style="color:#f92672">=</span> sourceFile<span style="color:#f92672">.</span><span style="color:#a6e22e">openWriter</span><span style="color:#f92672">();</span>
+                writer<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>content<span style="color:#f92672">);</span>
+                writer<span style="color:#f92672">.</span><span style="color:#a6e22e">flush</span><span style="color:#f92672">();</span>
+            writer<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IOException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> SourceVersion <span style="color:#a6e22e">getSupportedSourceVersion</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> SourceVersion<span style="color:#f92672">.</span><span style="color:#a6e22e">RELEASE_7</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

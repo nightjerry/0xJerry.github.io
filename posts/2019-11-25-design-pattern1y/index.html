@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>设计模式_创建型模式 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="设计模式_创建型模式"/>
+<meta name="twitter:description" content="#创建型模式 [TOC]
+工厂模式 Factory Pattern 相当于创建实例对象的new; 可能多做一些工作，但有更大的可扩展性和尽量少的修改量; 创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;
+使用场景：不同条件下创建不同实例时，即子类较多;
+核心思想:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；
+优点：扩展性高，屏蔽实现，调用方便；
+缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；
+ 复杂对象适合用工厂模式，简单对象使用new创建 任何需要生成复杂对象的地方，都可以使用工厂模式
+ //1.定义接口 public interface Animal{ void eat(); } //2.创建接口实体类(有共同性) public class Cat implements Animal{ @Override public void eat(){ System.out.println(&#34;cat eat fish&#34;); } } public class Panda implements Animal{ @Override public void eat(){ System.out.println(&#34;panda eat bamboo&#34;); } } //3."/>
+
+    <meta property="og:title" content="设计模式_创建型模式" />
+<meta property="og:description" content="#创建型模式 [TOC]
+工厂模式 Factory Pattern 相当于创建实例对象的new; 可能多做一些工作，但有更大的可扩展性和尽量少的修改量; 创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;
+使用场景：不同条件下创建不同实例时，即子类较多;
+核心思想:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；
+优点：扩展性高，屏蔽实现，调用方便；
+缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；
+ 复杂对象适合用工厂模式，简单对象使用new创建 任何需要生成复杂对象的地方，都可以使用工厂模式
+ //1.定义接口 public interface Animal{ void eat(); } //2.创建接口实体类(有共同性) public class Cat implements Animal{ @Override public void eat(){ System.out.println(&#34;cat eat fish&#34;); } } public class Panda implements Animal{ @Override public void eat(){ System.out.println(&#34;panda eat bamboo&#34;); } } //3." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-design-pattern1y/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T16:39:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T16:39:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">设计模式_创建型模式</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/design_pattern/">design_pattern</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>#创建型模式
+[TOC]</p>
+<h2 id="工厂模式-factory-pattern">工厂模式 Factory Pattern</h2>
+<p>相当于创建实例对象的<code>new</code>;
+可能多做一些工作，但有更大的可扩展性和尽量少的修改量;
+创建对象时，不会对调用者暴露创建逻辑，通过使用通用接口来指向新创建的对象;</p>
+<p>使用场景：不同条件下创建不同实例时，即子类较多;</p>
+<p><strong>核心思想</strong>:子类实现工厂接口，由工具类提供创建对象的方法，返回接口实例；</p>
+<p>优点：扩展性高，屏蔽实现，调用方便；</p>
+<p>缺点：没增加一个产品时，都需要增加一个具体类和对象实现工厂，增加了系统复杂度，和对工具类的依赖；</p>
+<blockquote>
+<p>复杂对象适合用工厂模式，简单对象使用<code>new</code>创建
+任何需要生成复杂对象的地方，都可以使用工厂模式</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//1.定义接口
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Animal</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">eat</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//2.创建接口实体类(有共同性)
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cat</span> <span style="color:#66d9ef">implements</span> Animal<span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">eat</span><span style="color:#f92672">(){</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cat eat fish&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Panda</span> <span style="color:#66d9ef">implements</span> Animal<span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">eat</span><span style="color:#f92672">(){</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;panda eat bamboo&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//3.创建工厂类，用于创建对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AnimalFactory</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> Animal <span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>String type<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cat&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>type<span style="color:#f92672">)){</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Cat<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span><span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;panda&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>type<span style="color:#f92672">)){</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Panda<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//4.使用工厂模式
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Demo</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">){</span>
+        AnimalFactory factory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AnimalFactory<span style="color:#f92672">();</span>
+        Animal cat <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;cat&#34;</span><span style="color:#f92672">);</span>
+        cat<span style="color:#f92672">.</span><span style="color:#a6e22e">eat</span><span style="color:#f92672">();</span>
+        Animal panda <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;panda&#34;</span><span style="color:#f92672">);</span>
+        panda<span style="color:#f92672">.</span><span style="color:#a6e22e">eat</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//cat eat fish
+</span><span style="color:#75715e">//panda eat bamboo
+</span></code></pre></div><h2 id="单例模式-signleton-pattern">单例模式 Signleton Pattern</h2>
+<p>保证java应用程序中，一个类Class只有一个实例存在</p>
+<p>优点：</p>
+<ul>
+<li>节省内存，因为限制了实例的个数</li>
+<li>有利于Java垃圾回收</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//1.懒汉式 [lazy初始化，多线程安全]
+</span><span style="color:#75715e"></span><span style="color:#75715e">/*
+</span><span style="color:#75715e">优点：第一次调用才初始化，避免内存浪费。
+</span><span style="color:#75715e">缺点：必须加锁 synchronized 才能保证单例，但加锁会影响效率
+</span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span><span style="color:#f92672">(){}</span>
+    <span style="color:#75715e">//加载时初始化
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">synchronized</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">(){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>instance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">()</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> instance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//2.饿汉式 [lazy初始化：否； 多线程安全]
+</span><span style="color:#75715e"></span><span style="color:#75715e">/*
+</span><span style="color:#75715e">优点：没有加锁，执行效率会提高。
+</span><span style="color:#75715e">缺点：类加载时就初始化，浪费内存。
+</span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Singleton instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">(){}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> instance<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//3.双重校验锁(DCL，即 double-checked locking)
+</span><span style="color:#75715e"></span><span style="color:#f92672">[</span>lazy初始化<span style="color:#960050;background-color:#1e0010">；</span> 多线程安全<span style="color:#f92672">]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">static</span> Singleton singleton<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">(){}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Singleton <span style="color:#a6e22e">getSingleton</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>singleton <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>Singleton<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>singleton <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    singleton <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> singleton<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//4.静态内部类 [lazy初始化，多线程安全]
+</span><span style="color:#75715e"></span><span style="color:#75715e">/*
+</span><span style="color:#75715e">能达到双检锁方式一样的功效，但实现更简单
+</span><span style="color:#75715e">这种方式是 Singleton 类被装载了，instance 不一定被初始化。因为 SingletonHolder 类没有被主动使用，只有通过显式调用 getInstance 方法时，才会显式装载 SingletonHolder 类，从而实例化 instance。
+</span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SingletonHolder</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Singleton INSTANCE <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Singleton<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Singleton</span> <span style="color:#f92672">(){}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Singleton <span style="color:#a6e22e">getInstance</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> SingletonHolder<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//5.枚举单例 [lazy初始化:否； 多线程安全]
+</span><span style="color:#75715e"></span><span style="color:#75715e">/*
+</span><span style="color:#75715e">可读性低，不建议使用
+</span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">enum</span> Singleton <span style="color:#f92672">{</span>
+     INSTANCE<span style="color:#f92672">;</span>
+     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doSomeThing</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+     <span style="color:#f92672">}</span>
+ <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="volatile关键字">volatile关键字</h3>
+<h2 id="建造者模式builder-pattern">建造者模式(Builder Pattern)</h2>
+<p>将一个复杂对象的构建与它的表示分离，使同样的构建过程可以创建不同的表示.
+属于创建型模式，它提供了一种创建对象的最佳方式。
+何时使用：</p>
+<ul>
+<li>一些基本部件不会变，而其组合经常变化的时候。</li>
+<li>复杂的对象,有很多大量组成部分,过程很复杂; Builder模式就是为了将部件与组装过程分开</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>建造者独立，易扩展</li>
+<li>便于控制细节风险</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>产品必须有共同点，范围有限制</li>
+<li>如内部变化复杂，会有很多的建造类</li>
+</ul>
+<blockquote>
+<p>注意事项：与工厂模式的区别是：建造者模式更加关注与零件装配的顺序</p>
+</blockquote>
+<p>结合retrofit源码中的使用场景，进行举例</p>
+<p>retrofit中<code>Retrofit</code>和<code>HttpServiceMethod</code>对象的创建就是通过建造者模式；
+实现方式： 在类中创建静态内部类Builder，Builder提供外部访问权限，定义相关变量的set方法，并定义<code>build</code>函数最终创建外部类对象. Builder中函数遵循链式调用规则</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Retrofit.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Builder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{...}</span>
+
+    <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">callFactory</span><span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> factory<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span> <span style="color:#f92672">=</span> checkNotNull<span style="color:#f92672">(</span>factory<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;factory == null&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">(</span>Executor executor<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> checkNotNull<span style="color:#f92672">(</span>executor<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;executor == null&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//创建外部类对象
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> Retrofit <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>baseUrl <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Base URL required.&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+      okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span><span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callFactory <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OkHttpClient<span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+      Executor callbackExecutor <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callbackExecutor <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callbackExecutor <span style="color:#f92672">=</span> platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallbackExecutor</span><span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+      List<span style="color:#f92672">&lt;</span>CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> callAdapterFactories <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapterFactories</span><span style="color:#f92672">);</span>
+      callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallAdapterFactory</span><span style="color:#f92672">(</span>callbackExecutor<span style="color:#f92672">));</span>
+      List<span style="color:#f92672">&lt;</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> converterFactories <span style="color:#f92672">=</span>
+          <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span>1 <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+      converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BuiltInConverters<span style="color:#f92672">());</span>
+converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">);</span>
+<span style="color:#75715e">//给各变量赋值，并以此为参数创建Retrofit对象
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Retrofit<span style="color:#f92672">(</span>callFactory<span style="color:#f92672">,</span> baseUrl<span style="color:#f92672">,</span> unmodifiableList<span style="color:#f92672">(</span>converterFactories<span style="color:#f92672">),</span>
+          unmodifiableList<span style="color:#f92672">(</span>callAdapterFactories<span style="color:#f92672">),</span> callbackExecutor<span style="color:#f92672">,</span> validateEagerly<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">//Retrofit构造函数可见性为`default`,本包内可见
+</span><span style="color:#75715e"></span>Retrofit<span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> callFactory<span style="color:#f92672">,</span> HttpUrl baseUrl<span style="color:#f92672">,</span>
+      List<span style="color:#f92672">&lt;</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> converterFactories<span style="color:#f92672">,</span> List<span style="color:#f92672">&lt;</span>CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> callAdapterFactories<span style="color:#f92672">,</span>
+      <span style="color:#a6e22e">@Nullable</span> Executor callbackExecutor<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> validateEagerly<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span> <span style="color:#f92672">=</span> callFactory<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">baseUrl</span> <span style="color:#f92672">=</span> baseUrl<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span> <span style="color:#f92672">=</span> converterFactories<span style="color:#f92672">;</span> <span style="color:#75715e">// Copy+unmodifiable at call site.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapterFactories</span> <span style="color:#f92672">=</span> callAdapterFactories<span style="color:#f92672">;</span> <span style="color:#75715e">// Copy+unmodifiable at call site.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> callbackExecutor<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">validateEagerly</span> <span style="color:#f92672">=</span> validateEagerly<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="原型模式-prototype-pattern">原型模式 Prototype Pattern</h2>
+<p>用于创建重复的对象，同时又能保证性能</p>
+<p>当直接创建对象的代价比较大时，则采用这种模式
+<code>implements Cloneable，重写 clone()</code>
+优点：
+1、性能提高。
+2、逃避构造函数的约束。
+缺点:
+1，配备克隆方法需要对类的功能进行通盘考虑,特别当一个类引用不支持串行化的间接对象，或者引用含有循环结构的时候
+2、必须实现 Cloneable 接口。</p>
+<p>浅拷贝实现 Cloneable，重写clone，深拷贝是通过实现 Serializable 读取二进制流。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Shape</span> <span style="color:#66d9ef">implements</span> Cloneable <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">getId</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> id<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setId</span><span style="color:#f92672">(</span>String id<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">clone</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        Object clone <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            clone <span style="color:#f92672">=</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">clone</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>CloneNotSupportedException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> clone<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Shape rect <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Shape<span style="color:#f92672">();</span>
+        rect<span style="color:#f92672">.</span><span style="color:#a6e22e">setId</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;12&#34;</span><span style="color:#f92672">);</span>
+        Shape rect1 <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Shape<span style="color:#f92672">)</span> rect<span style="color:#f92672">.</span><span style="color:#a6e22e">clone</span><span style="color:#f92672">();</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>rect1<span style="color:#f92672">.</span><span style="color:#a6e22e">getId</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>android on Jerry Blog</title>
+    <link>https://nightjerry.github.io/categories/android/</link>
+    <description>Recent content in android on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 20 Dec 2019 09:28:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/categories/android/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Binder机制</title>
+      <link>https://nightjerry.github.io/posts/2019-12-20-binder/</link>
+      <pubDate>Fri, 20 Dec 2019 09:28:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-12-20-binder/</guid>
+      <description>[TOC]
+IPC是Inter-Processs Communication的缩写，意为进程间通信. android启动多进程方式: 在AndroidManifest.xml中给Activity/Service/ContentProvider指定android:process属性
+&amp;lt;activity android:name=&amp;#34;com.jerry.MainActivity&amp;#34; &amp;gt; &amp;lt;intent-filter&amp;gt; &amp;lt;action android:name=&amp;#34;android.intent.action.MAIN&amp;#34;/&amp;gt; &amp;lt;category android:name=&amp;#34;android.intent.category.LAUNCHER&amp;#34;/&amp;gt; &amp;lt;/intent-filter&amp;gt; &amp;lt;/activity&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.SecondActivity&amp;#34; android:process=&amp;#34;:remote&amp;#34; /&amp;gt; &amp;lt;activity android:name=&amp;#34;com.jerry.ThridActivity&amp;#34; android:process=&amp;#34;com.jerry.remote&amp;#34; /&amp;gt; 以上增加了两个进程，如果包名为com.jerry，当启动SecondActivity时，系统创建一个单独的进程，进程名称为&amp;quot;com.jerry:remote&amp;quot;;当启动ThridActivity时，进程名为com.jerry.remote 在命令行通过adb shell ps | grep 包名查看进程信息 多进程会引入的问题：
+ 静态成员和单例模式完全失效； 线程同步机制失效； SharedPreferences 的可靠性下降； Application会多次创建;  Serializable serialVersionUID的作用: 序列化后的数据中的serialVersionUID只有和当前类的serialVersionUID相同才能正常被反序列化. 如果不手动指定serialVersionUID，反序列化时当前类有改动(增加或删除变量),系统会重新计算当前类的hash值并把它赋值给serialVersionUID，此时serialVersionUID与序列化数据中的serialVersionUID不同，导致反序列化失败.
+Parcelable接口 一种序列化方式，对象实现此接口，可以通过Intent和Binder传递
+public class User implements Parcelable { public int userId; public String userName; public boolean isMale; public Book book; public User() {} public User(int userId, String userName, boolean isMale) { this.</description>
+    </item>
+    
+  </channel>
+</rss>

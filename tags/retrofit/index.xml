@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>retrofit on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/retrofit/</link>
+    <description>Recent content in retrofit on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 25 Nov 2019 16:36:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/retrofit/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>retrofit源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-retrofit/</link>
+      <pubDate>Mon, 25 Nov 2019 16:36:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-retrofit/</guid>
+      <description>retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class.</description>
+    </item>
+    
+  </channel>
+</rss>

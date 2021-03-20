@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>okhttp3部分源码分析 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="okhttp3部分源码分析"/>
+<meta name="twitter:description" content="okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&lt;T&gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&lt;Integer&gt; demo1 = new Demo&lt;Integer&gt;(); Demo&lt;String&gt; demo2 = new Demo&lt;String&gt;(); demo1."/>
+
+    <meta property="og:title" content="okhttp3部分源码分析" />
+<meta property="og:description" content="okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&lt;T&gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&lt;Integer&gt; demo1 = new Demo&lt;Integer&gt;(); Demo&lt;String&gt; demo2 = new Demo&lt;String&gt;(); demo1." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-okhttp3/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T17:21:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T17:21:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">okhttp3部分源码分析</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          9 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/okhttp3/">okhttp3</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h2 id="okhttp3-部分分析">okhttp3 部分分析</h2>
+<p>[TOC]</p>
+<p>通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析
+接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用
+在retrofit中被调用的类有<code>OkHttpClient</code>(<code>OkHttpCall.createRawCall()</code>),
+<code>Request</code>,<code>HttpUrl</code>,<code>RequestBody</code>(<code>RequestBuilder.build()</code>),
+<code>Response</code>(<code>OkHttpCall.parseResponse()</code>),
+<code>Call</code>(<code>OkHttpCall.enqueue()</code>)
+<code>ResponseBody</code>(<code>Utils.buffer()</code>)</p>
+<h3 id="泛型">泛型</h3>
+<p>优点:</p>
+<ol>
+<li>将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全</li>
+<li>避免了强制转换麻烦</li>
+</ol>
+<h4 id="泛型类">泛型类:</h4>
+<p>什么时候定义泛型类？
+当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。
+<code>?</code>: 通配符。也可以理解为占位符。
+泛型的限定；用来支持泛型的扩展;
+<code>？ extends E</code>: 可以接收E类型或者E的子类型。上限。
+<code>？ super E</code>: 可以接收E类型或者E的父类型。下限</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Demo</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;{</span>
+    <span style="color:#66d9ef">private</span> T t<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>T t<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">t</span> <span style="color:#f92672">=</span> t<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> T <span style="color:#a6e22e">get</span><span style="color:#f92672">(){</span>
+        <span style="color:#66d9ef">return</span> t<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">){</span>
+        Demo<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> demo1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Demo<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;();</span>
+        Demo<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> demo2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Demo<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;();</span>
+
+        demo1<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Integer<span style="color:#f92672">(</span>10<span style="color:#f92672">));</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">printf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;整数:%d\n&#34;</span><span style="color:#f92672">,</span>demo1<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+
+        demo2<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;just test&#34;</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">printf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;string:%s\n&#34;</span><span style="color:#f92672">,</span>demo2<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//整数:10
+</span><span style="color:#75715e">//string:just test
+</span></code></pre></div><h4 id="泛型方法">泛型方法:</h4>
+<p>为了让不同方法可以操作不同类型,而且类型还不确定;那么可以讲泛型定义在方法上;</p>
+<blockquote>
+<p>注意:泛型定义在方法上的位置,一定是在返回值类型前,方法修饰符后;其他位置报错;</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//静态方法上定义泛型;
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>Q<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">fun</span><span style="color:#f92672">(</span>Q q<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+		System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;fun=&#34;</span><span style="color:#f92672">+</span>q<span style="color:#f92672">);</span>
+	<span style="color:#f92672">}</span>
+	<span style="color:#75715e">//将泛型定义在方法上;
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">print</span><span style="color:#f92672">(</span>T t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+		System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;print=&#34;</span><span style="color:#f92672">+</span>t<span style="color:#f92672">);</span>
+		<span style="color:#66d9ef">return</span> t<span style="color:#f92672">;</span>
+	<span style="color:#f92672">}</span>
+</code></pre></div><p><code>retrofit.create()</code>就是泛型方法</p>
+<blockquote>
+<p>泛型只在编译时有效，运行时无效</p>
+</blockquote>
+<h3 id="java-deque">Java Deque</h3>
+<h3 id="httpurl">HttpUrl</h3>
+<p>在retrofit中，调用<code>retrofit.builder.baseUrl()</code>时，使用了<code>HttpUrl.get(string)</code>;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//源码中解释
+</span><span style="color:#75715e"></span>A uniform resource <span style="color:#a6e22e">locator</span> <span style="color:#f92672">(</span>URL<span style="color:#f92672">)</span> with a scheme of either <span style="color:#f92672">{</span><span style="color:#a6e22e">@code</span> http<span style="color:#f92672">}</span> or <span style="color:#f92672">{</span><span style="color:#a6e22e">@code</span> https<span style="color:#f92672">}.</span> Use <span style="color:#66d9ef">this</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">to</span> compose and decompose Internet addresses<span style="color:#f92672">.</span>
+<span style="color:#75715e">//用于组成或分解网络地址，支持http和https
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> HttpUrl <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>String url<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Builder<span style="color:#f92672">().</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> url<span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//builder.parse(null,url)
+</span><span style="color:#75715e"></span>Builder <span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> HttpUrl base<span style="color:#f92672">,</span> String input<span style="color:#f92672">)</span> <span style="color:#f92672">{...}</span>
+该方法校验url<span style="color:#960050;background-color:#1e0010">，</span>包括scheme<span style="color:#f92672">(</span>http<span style="color:#f92672">/</span>https<span style="color:#f92672">),</span>host<span style="color:#960050;background-color:#1e0010">，</span>port<span style="color:#960050;background-color:#1e0010">，</span>path<span style="color:#960050;background-color:#1e0010">，</span>fragment<span style="color:#f92672">,</span>username<span style="color:#f92672">:</span>password认证等<span style="color:#960050;background-color:#1e0010">；</span>并做url编码
+</code></pre></div><h3 id="requestbody">RequestBody</h3>
+<p><code>requestBody.create()</code></p>
+<h3 id="锁">锁</h3>
+<h3 id="okhttpclient">OkHttpClient</h3>
+<p>在retrofit中，<code>OkHttpCall.createRawCall()</code>方法如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//callFactory = OkHttpClient
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> <span style="color:#a6e22e">createRawCall</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> call <span style="color:#f92672">=</span> callFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newCall</span><span style="color:#f92672">(</span>requestFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>args<span style="color:#f92672">));</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> call<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//OkHttpClient.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Call <span style="color:#a6e22e">newCall</span><span style="color:#f92672">(</span>Request request<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> RealCall<span style="color:#f92672">.</span><span style="color:#a6e22e">newRealCall</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> request<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span> <span style="color:#75715e">/* for web socket */</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>可见<code>request</code>参数通过<code>requestFactory.create()</code>创建</p>
+<p><code>OkHttpClient</code>在okhttp中占有重要的地位，源码的部分解释如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Factory <span style="color:#66d9ef">for</span> <span style="color:#f92672">{</span><span style="color:#a6e22e">@linkplain</span> Call calls<span style="color:#f92672">},</span> which can be used to send HTTP requests and read their responses<span style="color:#f92672">.</span>
+<span style="color:#75715e">//{@linkplain Call calls}的工厂，可用于发送HTTP请求并读取其响应。
+</span><span style="color:#75715e"></span>OkHttp performs best when you create a single <span style="color:#f92672">{</span><span style="color:#a6e22e">@code</span> OkHttpClient<span style="color:#f92672">}</span> instance and reuse it <span style="color:#66d9ef">for</span> all of your HTTP calls<span style="color:#f92672">.</span> This is because each client holds its own connection pool and thread pools<span style="color:#f92672">.</span>
+<span style="color:#75715e">//当您创建单个{@code OkHttpClient}实例并将其重用于所有HTTP调用时，Okhttp表现最佳。 这是因为每个客户端都拥有自己的连接池和线程池。
+</span><span style="color:#75715e"></span>Reusing connections and threads reduces latency and saves memory<span style="color:#f92672">.</span> Conversely<span style="color:#f92672">,</span> creating a client <span style="color:#66d9ef">for</span> each request wastes resources on idle pools<span style="color:#f92672">.</span>
+<span style="color:#75715e">//重用连接和线程可以减少延迟并节省内存。相反，为每个请求创建客户端会浪费空闲池上的资源
+</span></code></pre></div><h2 id="责任链模式">责任链模式</h2>
+<p>以下是责任链模式中用到的类;在<code>RealCall.getResponseWithInterceptorChain()</code>中体现该模式;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Response <span style="color:#a6e22e">getResponseWithInterceptorChain</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// Build a full stack of interceptors.
+</span><span style="color:#75715e"></span>    List<span style="color:#f92672">&lt;</span>Interceptor<span style="color:#f92672">&gt;</span> interceptors <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span>client<span style="color:#f92672">.</span><span style="color:#a6e22e">interceptors</span><span style="color:#f92672">());</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>retryAndFollowUpInterceptor<span style="color:#f92672">);</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BridgeInterceptor<span style="color:#f92672">(</span>client<span style="color:#f92672">.</span><span style="color:#a6e22e">cookieJar</span><span style="color:#f92672">()));</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> CacheInterceptor<span style="color:#f92672">(</span>client<span style="color:#f92672">.</span><span style="color:#a6e22e">internalCache</span><span style="color:#f92672">()));</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ConnectInterceptor<span style="color:#f92672">(</span>client<span style="color:#f92672">));</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>forWebSocket<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span>client<span style="color:#f92672">.</span><span style="color:#a6e22e">networkInterceptors</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+    interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> CallServerInterceptor<span style="color:#f92672">(</span>forWebSocket<span style="color:#f92672">));</span>
+<span style="color:#75715e">//重要，责任链模式中会多次创建该对象；
+</span><span style="color:#75715e"></span>    Interceptor<span style="color:#f92672">.</span><span style="color:#a6e22e">Chain</span> chain <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealInterceptorChain<span style="color:#f92672">(</span>interceptors<span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span>
+        originalRequest<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> eventListener<span style="color:#f92672">,</span> client<span style="color:#f92672">.</span><span style="color:#a6e22e">connectTimeoutMillis</span><span style="color:#f92672">(),</span>
+        client<span style="color:#f92672">.</span><span style="color:#a6e22e">readTimeoutMillis</span><span style="color:#f92672">(),</span> client<span style="color:#f92672">.</span><span style="color:#a6e22e">writeTimeoutMillis</span><span style="color:#f92672">());</span>
+
+    <span style="color:#66d9ef">return</span> chain<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>originalRequest<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>Request request<span style="color:#f92672">,</span> StreamAllocation streamAllocation<span style="color:#f92672">,</span> HttpCodec httpCodec<span style="color:#f92672">,</span>RealConnection connection<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">// Call the next interceptor in the chain.
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//注意index+1,是获取下一个拦截器需要的下标，第一次传递0
+</span><span style="color:#75715e"></span>    RealInterceptorChain next <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealInterceptorChain<span style="color:#f92672">(</span>interceptors<span style="color:#f92672">,</span> streamAllocation<span style="color:#f92672">,</span> httpCodec<span style="color:#f92672">,</span>
+        connection<span style="color:#f92672">,</span> index <span style="color:#f92672">+</span> 1<span style="color:#f92672">,</span> request<span style="color:#f92672">,</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">,</span> connectTimeout<span style="color:#f92672">,</span> readTimeout<span style="color:#f92672">,</span>
+        writeTimeout<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//这里取出集合中的拦截器
+</span><span style="color:#75715e"></span>    Interceptor interceptor <span style="color:#f92672">=</span> interceptors<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>index<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//执行每个拦截器的拦截方法，传入责任链
+</span><span style="color:#75715e"></span>    Response response <span style="color:#f92672">=</span> interceptor<span style="color:#f92672">.</span><span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>next<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>统一实现接口<code>Interceptor</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Interceptor</span> <span style="color:#f92672">{</span>
+  Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">;</span>
+  <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Chain</span> <span style="color:#f92672">{</span>
+    Request <span style="color:#a6e22e">request</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">/*重要的逻辑*/</span>
+    Response <span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>Request request<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">;</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">     * Returns the connection the request will be executed on. This is only available in the chains
+</span><span style="color:#75715e">     * of network interceptors; for application interceptors this is always null.
+</span><span style="color:#75715e">     */</span>
+    <span style="color:#a6e22e">@Nullable</span> Connection <span style="color:#a6e22e">connection</span><span style="color:#f92672">();</span>
+    Call <span style="color:#a6e22e">call</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">...</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="retryandfollowupinterceptor">RetryAndFollowUpInterceptor</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">This interceptor recovers from failures and follows redirects as necessary<span style="color:#f92672">.</span> It may <span style="color:#66d9ef">throw</span> an <span style="color:#f92672">{</span><span style="color:#a6e22e">@link</span> IOException<span style="color:#f92672">}</span> <span style="color:#66d9ef">if</span> the call was canceled
+<span style="color:#75715e">//此拦截器从故障中恢复，并在必要时遵循重定向。 如果取消呼叫，它可能会抛出{@link IOException}
+</span></code></pre></div><p><code>RetryAndFollowUpInterceptor</code>在<code>RealCall</code>的构造函数中初始化</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RealCall.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">RealCall</span><span style="color:#f92672">(</span>OkHttpClient client<span style="color:#f92672">,</span> Request originalRequest<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> forWebSocket<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">client</span> <span style="color:#f92672">=</span> client<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">originalRequest</span> <span style="color:#f92672">=</span> originalRequest<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">forWebSocket</span> <span style="color:#f92672">=</span> forWebSocket<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">retryAndFollowUpInterceptor</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RetryAndFollowUpInterceptor<span style="color:#f92672">(</span>client<span style="color:#f92672">,</span> forWebSocket<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RetryAndFollowUpInterceptor.intercept(Chain)
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    Request request <span style="color:#f92672">=</span> chain<span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">();</span>
+    RealInterceptorChain realChain <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>RealInterceptorChain<span style="color:#f92672">)</span> chain<span style="color:#f92672">;</span>
+    Call call <span style="color:#f92672">=</span> realChain<span style="color:#f92672">.</span><span style="color:#a6e22e">call</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">...</span>
+    StreamAllocation streamAllocation <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StreamAllocation<span style="color:#f92672">(</span>client<span style="color:#f92672">.</span><span style="color:#a6e22e">connectionPool</span><span style="color:#f92672">(),</span>
+        createAddress<span style="color:#f92672">(</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">url</span><span style="color:#f92672">()),</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">,</span> callStackTrace<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//交由责任链处理，执行下一个拦截器
+</span><span style="color:#75715e"></span>    response <span style="color:#f92672">=</span> realChain<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> streamAllocation<span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="bridgeinterceptor">BridgeInterceptor</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Bridges from application code to network code<span style="color:#f92672">.</span> First it builds a network request from a user request<span style="color:#f92672">.</span> Then it proceeds to call the network<span style="color:#f92672">.</span> Finally it builds a user response from the network response<span style="color:#f92672">.</span>
+<span style="color:#75715e">//从应用程序代码到网络代码的桥梁。 首先，它根据用户请求构建网络请求。 然后它继续呼叫网络。 最后，它根据网络响应构建用户响应。
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    Request userRequest <span style="color:#f92672">=</span> chain<span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">();</span>
+    Request<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span> requestBuilder <span style="color:#f92672">=</span> userRequest<span style="color:#f92672">.</span><span style="color:#a6e22e">newBuilder</span><span style="color:#f92672">();</span>
+
+    <span style="color:#f92672">...</span><span style="color:#a6e22e">填充http请求的头部信息</span><span style="color:#960050;background-color:#1e0010">`</span>Cookie<span style="color:#f92672">,</span>User<span style="color:#f92672">-</span>Agent<span style="color:#f92672">,</span>Connection<span style="color:#f92672">,</span>Host<span style="color:#960050;background-color:#1e0010">`</span>
+    <span style="color:#75715e">//交由责任链处理，执行下一个拦截器
+</span><span style="color:#75715e"></span>    Response networkResponse <span style="color:#f92672">=</span> chain<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>requestBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">...</span>
+    Response<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span> responseBuilder <span style="color:#f92672">=</span> networkResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">newBuilder</span><span style="color:#f92672">()</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">(</span>userRequest<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> responseBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="cacheinterceptor">CacheInterceptor</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Serves requests from the cache and writes responses to the cache
+<span style="color:#75715e">//提供来自缓存的请求并将响应写入缓存
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//TODO 先从缓冲中获取响应结果，
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//如果没有获取到，交由责任链处理，执行下一个拦截器
+</span><span style="color:#75715e"></span>    networkResponse <span style="color:#f92672">=</span> chain<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>networkRequest<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//TODO 缓存网络返回的结果
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="connectinterceptor">ConnectInterceptor</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Opens a connection to the target server and proceeds to the next interceptor<span style="color:#f92672">.</span>
+<span style="color:#75715e">//打开与目标服务器的连接，然后继续执行下一个拦截器。
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    RealInterceptorChain realChain <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>RealInterceptorChain<span style="color:#f92672">)</span> chain<span style="color:#f92672">;</span>
+    Request request <span style="color:#f92672">=</span> realChain<span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">();</span>
+    StreamAllocation streamAllocation <span style="color:#f92672">=</span> realChain<span style="color:#f92672">.</span><span style="color:#a6e22e">streamAllocation</span><span style="color:#f92672">();</span>
+
+    <span style="color:#75715e">// We need the network to satisfy this request. Possibly for validating a conditional GET.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> doExtensiveHealthChecks <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">method</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#75715e">//http请求编码，响应解码，
+</span><span style="color:#75715e"></span>    HttpCodec httpCodec <span style="color:#f92672">=</span> streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">newStream</span><span style="color:#f92672">(</span>client<span style="color:#f92672">,</span> chain<span style="color:#f92672">,</span> doExtensiveHealthChecks<span style="color:#f92672">);</span>
+    RealConnection connection <span style="color:#f92672">=</span> streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">//交由责任链处理，执行下一个拦截器
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//至此，proceed()中4个参数已陆续获取成功，第一次全部传递非空值
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> realChain<span style="color:#f92672">.</span><span style="color:#a6e22e">proceed</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> streamAllocation<span style="color:#f92672">,</span> httpCodec<span style="color:#f92672">,</span> connection<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><p>通过此拦截器创建网络连接所需对象，分析下<code>HttpCodec</code>和<code>RealConnection</code>对象的创建过程；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//StreamAllocation.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> HttpCodec <span style="color:#a6e22e">newStream</span><span style="color:#f92672">(</span>
+      OkHttpClient client<span style="color:#f92672">,</span> Interceptor<span style="color:#f92672">.</span><span style="color:#a6e22e">Chain</span> chain<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> doExtensiveHealthChecks<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      RealConnection resultConnection <span style="color:#f92672">=</span> findHealthyConnection<span style="color:#f92672">(</span>connectTimeout<span style="color:#f92672">,</span> readTimeout<span style="color:#f92672">,</span>
+          writeTimeout<span style="color:#f92672">,</span> pingIntervalMillis<span style="color:#f92672">,</span> connectionRetryEnabled<span style="color:#f92672">,</span> doExtensiveHealthChecks<span style="color:#f92672">);</span>
+
+      HttpCodec resultCodec <span style="color:#f92672">=</span> resultConnection<span style="color:#f92672">.</span><span style="color:#a6e22e">newCodec</span><span style="color:#f92672">(</span>client<span style="color:#f92672">,</span> chain<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+
+      <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>connectionPool<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        codec <span style="color:#f92672">=</span> resultCodec<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> resultCodec<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IOException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RouteException<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> RealConnection <span style="color:#a6e22e">findHealthyConnection</span><span style="color:#f92672">(...){</span>
+    <span style="color:#f92672">...</span>
+    RealConnection real <span style="color:#f92672">=</span> findConnection<span style="color:#f92672">(...);</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> real<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//StreamAllocation.java
+</span><span style="color:#75715e">//1.existing connection &gt; 2.pool &gt; 3.build new connection
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> RealConnection <span style="color:#a6e22e">findConnection</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> connectTimeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> readTimeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> writeTimeout<span style="color:#f92672">,</span>
+      <span style="color:#66d9ef">int</span> pingIntervalMillis<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> connectionRetryEnabled<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">// Attempt to use an already-allocated connection. We need to be careful here because our
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// already-allocated connection may have been restricted from creating new streams.
+</span><span style="color:#75715e"></span>    releasedConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span><span style="color:#f92672">;</span>
+    toClose <span style="color:#f92672">=</span> releaseIfNoNewStreams<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//1. We had an already-allocated connection and it&#39;s good.
+</span><span style="color:#75715e"></span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span><span style="color:#f92672">;</span>
+        releasedConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>reportedAcquired<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// If the connection was never reported acquired, don&#39;t report it as released!
+</span><span style="color:#75715e"></span>        releasedConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//2. Attempt to get a connection from the pool.
+</span><span style="color:#75715e"></span>        Internal<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>connectionPool<span style="color:#f92672">,</span> address<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>connection <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          foundPooledConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+          result <span style="color:#f92672">=</span> connection<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+          selectedRoute <span style="color:#f92672">=</span> route<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// If we found an already-allocated or pooled connection, we&#39;re done.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//3. build new connection
+</span><span style="color:#75715e"></span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealConnection<span style="color:#f92672">(</span>connectionPool<span style="color:#f92672">,</span> selectedRoute<span style="color:#f92672">);</span>
+    acquire<span style="color:#f92672">(</span>result<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//*Do TCP + TLS handshakes. This is a blocking operation.客户端与服务器的连接
+</span><span style="color:#75715e"></span>    result<span style="color:#f92672">.</span><span style="color:#a6e22e">connect</span><span style="color:#f92672">(</span>connectTimeout<span style="color:#f92672">,</span> readTimeout<span style="color:#f92672">,</span> writeTimeout<span style="color:#f92672">,</span> pingIntervalMillis<span style="color:#f92672">,</span>
+        connectionRetryEnabled<span style="color:#f92672">,</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">);</span>
+    routeDatabase<span style="color:#f92672">().</span><span style="color:#a6e22e">connected</span><span style="color:#f92672">(</span>result<span style="color:#f92672">.</span><span style="color:#a6e22e">route</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RealConnection.java 真正网络连接
+</span><span style="color:#75715e">//result.connect();
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">connect</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> connectTimeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> readTimeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> writeTimeout<span style="color:#f92672">,</span><span style="color:#66d9ef">int</span> pingIntervalMillis<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> connectionRetryEnabled<span style="color:#f92672">,</span> Call call<span style="color:#f92672">,</span>EventListener eventListener<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>route<span style="color:#f92672">.</span><span style="color:#a6e22e">requiresTunnel</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        connectTunnel<span style="color:#f92672">(</span>connectTimeout<span style="color:#f92672">,</span> readTimeout<span style="color:#f92672">,</span> writeTimeout<span style="color:#f92672">,</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>rawSocket <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// We were unable to connect the tunnel but properly closed down our resources.
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        connectSocket<span style="color:#f92672">(</span>connectTimeout<span style="color:#f92672">,</span> readTimeout<span style="color:#f92672">,</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    establishProtocol<span style="color:#f92672">(</span>connectionSpecSelector<span style="color:#f92672">,</span> pingIntervalMillis<span style="color:#f92672">,</span> call<span style="color:#f92672">,</span> eventListener<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">connectSocket</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> connectTimeout<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> readTimeout<span style="color:#f92672">,</span> Call call<span style="color:#f92672">,</span>EventListener eventListener<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//socket 连接
+</span><span style="color:#75715e"></span>      Platform<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">().</span><span style="color:#a6e22e">connectSocket</span><span style="color:#f92672">(</span>rawSocket<span style="color:#f92672">,</span> route<span style="color:#f92672">.</span><span style="color:#a6e22e">socketAddress</span><span style="color:#f92672">(),</span> connectTimeout<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ConnectException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      ConnectException ce <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConnectException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Failed to connect to &#34;</span> <span style="color:#f92672">+</span> route<span style="color:#f92672">.</span><span style="color:#a6e22e">socketAddress</span><span style="color:#f92672">());</span>
+      ce<span style="color:#f92672">.</span><span style="color:#a6e22e">initCause</span><span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">throw</span> ce<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//初始化okio流，socket连接后，通过okio方式发送请求并接收响应结果
+</span><span style="color:#75715e"></span>      source<span style="color:#f92672">=</span>Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">source</span><span style="color:#f92672">(</span>rawSocket<span style="color:#f92672">));</span>
+      sink <span style="color:#f92672">=</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">sink</span><span style="color:#f92672">(</span>rawSocket<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>NullPointerException npe<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>NPE_THROW_WITH_NULL<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>npe<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IOException<span style="color:#f92672">(</span>npe<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="callserverinterceptor">CallServerInterceptor</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">This is the last interceptor in the chain<span style="color:#f92672">.</span> It makes a network call to the server<span style="color:#f92672">.</span>
+<span style="color:#75715e">//这是链中的最后一个拦截器。 它向服务器进行网络调用。
+</span></code></pre></div><p>网络请求及响应的拦截器，核心功能由<code>HttpCodec</code>完成,</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">intercept</span><span style="color:#f92672">(</span>Chain chain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//1.向okio中写请求头
+</span><span style="color:#75715e"></span>    httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">writeRequestHeaders</span><span style="color:#f92672">(</span>request<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+
+    <span style="color:#66d9ef">long</span> contentLength <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contentLength</span><span style="color:#f92672">();</span>
+    CountingSink requestBodyOut <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CountingSink<span style="color:#f92672">(</span>httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">createRequestBody</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> contentLength<span style="color:#f92672">));</span>
+    BufferedSink bufferedRequestBody <span style="color:#f92672">=</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>requestBodyOut<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//2.写入请求体，RequestBody=request.body()
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">/*RequestBody是抽象类，通过create()返回匿名对象[create函数由多个]，writeTo()函数的实现需确定对象是由哪个create()方法创建
+</span><span style="color:#75715e">    */</span>
+    request<span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">().</span><span style="color:#a6e22e">writeTo</span><span style="color:#f92672">(</span>bufferedRequestBody<span style="color:#f92672">);</span>
+    bufferedRequestBody<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span><span style="color:#75715e">//关闭BufferedSink
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">...</span>
+    httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">finishRequest</span><span style="color:#f92672">();</span><span style="color:#75715e">//结束写入，
+</span><span style="color:#75715e"></span>
+    responseBuilder <span style="color:#f92672">=</span> httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">readResponseHeaders</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span><span style="color:#75715e">//获取响应头
+</span><span style="color:#75715e"></span>    Response response <span style="color:#f92672">=</span> responseBuilder
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">(</span>request<span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">handshake</span><span style="color:#f92672">(</span>streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span><span style="color:#f92672">().</span><span style="color:#a6e22e">handshake</span><span style="color:#f92672">())</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">sentRequestAtMillis</span><span style="color:#f92672">(</span>sentRequestMillis<span style="color:#f92672">)</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">receivedResponseAtMillis</span><span style="color:#f92672">(</span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">())</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+
+    <span style="color:#f92672">...</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>forWebSocket <span style="color:#f92672">&amp;&amp;</span> code <span style="color:#f92672">==</span> 101<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// Connection is upgrading, but we need to ensure interceptors see a non-null response body.
+</span><span style="color:#75715e"></span>      response <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">newBuilder</span><span style="color:#f92672">()</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">(</span>Util<span style="color:#f92672">.</span><span style="color:#a6e22e">EMPTY_RESPONSE</span><span style="color:#f92672">)</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+      response <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">newBuilder</span><span style="color:#f92672">()</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">(</span>httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">openResponseBody</span><span style="color:#f92672">(</span>response<span style="color:#f92672">))</span><span style="color:#75715e">//获取响应体
+</span><span style="color:#75715e"></span>          <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//至此，得到网络请求的完整响应结果
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>以上就是okhttp使用责任链模式发送网络请求并获取响应结果的流程，接下来分析<code>HttpCodec</code>中真正发送请求并获取响应的逻辑，及责任链模式处理响应结果的流程；</p>
+<h4 id="1-拼接请求行-writerequestheaders">1. 拼接请求行 writeRequestHeaders</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Http1Codec.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeRequestHeaders</span><span style="color:#f92672">(</span>Request request<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+<span style="color:#75715e">//拼接请求行 like &#34;GET / HTTP/1.1&#34;
+</span><span style="color:#75715e"></span>    String requestLine <span style="color:#f92672">=</span> RequestLine<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>
+        request<span style="color:#f92672">,</span> streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">connection</span><span style="color:#f92672">().</span><span style="color:#a6e22e">route</span><span style="color:#f92672">().</span><span style="color:#a6e22e">proxy</span><span style="color:#f92672">().</span><span style="color:#a6e22e">type</span><span style="color:#f92672">());</span>
+    writeRequest<span style="color:#f92672">(</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">headers</span><span style="color:#f92672">(),</span> requestLine<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeRequest</span><span style="color:#f92672">(</span>Headers headers<span style="color:#f92672">,</span> String requestLine<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>state <span style="color:#f92672">!=</span> STATE_IDLE<span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;state: &#34;</span> <span style="color:#f92672">+</span> state<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//通过okio输出流写出数据到服务端
+</span><span style="color:#75715e"></span>    sink<span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span>requestLine<span style="color:#f92672">).</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\r\n&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">,</span> size <span style="color:#f92672">=</span> headers<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span> i <span style="color:#f92672">&lt;</span> size<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+      sink<span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span>headers<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">(</span>i<span style="color:#f92672">))</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;: &#34;</span><span style="color:#f92672">)</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span>headers<span style="color:#f92672">.</span><span style="color:#a6e22e">value</span><span style="color:#f92672">(</span>i<span style="color:#f92672">))</span>
+          <span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\r\n&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    sink<span style="color:#f92672">.</span><span style="color:#a6e22e">writeUtf8</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\r\n&#34;</span><span style="color:#f92672">);</span>
+    state <span style="color:#f92672">=</span> STATE_OPEN_REQUEST_BODY<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="2-请求体">2. 请求体</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//引用intercept()中一段代码，
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">long</span> contentLength <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contentLength</span><span style="color:#f92672">();</span>
+CountingSink requestBodyOut <span style="color:#f92672">=</span><span style="color:#66d9ef">new</span> CountingSink<span style="color:#f92672">(</span>httpCodec<span style="color:#f92672">.</span><span style="color:#a6e22e">createRequestBody</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> contentLength<span style="color:#f92672">));</span>
+<span style="color:#75715e">//创建缓冲输出流
+</span><span style="color:#75715e"></span>BufferedSink bufferedRequestBody <span style="color:#f92672">=</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>requestBodyOut<span style="color:#f92672">);</span>
+
+request<span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">().</span><span style="color:#a6e22e">writeTo</span><span style="color:#f92672">(</span>bufferedRequestBody<span style="color:#f92672">);</span>
+bufferedRequestBody<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+</code></pre></div><h5 id="http1codeccreaterequestbody">Http1Codec.createRequestBody</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Sink <span style="color:#a6e22e">createRequestBody</span><span style="color:#f92672">(</span>Request request<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> contentLength<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;chunked&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equalsIgnoreCase</span><span style="color:#f92672">(</span>request<span style="color:#f92672">.</span><span style="color:#a6e22e">header</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Transfer-Encoding&#34;</span><span style="color:#f92672">)))</span> <span style="color:#f92672">{</span><span style="color:#75715e">//分块传输
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// Stream a request body of unknown length.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> newChunkedSink<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>contentLength <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span><span style="color:#75715e">//一般执行这里
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// Stream a request body of a known length.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> newFixedLengthSink<span style="color:#f92672">(</span>contentLength<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span>
+        <span style="color:#e6db74">&#34;Cannot stream a request body without chunked encoding or a known content length!&#34;</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> Sink <span style="color:#a6e22e">newFixedLengthSink</span><span style="color:#f92672">(</span><span style="color:#66d9ef">long</span> contentLength<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>state <span style="color:#f92672">!=</span> STATE_OPEN_REQUEST_BODY<span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;state: &#34;</span> <span style="color:#f92672">+</span> state<span style="color:#f92672">);</span>
+    state <span style="color:#f92672">=</span> STATE_WRITING_REQUEST_BODY<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> FixedLengthSink<span style="color:#f92672">(</span>contentLength<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FixedLengthSink</span> <span style="color:#66d9ef">implements</span> Sink <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>Buffer source<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> byteCount<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>closed<span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;closed&#34;</span><span style="color:#f92672">);</span>
+      checkOffsetAndCount<span style="color:#f92672">(</span>source<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">(),</span> 0<span style="color:#f92672">,</span> byteCount<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>byteCount <span style="color:#f92672">&gt;</span> bytesRemaining<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ProtocolException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;expected &#34;</span> <span style="color:#f92672">+</span> bytesRemaining
+            <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; bytes but received &#34;</span> <span style="color:#f92672">+</span> byteCount<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+      <span style="color:#75715e">//使用sink写入buffer
+</span><span style="color:#75715e"></span>      sink<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>source<span style="color:#f92672">,</span> byteCount<span style="color:#f92672">);</span>
+      bytesRemaining <span style="color:#f92672">-=</span> byteCount<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h5 id="requestbodywriteto">request.body().writeTo</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RequestBody.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RequestBody</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">/** Writes the content of this request to {@code sink}. */</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeTo</span><span style="color:#f92672">(</span>BufferedSink sink<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">;</span>
+  <span style="color:#75715e">/** Returns the Content-Type header for this body. */</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#a6e22e">@Nullable</span> MediaType <span style="color:#a6e22e">contentType</span><span style="color:#f92672">();</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">contentLength</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> RequestBody <span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>
+      <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">@Nullable</span> MediaType contentType<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> ByteString content<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RequestBody<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@Nullable</span> MediaType <span style="color:#a6e22e">contentType</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> contentType<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">contentLength</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> content<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">writeTo</span><span style="color:#f92672">(</span>BufferedSink sink<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+      <span style="color:#75715e">//bufferSink.write();
+</span><span style="color:#75715e"></span>        sink<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>content<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+主要有3个函数及1个静态方法<span style="color:#960050;background-color:#1e0010">，</span>此静态方法有重载<span style="color:#960050;background-color:#1e0010">，</span>根据传入的参数不同<span style="color:#960050;background-color:#1e0010">，</span>创建RequestBody主要分为3种方式<span style="color:#960050;background-color:#1e0010">；</span>
+1<span style="color:#f92672">.</span><span style="color:#a6e22e">传入ByteString</span>
+<span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>MediaType contentType<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> ByteString content<span style="color:#f92672">)</span>
+2<span style="color:#f92672">.</span><span style="color:#a6e22e">传入byte</span><span style="color:#f92672">[],</span>指定起始位置<span style="color:#960050;background-color:#1e0010">，</span>结束位置
+<span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>MediaType contentType<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> content<span style="color:#f92672">,</span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> offset<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> byteCount<span style="color:#f92672">)</span>
+3<span style="color:#f92672">.</span><span style="color:#a6e22e">传入文件</span>
+<span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>MediaType contentType<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> File file<span style="color:#f92672">)</span>
+</code></pre></div><h4 id="状态行-http1codereadresponseheaders">状态行 Http1Code.readResponseHeaders</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span> <span style="color:#a6e22e">readResponseHeaders</span><span style="color:#f92672">(</span><span style="color:#66d9ef">boolean</span> expectContinue<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//拼接状态行 &#34;HTTP/1.1 200 OK&#34;
+</span><span style="color:#75715e"></span>    StatusLine statusLine <span style="color:#f92672">=</span> StatusLine<span style="color:#f92672">.</span><span style="color:#a6e22e">parse</span><span style="color:#f92672">(</span>readHeaderLine<span style="color:#f92672">());</span>
+
+    Response<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span> responseBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span><span style="color:#f92672">()</span>
+            <span style="color:#f92672">.</span><span style="color:#a6e22e">protocol</span><span style="color:#f92672">(</span>statusLine<span style="color:#f92672">.</span><span style="color:#a6e22e">protocol</span><span style="color:#f92672">)</span>
+            <span style="color:#f92672">.</span><span style="color:#a6e22e">code</span><span style="color:#f92672">(</span>statusLine<span style="color:#f92672">.</span><span style="color:#a6e22e">code</span><span style="color:#f92672">)</span>
+            <span style="color:#f92672">.</span><span style="color:#a6e22e">message</span><span style="color:#f92672">(</span>statusLine<span style="color:#f92672">.</span><span style="color:#a6e22e">message</span><span style="color:#f92672">)</span>
+            <span style="color:#f92672">.</span><span style="color:#a6e22e">headers</span><span style="color:#f92672">(</span>readHeaders<span style="color:#f92672">());</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> responseBuilder<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="响应主体-http1codecopenresponsebody">响应主体 http1Codec.openResponseBody</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Http1Codec.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> ResponseBody <span style="color:#a6e22e">openResponseBody</span><span style="color:#f92672">(</span>Response response<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">eventListener</span><span style="color:#f92672">.</span><span style="color:#a6e22e">responseBodyStart</span><span style="color:#f92672">(</span>streamAllocation<span style="color:#f92672">.</span><span style="color:#a6e22e">call</span><span style="color:#f92672">);</span>
+    String contentType <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">header</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Content-Type&#34;</span><span style="color:#f92672">);</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>HttpHeaders<span style="color:#f92672">.</span><span style="color:#a6e22e">hasBody</span><span style="color:#f92672">(</span>response<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+      Source source <span style="color:#f92672">=</span> newFixedLengthSource<span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RealResponseBody<span style="color:#f92672">(</span>contentType<span style="color:#f92672">,</span> 0<span style="color:#f92672">,</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;chunked&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equalsIgnoreCase</span><span style="color:#f92672">(</span>response<span style="color:#f92672">.</span><span style="color:#a6e22e">header</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Transfer-Encoding&#34;</span><span style="color:#f92672">)))</span> <span style="color:#f92672">{</span>
+      Source source <span style="color:#f92672">=</span> newChunkedSource<span style="color:#f92672">(</span>response<span style="color:#f92672">.</span><span style="color:#a6e22e">request</span><span style="color:#f92672">().</span><span style="color:#a6e22e">url</span><span style="color:#f92672">());</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RealResponseBody<span style="color:#f92672">(</span>contentType<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1L<span style="color:#f92672">,</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">//通常执行此处
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">long</span> contentLength <span style="color:#f92672">=</span> HttpHeaders<span style="color:#f92672">.</span><span style="color:#a6e22e">contentLength</span><span style="color:#f92672">(</span>response<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>contentLength <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      Source source <span style="color:#f92672">=</span> newFixedLengthSource<span style="color:#f92672">(</span>contentLength<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RealResponseBody<span style="color:#f92672">(</span>contentType<span style="color:#f92672">,</span> contentLength<span style="color:#f92672">,</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>source<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RealResponseBody<span style="color:#f92672">(</span>contentType<span style="color:#f92672">,</span> <span style="color:#f92672">-</span>1L<span style="color:#f92672">,</span> Okio<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>newUnknownLengthSource<span style="color:#f92672">()));</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> Source <span style="color:#a6e22e">newFixedLengthSource</span><span style="color:#f92672">(</span><span style="color:#66d9ef">long</span> length<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>state <span style="color:#f92672">!=</span> STATE_OPEN_RESPONSE_BODY<span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;state: &#34;</span> <span style="color:#f92672">+</span> state<span style="color:#f92672">);</span>
+    state <span style="color:#f92672">=</span> STATE_READING_RESPONSE_BODY<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> FixedLengthSource<span style="color:#f92672">(</span>length<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FixedLengthSource</span> <span style="color:#66d9ef">extends</span> AbstractSource <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">read</span><span style="color:#f92672">(</span>Buffer sink<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> byteCount<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+        <span style="color:#f92672">...</span>
+        <span style="color:#66d9ef">long</span> read <span style="color:#f92672">=</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span>sink<span style="color:#f92672">,</span> Math<span style="color:#f92672">.</span><span style="color:#a6e22e">min</span><span style="color:#f92672">(</span>bytesRemaining<span style="color:#f92672">,</span> byteCount<span style="color:#f92672">));</span>
+        <span style="color:#f92672">...</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">long</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AbstractSource</span> <span style="color:#66d9ef">implements</span> Source <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">read</span><span style="color:#f92672">(</span>Buffer sink<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> byteCount<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">//此处读取服务器返回数据
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">long</span> read <span style="color:#f92672">=</span> source<span style="color:#f92672">.</span><span style="color:#a6e22e">read</span><span style="color:#f92672">(</span>sink<span style="color:#f92672">,</span> byteCount<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>read <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          bytesRead <span style="color:#f92672">+=</span> read<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> read<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IOException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        endOfInput<span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> e<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">throw</span> e<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>以上是发送请求及响应结果的函数，核心是socket编程，关于<a href="http://wiki.jikexueyuan.com/project/java-socket/tcp.html">TCP socket编程</a>这篇介绍的比较详细，后续在<code>okio</code>中会详细介绍</p>
+<h3 id="返回流程分析">返回流程分析</h3>
+<p>在<code>CacheInterceptor.intercept</code>中，接收到返回值后，执行了缓冲机制</p>
+<h4 id="connectionpool">ConnectionPool</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Manages reuse of HTTP and HTTP<span style="color:#f92672">/</span>2 connections <span style="color:#66d9ef">for</span> reduced network latency<span style="color:#f92672">.</span> HTTP requests that share the same <span style="color:#f92672">{</span><span style="color:#a6e22e">@link</span> Address<span style="color:#f92672">}</span> may share a <span style="color:#f92672">{</span><span style="color:#a6e22e">@link</span> Connection<span style="color:#f92672">}.</span> This <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">implements</span> the policy of which connections to keep open <span style="color:#66d9ef">for</span> future use<span style="color:#f92672">.</span>
+<span style="color:#75715e">//管理HTTP和HTTP/2连接的重用，以减少网络延迟。 共享相同{@link Address}的HTTP请求可以共享{@link Connection}。 此类实现了哪些连接保持打开以供将来使用的策略。
+</span></code></pre></div><h4 id="eventlistener">EventListener</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Listener <span style="color:#66d9ef">for</span> metrics events<span style="color:#f92672">.</span> Extend <span style="color:#66d9ef">this</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">to</span> monitor the quantity<span style="color:#f92672">,</span> size<span style="color:#f92672">,</span> and duration of your application<span style="color:#960050;background-color:#1e0010">&#39;</span>s HTTP calls
+<span style="color:#75715e">//指标事件的监听器。 扩展此类以监视应用程序的HTTP调用的数量，大小和持续时间
+</span></code></pre></div><h4 id="dns">DNS</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">A domain name service that resolves IP addresses <span style="color:#66d9ef">for</span> host names<span style="color:#f92672">.</span> Most applications will use the <span style="color:#f92672">{</span><span style="color:#a6e22e">@linkplain</span> <span style="color:#960050;background-color:#1e0010">#</span>SYSTEM system DNS service<span style="color:#f92672">},</span> which is the <span style="color:#66d9ef">default</span><span style="color:#f92672">.</span> Some applications may provide their own implementation to use a different DNS server<span style="color:#f92672">,</span> to prefer IPv6 addresses<span style="color:#f92672">,</span> to prefer IPv4 addresses<span style="color:#f92672">,</span> or to force a specific known IP address<span style="color:#f92672">.</span>
+<span style="color:#75715e">//解析主机名IP地址的域名服务。 大多数应用程序将使用{@linkplain #SYSTEM系统DNS服务}，这是默认设置。 某些应用程序可能提供自己的实现来使用不同的DNS服务器，更喜欢IPv6地址，更喜欢IPv4地址，或强制使用特定的已知IP地址。
+</span></code></pre></div><p>##TODO
+okhttp3.Request
+SSLSocket
+Route / RouteSelector</p>
+<h3 id="other">Other</h3>
+<p>HTTP/1.x连接一次可以携带1个流，HTTP/2通常携带多个。</p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

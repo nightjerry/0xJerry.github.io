@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>注解 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="注解"/>
+<meta name="twitter:description" content="[TOC]
+注解通过@interface关键字进行定义
+public @interface TestAnnotation{ //定义了名为TestAnnotation的注解 } 元注解 元注解是基本注解，是注解的注解，用到自定义的注解上 元注解有5种: @Retention,@Documented,@Target,@Inherited,@Repeatable
+@Retention 是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间. 取值如下:
+ RetentionPolicy.SOURCE 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视 RetentionPolicy.CLASS 注解只被保留到编译进行的时候，不会被加载到JVM中 RetentionPolicy.RUNTIME 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们  @Documented 此注解与文档有关，作用是将注解中的元素包含到javadoc中
+@Target 指定注解使用的场景，如类上，方法上，成员变量，方法参数等 取值如下:
+ ElementType.ANNOTATION_TYPE 给一个注解进行注解 ElementType.CONSTRUCTOR 用在构造方法上 ElementType.FIELD 给属性进行注解 ElementType.LOCAL_VARIABLE 给局部变量进行注解 ElementType.METHOD 用在函数上 ElementType.PACKAGE 对包进行注解 ElementType.PARAMETER 对方法中的参数注解 ElementType.TYPE 给类型注解，(类，接口，枚举)  @Inherited 继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解
+@Inherited @Retention(RetentionPolicy.RUNTIME) @interface Test { } @Test public class A {} public class B extends A { } 注解Test被@Inherited修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解"/>
+
+    <meta property="og:title" content="注解" />
+<meta property="og:description" content="[TOC]
+注解通过@interface关键字进行定义
+public @interface TestAnnotation{ //定义了名为TestAnnotation的注解 } 元注解 元注解是基本注解，是注解的注解，用到自定义的注解上 元注解有5种: @Retention,@Documented,@Target,@Inherited,@Repeatable
+@Retention 是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间. 取值如下:
+ RetentionPolicy.SOURCE 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视 RetentionPolicy.CLASS 注解只被保留到编译进行的时候，不会被加载到JVM中 RetentionPolicy.RUNTIME 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们  @Documented 此注解与文档有关，作用是将注解中的元素包含到javadoc中
+@Target 指定注解使用的场景，如类上，方法上，成员变量，方法参数等 取值如下:
+ ElementType.ANNOTATION_TYPE 给一个注解进行注解 ElementType.CONSTRUCTOR 用在构造方法上 ElementType.FIELD 给属性进行注解 ElementType.LOCAL_VARIABLE 给局部变量进行注解 ElementType.METHOD 用在函数上 ElementType.PACKAGE 对包进行注解 ElementType.PARAMETER 对方法中的参数注解 ElementType.TYPE 给类型注解，(类，接口，枚举)  @Inherited 继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解
+@Inherited @Retention(RetentionPolicy.RUNTIME) @interface Test { } @Test public class A {} public class B extends A { } 注解Test被@Inherited修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-12-11-annotation/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-12-11T14:34:00&#43;08:00" />
+<meta property="article:modified_time" content="2019-12-11T14:34:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">注解</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Dec 11, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          1 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<p>注解通过<code>@interface</code>关键字进行定义</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> TestAnnotation<span style="color:#f92672">{</span>
+  <span style="color:#75715e">//定义了名为TestAnnotation的注解
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><h3 id="元注解">元注解</h3>
+<p>元注解是基本注解，是注解的注解，<strong>用到自定义的注解上</strong>
+元注解有5种:
+<code>@Retention</code>,<code>@Documented</code>,<code>@Target</code>,<code>@Inherited</code>,<code>@Repeatable</code></p>
+<h4 id="retention">@Retention</h4>
+<p>是保留期的意思;当应用到其他注解上的时候，说明这个注解的存活时间.
+取值如下:</p>
+<ul>
+<li><code>RetentionPolicy.SOURCE</code> 注解只有在源码阶段保留，在编译器进行编译时将被丢弃忽视</li>
+<li><code>RetentionPolicy.CLASS</code> 注解只被保留到编译进行的时候，不会被加载到JVM中</li>
+<li><code>RetentionPolicy.RUNTIME</code> 注解可以保留到程序运行的时期，会被加载到JVM中，程序运行时可以获取到它们</li>
+</ul>
+<h4 id="documented">@Documented</h4>
+<p>此注解与文档有关，作用是将注解中的元素包含到javadoc中</p>
+<h4 id="target">@Target</h4>
+<p>指定注解使用的场景，如类上，方法上，成员变量，方法参数等
+取值如下:</p>
+<ul>
+<li><code>ElementType.ANNOTATION_TYPE</code> 给一个注解进行注解</li>
+<li><code>ElementType.CONSTRUCTOR</code> 用在构造方法上</li>
+<li><code>ElementType.FIELD</code> 给属性进行注解</li>
+<li><code>ElementType.LOCAL_VARIABLE</code> 给局部变量进行注解</li>
+<li><code>ElementType.METHOD</code> 用在函数上</li>
+<li><code>ElementType.PACKAGE</code> 对包进行注解</li>
+<li><code>ElementType.PARAMETER</code> 对方法中的参数注解</li>
+<li><code>ElementType.TYPE</code> 给类型注解，(类，接口，枚举)</li>
+</ul>
+<h4 id="inherited">@Inherited</h4>
+<p>继承, 用在类上，如果一个超类被@Inherited注解过的注解修饰的话，那么超类的子类没有被任何注解应用的话，子类就继承了超类的注解</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Inherited</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@interface</span> Test <span style="color:#f92672">{</span> <span style="color:#f92672">}</span>
+
+<span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span> <span style="color:#f92672">{}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">B</span> <span style="color:#66d9ef">extends</span> A <span style="color:#f92672">{</span> <span style="color:#f92672">}</span>
+</code></pre></div><p>注解Test被<code>@Inherited</code>修饰，类A被Test注解，类B继承A，类B也拥有Test这个注解</p>
+<h4 id="repeatable">@Repeatable</h4>
+<p>自java1.8引入，被@Repeatable修饰的注解，在同一个类上修饰时，允许多次引用</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@interface</span> PersonArr <span style="color:#f92672">{</span>
+    Person<span style="color:#f92672">[]</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+<span style="color:#a6e22e">@Repeatable</span><span style="color:#f92672">(</span>Persons<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@interface</span> Person<span style="color:#f92672">{</span>
+    String role <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+<span style="color:#a6e22e">@Person</span><span style="color:#f92672">(</span>role<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;coder&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Person</span><span style="color:#f92672">(</span>role<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;pm&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Man</span><span style="color:#f92672">{</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>上例中，@Repeatable修饰了@Person，@Repeatable括号内的类相当于一个容器注解
+<code>容器注解</code>：即存放其他注解的地方,本身也是注解
+必须有一个value()属性,属性类型是被@Repeatable修饰过的注解<strong>数组</strong></p>
+<h3 id="注解的属性">注解的属性</h3>
+<p>也叫成员变量，注解只有成员变量，没有方法.成员变量以&quot;无参的方法&quot;形式声明,方法名就是成员变量名，返回值就是该成员变量的类型。
+属性可以用默认值，使用<code>default</code>关键字修饰</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Target</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> TestAnnotation<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">();</span>
+    String <span style="color:#a6e22e">msg</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isTest</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="属性的使用">属性的使用</h4>
+<p>赋值的方式是在注解的括号内以<code>key=value</code>形式，多属性间用<code>,</code>隔开.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@TestAnnotation</span><span style="color:#f92672">(</span>id<span style="color:#f92672">=</span>3<span style="color:#f92672">,</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hello annotation&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Test</span><span style="color:#f92672">{</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><blockquote>
+<p>注解中定义属性时，类型必须是8种基本数据类型(int,float,double,short,long,boolean,byte,char)，及String,枚举，类(接口)，注解和它们的数组</p>
+</blockquote>
+<h3 id="java预置的注解">java预置的注解</h3>
+<p>@Deprecated
+用来标记过时的元素，如过时的方法，类，成员变量等。
+@Override
+子类要复写父类中被 @Override 修饰的方法
+@SuppressWarnings
+阻止警告
+@SafeVarargs
+参数安全类型注解，阻止编译器产生uncheck警告
+@FunctionalInterface
+函数式接口注解，java1.8特性,<code>函数式接口</code>就是具有一个方法的接口; 函数式接口可以转换为Lambda表达式</p>
+<h3 id="注解的提取">注解的提取</h3>
+<p>通过反射获取注解
+java.lang.reflect反射包下<code>AnnotatedElement</code>接口，通过该接口的方法利用反射技术读取注解的信息，如<code>Constructor</code>,<code>Field</code>,<code>Method</code>,<code>Package</code>,<code>Class</code> 都实现了AnnotatedElement接口</p>
+<pre><code>Class: 类的class对象定义
+Constructor: 类的构造器定义
+Field: 类的成员变量定义
+Method: 类的方法定义
+Package: 类的包定义
+</code></pre><p>AnnotatedElement相关的api</p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>返回值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>getAnnotation(Class<!-- raw HTML omitted --> annotationClass)</td>
+<td><!-- raw HTML omitted --> T </td>
+<td>该元素如果存在指定类型的注解，则返回，否则返回null</td>
+</tr>
+<tr>
+<td>getAnnotations()</td>
+<td>Annotation[]</td>
+<td>返回调用者上存在的所有注解，包括从父类继承的</td>
+</tr>
+<tr>
+<td>isAnnotationPresent(Class&lt;?extends Annotation&gt; annotationClass)</td>
+<td>boolean</td>
+<td>如果指定类型的注解存在此元素上，则返回true，否则返回false</td>
+</tr>
+<tr>
+<td>getDeclaredAnnotations()</td>
+<td>Annotation[]</td>
+<td>返回直接存在于此元素上的所有注解(不包括父类继承的注解),没有则返回长度为0的数组</td>
+</tr>
+</tbody>
+</table>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

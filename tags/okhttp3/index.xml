@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>okhttp3 on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/okhttp3/</link>
+    <description>Recent content in okhttp3 on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 25 Nov 2019 17:21:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/okhttp3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>okhttp3部分源码分析</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</link>
+      <pubDate>Mon, 25 Nov 2019 17:21:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-okhttp3/</guid>
+      <description>okhttp3 部分分析 [TOC]
+通过retrofit调用okhttp3 api，对okhttp3执行逻辑进行分析 接上文，retrofit中OkHttpCall主要承接了对okhttp3 api的调用 在retrofit中被调用的类有OkHttpClient(OkHttpCall.createRawCall()), Request,HttpUrl,RequestBody(RequestBuilder.build()), Response(OkHttpCall.parseResponse()), Call(OkHttpCall.enqueue()) ResponseBody(Utils.buffer())
+泛型 优点:
+ 将运行时期出现问题ClassCastException,转移到了编译时期;方便于程序员解决问题,让运行时期问题减少,更安全 避免了强制转换麻烦  泛型类: 什么时候定义泛型类？ 当类中要操作的引用数据类型不确定的时候，早期定义Object来完成扩展。现在定义泛型来完成扩展。 ?: 通配符。也可以理解为占位符。 泛型的限定；用来支持泛型的扩展; ？ extends E: 可以接收E类型或者E的子类型。上限。 ？ super E: 可以接收E类型或者E的父类型。下限
+public class Demo&amp;lt;T&amp;gt;{ private T t; public void set(T t){ this.t = t; } public T get(){ return t; } public static void main(String[] args){ Demo&amp;lt;Integer&amp;gt; demo1 = new Demo&amp;lt;Integer&amp;gt;(); Demo&amp;lt;String&amp;gt; demo2 = new Demo&amp;lt;String&amp;gt;(); demo1.</description>
+    </item>
+    
+  </channel>
+</rss>

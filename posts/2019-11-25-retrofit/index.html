@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>retrofit源码分析 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="retrofit源码分析"/>
+<meta name="twitter:description" content="retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class."/>
+
+    <meta property="og:title" content="retrofit源码分析" />
+<meta property="og:description" content="retrofit 源码分析 [TOC]
+源码执行流程 new Retrofit.Builder().baseUrl(xx).build() 基于retrofit 2.4.1
+Retrofit.Builder() 创建retrofit实例对象，通过new Retrofit.Builder().build();Builder作为Retrofit的静态内部类 Retrofit.Builder类有3个构造函数，分别为
+public static final class Builder { ... Builder(Platform platform) { this.platform = platform; } public Builder() { this(Platform.get()); } Builder(Retrofit retrofit) { ... } ... } 只有无参的构造函数提供了外部访问权限public,其它两个都是包内访问；通过platform.get()获取Platform对象,我在android平台使用，所以返回的是Android;代码如下
+class Platform { private static final Platform PLATFORM = findPlatform(); static Platform get(){ return PLATFORM; } private static Platform findPlatform() { try { Class." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-retrofit/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T16:36:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T16:36:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">retrofit源码分析</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          11 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/retrofit/">retrofit</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h1 id="retrofit-源码分析">retrofit 源码分析</h1>
+<p>[TOC]</p>
+<p><img src="/img/retrofit.png" alt=""></p>
+<h2 id="源码执行流程">源码执行流程</h2>
+<h3 id="new-retrofitbuilderbaseurlxxbuild">new Retrofit.Builder().baseUrl(xx).build()</h3>
+<p>基于retrofit 2.4.1</p>
+<h4 id="retrofitbuilder">Retrofit.Builder()</h4>
+<p>创建retrofit实例对象，通过<code>new Retrofit.Builder().build()</code>;Builder作为Retrofit的静态内部类
+Retrofit.Builder类有3个构造函数，分别为</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#f92672">{</span>
+<span style="color:#f92672">...</span>
+    Builder<span style="color:#f92672">(</span>Platform platform<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">platform</span> <span style="color:#f92672">=</span> platform<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Builder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">(</span>Platform<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+    Builder<span style="color:#f92672">(</span>Retrofit retrofit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#f92672">...</span> <span style="color:#f92672">}</span>
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>只有无参的构造函数提供了外部访问权限<code>public</code>,其它两个都是包内访问；通过<code>platform.get()</code>获取Platform对象,我在android平台使用，所以返回的是<code>Android</code>;代码如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Platform</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Platform PLATFORM <span style="color:#f92672">=</span> findPlatform<span style="color:#f92672">();</span>
+
+    <span style="color:#66d9ef">static</span> Platform <span style="color:#a6e22e">get</span><span style="color:#f92672">(){</span>
+        <span style="color:#66d9ef">return</span> PLATFORM<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Platform <span style="color:#a6e22e">findPlatform</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;android.os.Build&#34;</span><span style="color:#f92672">);</span>
+          <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>Build<span style="color:#f92672">.</span><span style="color:#a6e22e">VERSION</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SDK_INT</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Android<span style="color:#f92672">();</span>
+          <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ClassNotFoundException ignored<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;java.util.Optional&#34;</span><span style="color:#f92672">);</span>
+          <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Java8<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ClassNotFoundException ignored<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Platform<span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="baseurl">baseUrl</h4>
+<p>Retrofit.Builder类中方法遵循链式调用规则(即方法返回this,使用<code>.</code>调用下一个方法)；例如</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">...</span>
+<span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">addConverterFactory</span><span style="color:#f92672">(</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> factory<span style="color:#f92672">){</span>
+    converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>checkNotNull<span style="color:#f92672">(</span>factory<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;factory == null&#34;</span><span style="color:#f92672">));</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">(</span>Executor executor<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> checkNotNull<span style="color:#f92672">(</span>executor<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;executor == null&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+<span style="color:#f92672">...</span>
+</code></pre></div><blockquote>
+<p><code>baseUrl</code>必须以'/&lsquo;结尾</p>
+</blockquote>
+<h4 id="build">build()</h4>
+<p><code>Retrofit.Builder().build()</code>通过<code>建造者模式</code>，创建Retrofit对象；
+对相关变量进行初始化，有<code>CallFactory</code>,<code>CallAdapter.Factory</code>,<code>Converter.Factory</code>,<code>Executor</code>,并以此为参数创建Retrofit</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> Retrofit <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>baseUrl <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Base URL required.&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//CallFactory = OkHttpClient
+</span><span style="color:#75715e"></span>    okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callFactory <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OkHttpClient<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//Executor = Android.MainThreadExecutor
+</span><span style="color:#75715e"></span>    Executor callbackExecutor <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callbackExecutor <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callbackExecutor <span style="color:#f92672">=</span> platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallbackExecutor</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//CallAdapter.Factory = ExecutorCallAdapterFactory
+</span><span style="color:#75715e"></span>    List<span style="color:#f92672">&lt;</span>CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> callAdapterFactories <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapterFactories</span><span style="color:#f92672">);</span>
+    callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallAdapterFactory</span><span style="color:#f92672">(</span>callbackExecutor<span style="color:#f92672">));</span>
+    <span style="color:#75715e">//Converter.Factory = BuiltInConverters
+</span><span style="color:#75715e"></span>    List<span style="color:#f92672">&lt;</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> converterFactories <span style="color:#f92672">=</span>
+          <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span>1 <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+    converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BuiltInConverters<span style="color:#f92672">());</span>
+    converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">);</span>
+
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Retrofit<span style="color:#f92672">(</span>callFactory<span style="color:#f92672">,</span> baseUrl<span style="color:#f92672">,</span> unmodifiableList<span style="color:#f92672">(</span>converterFactories<span style="color:#f92672">),</span>
+          unmodifiableList<span style="color:#f92672">(</span>callAdapterFactories<span style="color:#f92672">),</span> callbackExecutor<span style="color:#f92672">,</span> validateEagerly<span style="color:#f92672">);</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><p>Platform.Android源码：它是Platform的子类，且是静态内部类；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Android</span> <span style="color:#66d9ef">extends</span> Platform <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@IgnoreJRERequirement</span> <span style="color:#75715e">// Guarded by API check.
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isDefaultMethod</span><span style="color:#f92672">(</span>Method method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>Build<span style="color:#f92672">.</span><span style="color:#a6e22e">VERSION</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SDK_INT</span> <span style="color:#f92672">&lt;</span> 24<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+      <span style="color:#66d9ef">return</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">isDefault</span><span style="color:#f92672">();</span> <span style="color:#75715e">//false
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Executor <span style="color:#a6e22e">defaultCallbackExecutor</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> MainThreadExecutor<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span> CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> <span style="color:#a6e22e">defaultCallAdapterFactory</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> Executor callbackExecutor<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callbackExecutor <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> AssertionError<span style="color:#f92672">();</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExecutorCallAdapterFactory<span style="color:#f92672">(</span>callbackExecutor<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainThreadExecutor</span> <span style="color:#66d9ef">implements</span> Executor <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Handler handler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Handler<span style="color:#f92672">(</span>Looper<span style="color:#f92672">.</span><span style="color:#a6e22e">getMainLooper</span><span style="color:#f92672">());</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>Runnable r<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        handler<span style="color:#f92672">.</span><span style="color:#a6e22e">post</span><span style="color:#f92672">(</span>r<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="ihttp-ihttp--retrofitcreateihttpclass">IHttp ihttp = retrofit.create(IHttp.class)</h3>
+<p><code>IHttp</code>为使用者自定义接口,我自定义了<code>post</code>方法</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">IHttp</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@POST</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;{url}&#34;</span><span style="color:#f92672">)</span>
+    Call<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;url&#34;</span><span style="color:#f92672">,</span> encoded <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> String url<span style="color:#f92672">,</span>
+                            <span style="color:#a6e22e">@HeaderMap</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> headers<span style="color:#f92672">,</span>
+                            <span style="color:#a6e22e">@Body</span> RequestBody body<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="create">create()</h4>
+<p>通过<code>retrofit.create</code>获取接口实例对象,此处使用了<code>动态代理设计模式</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">create</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> Class<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> service<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">validateServiceInterface</span><span style="color:#f92672">(</span>service<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>validateEagerly<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      eagerlyValidateMethods<span style="color:#f92672">(</span>service<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span> Proxy<span style="color:#f92672">.</span><span style="color:#a6e22e">newProxyInstance</span><span style="color:#f92672">(</span>service<span style="color:#f92672">.</span><span style="color:#a6e22e">getClassLoader</span><span style="color:#f92672">(),</span> <span style="color:#66d9ef">new</span> Class<span style="color:#f92672">&lt;?&gt;[]</span> <span style="color:#f92672">{</span> service <span style="color:#f92672">},</span>
+        <span style="color:#66d9ef">new</span> InvocationHandler<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Platform platform <span style="color:#f92672">=</span> Platform<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+
+          <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>Object proxy<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> <span style="color:#a6e22e">@Nullable</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span>
+              <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// If the method is a method from Object then defer to normal invocation.
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaringClass</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> Object<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+              <span style="color:#66d9ef">return</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>platform<span style="color:#f92672">.</span><span style="color:#a6e22e">isDefaultMethod</span><span style="color:#f92672">(</span>method<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+              <span style="color:#66d9ef">return</span> platform<span style="color:#f92672">.</span><span style="color:#a6e22e">invokeDefaultMethod</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> service<span style="color:#f92672">,</span> proxy<span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">return</span> loadServiceMethod<span style="color:#f92672">(</span>method<span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>args<span style="color:#f92672">);</span>
+          <span style="color:#f92672">}</span>
+        <span style="color:#f92672">});</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>其中，<code>method.getDeclaringClass</code>返回IHttp中post方法的返回值类型；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">ServiceMethod<span style="color:#f92672">&lt;?&gt;</span> loadServiceMethod<span style="color:#f92672">(</span>Method method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    ServiceMethod<span style="color:#f92672">&lt;?&gt;</span> result <span style="color:#f92672">=</span> serviceMethodCache<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>method<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span>serviceMethodCache<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      result <span style="color:#f92672">=</span> serviceMethodCache<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>method<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        result <span style="color:#f92672">=</span> ServiceMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">parseAnnotations</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> method<span style="color:#f92672">);</span>
+        serviceMethodCache<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> result<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><h3 id="执行接口方法得到callresponsebody">执行接口方法,得到<code>Call&lt;ResponseBody&gt;</code></h3>
+<p>调用接口的方法<code>ihttp.post()</code>，得到返回值;源码中执行到<code>proxy.invoke()</code>; <code>loadServiceMethod()</code>，最后执行到<code>serviceMethod.invoke()</code>;</p>
+<h4 id="servicemethod">ServiceMethod</h4>
+<p>ServiceMethod是抽象类，子类是<code>HttpServiceMethod</code>; 同样通过建造者模式获取HttpServiceMethod对象</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServiceMethod</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> ServiceMethod<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">parseAnnotations</span><span style="color:#f92672">(</span>Retrofit retrofit<span style="color:#f92672">,</span> Method method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    Type returnType <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getGenericReturnType</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">hasUnresolvableType</span><span style="color:#f92672">(</span>returnType<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span>
+          <span style="color:#e6db74">&#34;Method return type must not include a type variable or wildcard: %s&#34;</span><span style="color:#f92672">,</span> returnType<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>returnType <span style="color:#f92672">==</span> <span style="color:#66d9ef">void</span><span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Service methods cannot return void.&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HttpServiceMethod<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span><span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">,</span> T<span style="color:#f92672">&gt;(</span>retrofit<span style="color:#f92672">,</span> method<span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">abstract</span> T <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//HttpServiceMethod.Builder， 构造函数参数来源：method： Proxy.invoke的第二个参数
+</span><span style="color:#75715e"></span>    Builder<span style="color:#f92672">(</span>Retrofit retrofit<span style="color:#f92672">,</span> Method method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">retrofit</span> <span style="color:#f92672">=</span> retrofit<span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">method</span> <span style="color:#f92672">=</span> method<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    HttpServiceMethod<span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      requestFactory <span style="color:#f92672">=</span> RequestFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">parseAnnotations</span><span style="color:#f92672">(</span>retrofit<span style="color:#f92672">,</span> method<span style="color:#f92672">);</span><span style="color:#75715e">//[1]
+</span><span style="color:#75715e"></span>
+      callAdapter <span style="color:#f92672">=</span> createCallAdapter<span style="color:#f92672">();</span><span style="color:#75715e">//[2]
+</span><span style="color:#75715e"></span>      responseType <span style="color:#f92672">=</span> callAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">responseType</span><span style="color:#f92672">();</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>responseType <span style="color:#f92672">==</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">||</span> responseType <span style="color:#f92672">==</span> okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Response</span><span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#39;&#34;</span>
+            <span style="color:#f92672">+</span> Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">getRawType</span><span style="color:#f92672">(</span>responseType<span style="color:#f92672">).</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span>
+            <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;&#39; is not a valid response body type. Did you mean ResponseBody?&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+      responseConverter <span style="color:#f92672">=</span> createResponseConverter<span style="color:#f92672">();</span><span style="color:#75715e">//[3]
+</span><span style="color:#75715e"></span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>requestFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">httpMethod</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;HEAD&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>Void<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>responseType<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;HEAD method must use Void as response type.&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HttpServiceMethod<span style="color:#f92672">&lt;&gt;(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="1requestfactory解析网络请求方式及请求地址路径">[1]requestFactory:解析网络请求方式及请求地址路径</h4>
+<p>在HttpServiceMethod.Builder.build()方法中，有解析注解的函数调用[1] <code>requestFactory = RequestFactory.parseAnnotations(retrofit, method);</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RequestFactory</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">static</span> RequestFactory <span style="color:#a6e22e">parseAnnotations</span><span style="color:#f92672">(</span>Retrofit retrofit<span style="color:#f92672">,</span> Method method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Builder<span style="color:#f92672">(</span>retrofit<span style="color:#f92672">,</span> method<span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RequestFactory.Builder的构造函数只进行了变量赋值，此处省略代码
+</span><span style="color:#75715e"></span>RequestFactory <span style="color:#a6e22e">build</span><span style="color:#f92672">(){</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Annotation annotation <span style="color:#f92672">:</span> methodAnnotations<span style="color:#f92672">){</span>
+        parseMethodAnnotation<span style="color:#f92672">(</span>annotation<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> RequestFactory<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">parseMethodAnnotation</span><span style="color:#f92672">(</span>Annotation annotation<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>annotation <span style="color:#66d9ef">instanceof</span> DELETE<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        parseHttpMethodAndPath<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;DELETE&#34;</span><span style="color:#f92672">,</span> <span style="color:#f92672">((</span>DELETE<span style="color:#f92672">)</span> annotation<span style="color:#f92672">).</span><span style="color:#a6e22e">value</span><span style="color:#f92672">(),</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span><span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>annotation <span style="color:#66d9ef">instanceof</span> POST<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//我使用post
+</span><span style="color:#75715e"></span>        parseHttpMethodAndPath<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;POST&#34;</span><span style="color:#f92672">,</span> <span style="color:#f92672">((</span>POST<span style="color:#f92672">)</span> annotation<span style="color:#f92672">).</span><span style="color:#a6e22e">value</span><span style="color:#f92672">(),</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span> <span style="color:#75715e">//.value取出url地址；path路径
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">parseHttpMethodAndPath</span><span style="color:#f92672">(</span>String httpMethod<span style="color:#f92672">,</span> String value<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> hasBody<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">httpMethod</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Only one HTTP method is allowed. Found: %s and %s.&#34;</span><span style="color:#f92672">,</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">httpMethod</span><span style="color:#f92672">,</span> httpMethod<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">httpMethod</span> <span style="color:#f92672">=</span> httpMethod<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">hasBody</span> <span style="color:#f92672">=</span> hasBody<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>value<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+      <span style="color:#75715e">// Get the relative URL path and existing query string, if present.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> question <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">indexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;?&#39;</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>question <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> question <span style="color:#f92672">&lt;</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// Ensure the query string does not have any named parameters.
+</span><span style="color:#75715e"></span>    String queryParams <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>question <span style="color:#f92672">+</span> 1<span style="color:#f92672">);</span>
+    Matcher queryParamMatcher <span style="color:#f92672">=</span> PARAM_URL_REGEX<span style="color:#f92672">.</span><span style="color:#a6e22e">matcher</span><span style="color:#f92672">(</span>queryParams<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>queryParamMatcher<span style="color:#f92672">.</span><span style="color:#a6e22e">find</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;URL query string \&#34;%s\&#34; must not have replace block. &#34;</span>
+              <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;For dynamic query parameters use @Query.&#34;</span><span style="color:#f92672">,</span> queryParams<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">relativeUrl</span> <span style="color:#f92672">=</span> value<span style="color:#f92672">;</span><span style="color:#75715e">//通过注解取出
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">relativeUrlParamNames</span> <span style="color:#f92672">=</span> parsePathParameters<span style="color:#f92672">(</span>value<span style="color:#f92672">);</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="2创建calladapter对象">[2]创建CallAdapter对象</h4>
+<p>在HttpServiceMethod.Builder.build()方法中，调用[2]创建<code>CallAdapter对象</code>
+<code>callAdapter = createCallAdapter();</code>,实际上通过retrofit中<code>CallAdapter.Factory</code>变量获取,也就是<code>ExecutorCallAdapterFactory.get()</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//HttpServiceMethod.Builder
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> CallAdapter<span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createCallAdapter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    Type returnType <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getGenericReturnType</span><span style="color:#f92672">();</span>
+    Annotation<span style="color:#f92672">[]</span> annotations <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotations</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>CallAdapter<span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;)</span> retrofit<span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapter</span><span style="color:#f92672">(</span>returnType<span style="color:#f92672">,</span> annotations<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> e<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Unable to create call adapter for %s&#34;</span><span style="color:#f92672">,</span> returnType<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Retrofit
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> CallAdapter<span style="color:#f92672">&lt;?,</span> <span style="color:#f92672">?&gt;</span> callAdapter<span style="color:#f92672">(</span>Type returnType<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> nextCallAdapter<span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> returnType<span style="color:#f92672">,</span> annotations<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//adapter= ExecutorCallAdapterFactory.get()
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> CallAdapter<span style="color:#f92672">&lt;?,</span> <span style="color:#f92672">?&gt;</span> nextCallAdapter<span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> skipPast<span style="color:#f92672">,</span> Type returnType<span style="color:#f92672">,</span>
+      Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    checkNotNull<span style="color:#f92672">(</span>returnType<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;returnType == null&#34;</span><span style="color:#f92672">);</span>
+    checkNotNull<span style="color:#f92672">(</span>annotations<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;annotations == null&#34;</span><span style="color:#f92672">);</span>
+
+    <span style="color:#66d9ef">int</span> start <span style="color:#f92672">=</span> callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">indexOf</span><span style="color:#f92672">(</span>skipPast<span style="color:#f92672">)</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> start<span style="color:#f92672">,</span> count <span style="color:#f92672">=</span> callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span> i <span style="color:#f92672">&lt;</span> count<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+      CallAdapter<span style="color:#f92672">&lt;?,</span> <span style="color:#f92672">?&gt;</span> adapter <span style="color:#f92672">=</span> callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>returnType<span style="color:#f92672">,</span> annotations<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">);</span><span style="color:#75715e">//ExecutorCallAdapterFactory.get()
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>adapter <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> adapter<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExecutorCallAdapterFactory</span> <span style="color:#66d9ef">extends</span> CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+  <span style="color:#a6e22e">@Override</span>
+  <span style="color:#66d9ef">public</span> CallAdapter<span style="color:#f92672">&lt;?,</span> <span style="color:#f92672">?&gt;</span> get<span style="color:#f92672">(</span>Type returnType<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">,</span> Retrofit retrofit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>getRawType<span style="color:#f92672">(</span>returnType<span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> Call<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">final</span> Type responseType <span style="color:#f92672">=</span> Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">getCallResponseType</span><span style="color:#f92672">(</span>returnType<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//这就是HttpServiceMethod中的callAdapter
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CallAdapter<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">,</span> Call<span style="color:#f92672">&lt;?&gt;&gt;()</span> <span style="color:#f92672">{</span>
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Type <span style="color:#a6e22e">responseType</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> responseType<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Call<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">adapt</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExecutorCallbackCall<span style="color:#f92672">&lt;&gt;(</span>callbackExecutor<span style="color:#f92672">,</span> call<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+  <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="3创建converter对象">[3]创建Converter对象</h4>
+<p>在HttpServiceMethod.Builder.build()方法中，调用[3]创建<code>Converter对象</code>
+<code>responseConverter = createResponseConverter()</code>
+实际上调用retrofit中的<code>BuiltInConverters.responseBodyConverter</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//HttpServiceMethod.Builder.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> ResponseT<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createResponseConverter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    Annotation<span style="color:#f92672">[]</span> annotations <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotations</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> retrofit<span style="color:#f92672">.</span><span style="color:#a6e22e">responseBodyConverter</span><span style="color:#f92672">(</span>responseType<span style="color:#f92672">,</span> annotations<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> methodError<span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> e<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Unable to create converter for %s&#34;</span><span style="color:#f92672">,</span> responseType<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Retrofit.java
+</span><span style="color:#75715e">//Converter = BuiltInConverters.responseBodyConverter()
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">responseBodyConverter</span><span style="color:#f92672">(</span>Type type<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> nextResponseBodyConverter<span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> type<span style="color:#f92672">,</span> annotations<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">nextResponseBodyConverter</span><span style="color:#f92672">(</span>
+      <span style="color:#a6e22e">@Nullable</span> Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> skipPast<span style="color:#f92672">,</span> Type type<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    checkNotNull<span style="color:#f92672">(</span>type<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;type == null&#34;</span><span style="color:#f92672">);</span>
+    checkNotNull<span style="color:#f92672">(</span>annotations<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;annotations == null&#34;</span><span style="color:#f92672">);</span>
+
+    <span style="color:#66d9ef">int</span> start <span style="color:#f92672">=</span> converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">indexOf</span><span style="color:#f92672">(</span>skipPast<span style="color:#f92672">)</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> start<span style="color:#f92672">,</span> count <span style="color:#f92672">=</span> converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span> i <span style="color:#f92672">&lt;</span> count<span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+      Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> <span style="color:#f92672">?&gt;</span> converter <span style="color:#f92672">=</span>
+          converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>i<span style="color:#f92672">).</span><span style="color:#a6e22e">responseBodyConverter</span><span style="color:#f92672">(</span>type<span style="color:#f92672">,</span> annotations<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">);</span><span style="color:#75715e">//BuiltInConverters.responseBodyConverter()
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>converter <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//noinspection unchecked
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> T<span style="color:#f92672">&gt;)</span> converter<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//BuiltInConverters.java
+</span><span style="color:#75715e">// converter = BufferingResponseBodyConverter.INSTANCE
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BuiltInConverters</span> <span style="color:#66d9ef">extends</span> Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> <span style="color:#f92672">{</span>
+  <span style="color:#a6e22e">@Override</span>
+  <span style="color:#66d9ef">public</span> Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> <span style="color:#f92672">?&gt;</span> responseBodyConverter<span style="color:#f92672">(</span>Type type<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">,</span>
+      Retrofit retrofit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>type <span style="color:#f92672">==</span> ResponseBody<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">return</span> Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">isAnnotationPresent</span><span style="color:#f92672">(</span>annotations<span style="color:#f92672">,</span> Streaming<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span>
+          <span style="color:#f92672">?</span> StreamingResponseBodyConverter<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span>
+          <span style="color:#f92672">:</span> BufferingResponseBodyConverter<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span><span style="color:#75715e">//
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>type <span style="color:#f92672">==</span> Void<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">return</span> VoidResponseBodyConverter<span style="color:#f92672">.</span><span style="color:#a6e22e">INSTANCE</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>以上分析完<code>ServiceMethod</code>创建过程，主要节点在[1][2][3]中</p>
+<h4 id="动态代理invoke的执行逻辑">动态代理invoke的执行逻辑</h4>
+<p><code>loadServiceMethod(method).invoke(args)</code>
+<code>loadServiceMethod()</code>返回ServiceMethod对象，其<code>invoke</code>为抽象方法，子类<code>HttpServiceMethod.invoke</code>的具体实现如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//HttpServiceMethod.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span> ReturnT <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> callAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">adapt</span><span style="color:#f92672">(</span>
+        <span style="color:#66d9ef">new</span> OkHttpCall<span style="color:#f92672">&lt;&gt;(</span>requestFactory<span style="color:#f92672">,</span> args<span style="color:#f92672">,</span> callFactory<span style="color:#f92672">,</span> responseConverter<span style="color:#f92672">));</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//callAdapter为[2]ExecutorCallAdapterFactory.get()
+</span><span style="color:#75715e">//requestFacotry为[1]
+</span><span style="color:#75715e">//callFactory为retrofit.callFactory,就是Retrofit.Builder中的OkHttpClient
+</span><span style="color:#75715e">//responseConverter为[3]
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OkHttpCall</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">implements</span> Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//ExecutorCallAdapterFactory.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> CallAdapter<span style="color:#f92672">&lt;?,</span> <span style="color:#f92672">?&gt;</span> get<span style="color:#f92672">(</span>Type returnType<span style="color:#f92672">,</span> Annotation<span style="color:#f92672">[]</span> annotations<span style="color:#f92672">,</span> Retrofit retrofit<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CallAdapter<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">,</span> Call<span style="color:#f92672">&lt;?&gt;&gt;()</span> <span style="color:#f92672">{</span>
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Type <span style="color:#a6e22e">responseType</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> responseType<span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+<span style="color:#75715e">//callbackExecutor为retrofit.callbackExecutor，就是Android.MainThreadExecutor
+</span><span style="color:#75715e">//call： OkHttpCall
+</span><span style="color:#75715e"></span>      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Call<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">adapt</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ExecutorCallbackCall<span style="color:#f92672">&lt;&gt;(</span>callbackExecutor<span style="color:#f92672">,</span> call<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExecutorCallbackCall</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">implements</span> Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>在自定义的IHttp接口中，post请求返回值为<code>Call&lt;ResponseBody&gt;</code>, <code>ExecutorCallbackCall</code>即是该返回值</p>
+<h3 id="执行网络请求">执行网络请求</h3>
+<p>通过执行<code>ihttp.post()</code>得到的Call对象，执行<code>call.enqueue()</code></p>
+<blockquote>
+<p><code>enqueue</code>为异步请求；<code>execute</code>为同步请求</p>
+</blockquote>
+<h4 id="callenqueue">call.enqueue</h4>
+<p>ExecutorCallbackCall代码如下,是ExecutorCallAdapterFactory的内部类</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//ExecutorCallAdapterFactory.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExecutorCallbackCall</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">implements</span> Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#75715e">//callbackExecutor为retrofit.callbackExecutor，就是Android.MainThreadExecutor
+</span><span style="color:#75715e">//delegate： OkHttpCall
+</span><span style="color:#75715e"></span>    ExecutorCallbackCall<span style="color:#f92672">(</span>Executor callbackExecutor<span style="color:#f92672">,</span> Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> delegate<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> callbackExecutor<span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">delegate</span> <span style="color:#f92672">=</span> delegate<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#75715e">//callback：由使用者传入，网络请求回调
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> Callback<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> callback<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      checkNotNull<span style="color:#f92672">(</span>callback<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;callback == null&#34;</span><span style="color:#f92672">);</span>
+
+      delegate<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Callback<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onResponse</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Response<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> response<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#f92672">...</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+         <span style="color:#f92672">...</span>        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">});</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="调用okhttp">调用okhttp</h4>
+<p>OkHttpCall调用okhttp中api实现网络请求，并接收请求结果</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//OkHttpCall.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> Callback<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> callback<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    checkNotNull<span style="color:#f92672">(</span>callback<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;callback == null&#34;</span><span style="color:#f92672">);</span>
+
+    okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> call<span style="color:#f92672">;</span>
+    Throwable failure<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">synchronized</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>executed<span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Already executed.&#34;</span><span style="color:#f92672">);</span>
+      executed <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+
+      call <span style="color:#f92672">=</span> rawCall<span style="color:#f92672">;</span>
+      failure <span style="color:#f92672">=</span> creationFailure<span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>call <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> failure <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          call <span style="color:#f92672">=</span> rawCall <span style="color:#f92672">=</span> createRawCall<span style="color:#f92672">();</span><span style="color:#75715e">//[1]
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          throwIfFatal<span style="color:#f92672">(</span>t<span style="color:#f92672">);</span>
+          failure <span style="color:#f92672">=</span> creationFailure <span style="color:#f92672">=</span> t<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>failure <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> failure<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>canceled<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      call<span style="color:#f92672">.</span><span style="color:#a6e22e">cancel</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+    call<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Callback</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span> <span style="color:#75715e">//[2]
+</span><span style="color:#75715e"></span>      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onResponse</span><span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> call<span style="color:#f92672">,</span> okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Response</span> rawResponse<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Response<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> response<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          response <span style="color:#f92672">=</span> parseResponse<span style="color:#f92672">(</span>rawResponse<span style="color:#f92672">);</span><span style="color:#75715e">//[3]
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          throwIfFatal<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+          callFailure<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+          <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onResponse</span><span style="color:#f92672">(</span>OkHttpCall<span style="color:#f92672">.</span><span style="color:#a6e22e">this</span><span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          t<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> call<span style="color:#f92672">,</span> IOException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callFailure<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+
+      <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">callFailure</span><span style="color:#f92672">(</span>Throwable e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+          callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>OkHttpCall<span style="color:#f92672">.</span><span style="color:#a6e22e">this</span><span style="color:#f92672">,</span> e<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          t<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">});</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//callFactory : OkHttpClient, retrofit中创建，HttpServiceMethodz中传入
+</span><span style="color:#75715e">//[1]
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> <span style="color:#a6e22e">createRawCall</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span> call <span style="color:#f92672">=</span> callFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">newCall</span><span style="color:#f92672">(</span>requestFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>args<span style="color:#f92672">));</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>call <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> NullPointerException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Call.Factory returned null.&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> call<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>此处对<code>requestFactory.create(args)</code>进行说明</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//RequestFactory.java
+</span><span style="color:#75715e"></span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Request</span> <span style="color:#a6e22e">create</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Nullable</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    RequestBuilder requestBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RequestBuilder<span style="color:#f92672">(</span>httpMethod<span style="color:#f92672">,</span> baseUrl<span style="color:#f92672">,</span> relativeUrl<span style="color:#f92672">,</span> headers<span style="color:#f92672">,</span>
+        contentType<span style="color:#f92672">,</span> hasBody<span style="color:#f92672">,</span> isFormEncoded<span style="color:#f92672">,</span> isMultipart<span style="color:#f92672">);</span>
+
+    <span style="color:#a6e22e">@SuppressWarnings</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;unchecked&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">// It is an error to invoke a method with the wrong arg types.
+</span><span style="color:#75715e"></span>    ParameterHandler<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;[]</span> handlers <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>ParameterHandler<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;[])</span> parameterHandlers<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">int</span> argumentCount <span style="color:#f92672">=</span> args <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">?</span> args<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">:</span> 0<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>argumentCount <span style="color:#f92672">!=</span> handlers<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Argument count (&#34;</span> <span style="color:#f92672">+</span> argumentCount
+          <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;) doesn&#39;t match expected count (&#34;</span> <span style="color:#f92672">+</span> handlers<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;)&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> p <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> p <span style="color:#f92672">&lt;</span> argumentCount<span style="color:#f92672">;</span> p<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+      handlers<span style="color:#f92672">[</span>p<span style="color:#f92672">].</span><span style="color:#a6e22e">apply</span><span style="color:#f92672">(</span>requestBuilder<span style="color:#f92672">,</span> args<span style="color:#f92672">[</span>p<span style="color:#f92672">]);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">return</span> requestBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><code>requestBuilder.build()</code>函数内调用okhttp3中api，拼装请求信息</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//[2]:通过okhttp3执行enqueue,并创建okhttp3.Callback
+</span><span style="color:#75715e">//[3]:解析返回值
+</span><span style="color:#75715e"></span>Response<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">parseResponse</span><span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Response</span> rawResponse<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    ResponseBody rawBody <span style="color:#f92672">=</span> rawResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">();</span>
+
+    <span style="color:#75715e">// Remove the body&#39;s source (the only stateful object) so we can pass the response along.
+</span><span style="color:#75715e"></span>    rawResponse <span style="color:#f92672">=</span> rawResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">newBuilder</span><span style="color:#f92672">()</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">body</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> NoContentResponseBody<span style="color:#f92672">(</span>rawBody<span style="color:#f92672">.</span><span style="color:#a6e22e">contentType</span><span style="color:#f92672">(),</span> rawBody<span style="color:#f92672">.</span><span style="color:#a6e22e">contentLength</span><span style="color:#f92672">()))</span>
+        <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+
+    <span style="color:#66d9ef">int</span> code <span style="color:#f92672">=</span> rawResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">code</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>code <span style="color:#f92672">&lt;</span> 200 <span style="color:#f92672">||</span> code <span style="color:#f92672">&gt;=</span> 300<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// Buffer the entire body to avoid future I/O.
+</span><span style="color:#75715e"></span>        ResponseBody bufferedBody <span style="color:#f92672">=</span> Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>rawBody<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">error</span><span style="color:#f92672">(</span>bufferedBody<span style="color:#f92672">,</span> rawResponse<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+        rawBody<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>code <span style="color:#f92672">==</span> 204 <span style="color:#f92672">||</span> code <span style="color:#f92672">==</span> 205<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      rawBody<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+      <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> rawResponse<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    ExceptionCatchingResponseBody catchingBody <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ExceptionCatchingResponseBody<span style="color:#f92672">(</span>rawBody<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      T body <span style="color:#f92672">=</span> responseConverter<span style="color:#f92672">.</span><span style="color:#a6e22e">convert</span><span style="color:#f92672">(</span>catchingBody<span style="color:#f92672">);</span><span style="color:#75715e">//[4]
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">(</span>body<span style="color:#f92672">,</span> rawResponse<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#75715e">// If the underlying source threw an exception, propagate that rather than indicating it was
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// a runtime exception.
+</span><span style="color:#75715e"></span>      catchingBody<span style="color:#f92672">.</span><span style="color:#a6e22e">throwIfCaught</span><span style="color:#f92672">();</span>
+      <span style="color:#66d9ef">throw</span> e<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//[4]responseConverter为BuiltInConverters.responseBodyConverter(),本次分析使用的是BufferingResponseBodyConverter
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">//BuiltInConverters.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BufferingResponseBodyConverter</span>
+      <span style="color:#66d9ef">implements</span> Converter<span style="color:#f92672">&lt;</span>ResponseBody<span style="color:#f92672">,</span> ResponseBody<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> BufferingResponseBodyConverter INSTANCE <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BufferingResponseBodyConverter<span style="color:#f92672">();</span>
+
+    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> ResponseBody <span style="color:#a6e22e">convert</span><span style="color:#f92672">(</span>ResponseBody value<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// Buffer the entire body to avoid future I/O.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> Utils<span style="color:#f92672">.</span><span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span>value<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+        value<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Utils.java, 此处涉及okhttp3，下篇讨论
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> ResponseBody <span style="color:#a6e22e">buffer</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> ResponseBody body<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+    Buffer buffer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Buffer<span style="color:#f92672">();</span><span style="color:#75715e">//com.squareup.okio
+</span><span style="color:#75715e"></span>    body<span style="color:#f92672">.</span><span style="color:#a6e22e">source</span><span style="color:#f92672">().</span><span style="color:#a6e22e">readAll</span><span style="color:#f92672">(</span>buffer<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">return</span> ResponseBody<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>body<span style="color:#f92672">.</span><span style="color:#a6e22e">contentType</span><span style="color:#f92672">(),</span> body<span style="color:#f92672">.</span><span style="color:#a6e22e">contentLength</span><span style="color:#f92672">(),</span> buffer<span style="color:#f92672">);</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div><h4 id="回调">回调</h4>
+<p>在ExecutorCallbackCall中，<code>delegate.enqueue</code>传入了匿名对象<code>callback</code>,匿名对象中由<code>callbackExecutor.execute</code>调用使用值传入的callback</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//ExecutorCallbackCall.class
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> Callback<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> callback<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      checkNotNull<span style="color:#f92672">(</span>callback<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;callback == null&#34;</span><span style="color:#f92672">);</span>
+
+      delegate<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Callback<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onResponse</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Response<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> response<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          callbackExecutor<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+              <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>delegate<span style="color:#f92672">.</span><span style="color:#a6e22e">isCanceled</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">// Emulate OkHttp&#39;s behavior of throwing/delivering an IOException on cancellation.
+</span><span style="color:#75715e"></span>                callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>ExecutorCallbackCall<span style="color:#f92672">.</span><span style="color:#a6e22e">this</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> IOException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Canceled&#34;</span><span style="color:#f92672">));</span>
+              <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onResponse</span><span style="color:#f92672">(</span>ExecutorCallbackCall<span style="color:#f92672">.</span><span style="color:#a6e22e">this</span><span style="color:#f92672">,</span> response<span style="color:#f92672">);</span>
+              <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+          <span style="color:#f92672">});</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>Call<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> call<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+          callbackExecutor<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+              callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onFailure</span><span style="color:#f92672">(</span>ExecutorCallbackCall<span style="color:#f92672">.</span><span style="color:#a6e22e">this</span><span style="color:#f92672">,</span> t<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+          <span style="color:#f92672">});</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">});</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//callbackExecutor为retrofit.callbackExecutor,就是Android.MainThreadExecutor
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Platform.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainThreadExecutor</span> <span style="color:#66d9ef">implements</span> Executor <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Handler handler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Handler<span style="color:#f92672">(</span>Looper<span style="color:#f92672">.</span><span style="color:#a6e22e">getMainLooper</span><span style="color:#f92672">());</span>
+
+      <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>Runnable r<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        handler<span style="color:#f92672">.</span><span style="color:#a6e22e">post</span><span style="color:#f92672">(</span>r<span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>至此，已分析完retrofit源码，其中核心逻辑涉及okhttp3，会单独写一篇进行分析</p>
+<h2 id="源码设计模式">源码设计模式</h2>
+<h3 id="建造者模式builder-pattern">建造者模式(Builder Pattern)</h3>
+<p>将一个复杂对象的构建与它的表示分离，使同样的构建过程可以创建不同的表示.
+属于创建型模式，它提供了一种创建对象的最佳方式。
+何时使用：</p>
+<ul>
+<li>一些基本部件不会变，而其组合经常变化的时候。</li>
+<li>复杂的对象,有很多大量组成部分,过程很复杂; Builder模式就是为了将部件与组装过程分开</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>建造者独立，易扩展</li>
+<li>便于控制细节风险</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>产品必须有共同点，范围有限制</li>
+<li>如内部变化复杂，会有很多的建造类</li>
+</ul>
+<blockquote>
+<p>注意事项：与工厂模式的区别是：建造者模式更加关注与零件装配的顺序</p>
+</blockquote>
+<p>结合retrofit源码中的使用场景，进行举例</p>
+<p>retrofit中<code>Retrofit</code>和<code>HttpServiceMethod</code>对象的创建就是通过建造者模式；
+实现方式： 在类中创建静态内部类Builder，Builder提供外部访问权限，定义相关变量的set方法，并定义<code>build</code>函数最终创建外部类对象. Builder中函数遵循链式调用规则</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Retrofit.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Builder</span><span style="color:#f92672">()</span> <span style="color:#f92672">{...}</span>
+
+    <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">callFactory</span><span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> factory<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span> <span style="color:#f92672">=</span> checkNotNull<span style="color:#f92672">(</span>factory<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;factory == null&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> Builder <span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">(</span>Executor executor<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> checkNotNull<span style="color:#f92672">(</span>executor<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;executor == null&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#75715e">//创建外部类对象
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> Retrofit <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>baseUrl <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Base URL required.&#34;</span><span style="color:#f92672">);</span>
+      <span style="color:#f92672">}</span>
+      okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span><span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callFactory <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OkHttpClient<span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+      Executor callbackExecutor <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span><span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callbackExecutor <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        callbackExecutor <span style="color:#f92672">=</span> platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallbackExecutor</span><span style="color:#f92672">();</span>
+      <span style="color:#f92672">}</span>
+      List<span style="color:#f92672">&lt;</span>CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> callAdapterFactories <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapterFactories</span><span style="color:#f92672">);</span>
+      callAdapterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>platform<span style="color:#f92672">.</span><span style="color:#a6e22e">defaultCallAdapterFactory</span><span style="color:#f92672">(</span>callbackExecutor<span style="color:#f92672">));</span>
+      List<span style="color:#f92672">&lt;</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> converterFactories <span style="color:#f92672">=</span>
+          <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span>1 <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">());</span>
+      converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BuiltInConverters<span style="color:#f92672">());</span>
+converterFactories<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span><span style="color:#f92672">);</span>
+<span style="color:#75715e">//给各变量赋值，并以此为参数创建Retrofit对象
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Retrofit<span style="color:#f92672">(</span>callFactory<span style="color:#f92672">,</span> baseUrl<span style="color:#f92672">,</span> unmodifiableList<span style="color:#f92672">(</span>converterFactories<span style="color:#f92672">),</span>
+          unmodifiableList<span style="color:#f92672">(</span>callAdapterFactories<span style="color:#f92672">),</span> callbackExecutor<span style="color:#f92672">,</span> validateEagerly<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">//Retrofit构造函数可见性为`default`,本包内可见
+</span><span style="color:#75715e"></span>Retrofit<span style="color:#f92672">(</span>okhttp3<span style="color:#f92672">.</span><span style="color:#a6e22e">Call</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span> callFactory<span style="color:#f92672">,</span> HttpUrl baseUrl<span style="color:#f92672">,</span>
+      List<span style="color:#f92672">&lt;</span>Converter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> converterFactories<span style="color:#f92672">,</span> List<span style="color:#f92672">&lt;</span>CallAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">Factory</span><span style="color:#f92672">&gt;</span> callAdapterFactories<span style="color:#f92672">,</span>
+      <span style="color:#a6e22e">@Nullable</span> Executor callbackExecutor<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> validateEagerly<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span> <span style="color:#f92672">=</span> callFactory<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">baseUrl</span> <span style="color:#f92672">=</span> baseUrl<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">converterFactories</span> <span style="color:#f92672">=</span> converterFactories<span style="color:#f92672">;</span> <span style="color:#75715e">// Copy+unmodifiable at call site.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapterFactories</span> <span style="color:#f92672">=</span> callAdapterFactories<span style="color:#f92672">;</span> <span style="color:#75715e">// Copy+unmodifiable at call site.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callbackExecutor</span> <span style="color:#f92672">=</span> callbackExecutor<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">validateEagerly</span> <span style="color:#f92672">=</span> validateEagerly<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>如果参数过多或不统一，可使用Builder为参数创建外部类，如HttpServiceMethod的创建方式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//HttpServiceMethod.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Builder</span><span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    HttpServiceMethod<span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">build</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#f92672">...</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HttpServiceMethod<span style="color:#f92672">&lt;&gt;(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+HttpServiceMethod<span style="color:#f92672">(</span>Builder<span style="color:#f92672">&lt;</span>ResponseT<span style="color:#f92672">,</span> ReturnT<span style="color:#f92672">&gt;</span> builder<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    requestFactory <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">requestFactory</span><span style="color:#f92672">;</span>
+    callFactory <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">retrofit</span><span style="color:#f92672">.</span><span style="color:#a6e22e">callFactory</span><span style="color:#f92672">();</span>
+    callAdapter <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">callAdapter</span><span style="color:#f92672">;</span>
+    responseConverter <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">responseConverter</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="代理模式proxy-pattern">代理模式(Proxy Pattern)</h3>
+<p>属于结构型模式
+为其他对象提供一种代理以控制对这个对象的访问</p>
+<p>何时使用：</p>
+<ul>
+<li>程序可能不希望用户直接访问该对象，而是提供一个特殊的对象以控制对当前对象的访问</li>
+<li>如果对象位于远程主机上，需要为用户提供访问该远程对象的能力</li>
+<li>如果一个对象（例如很大的图像）需要很长时间才能完成加载</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>代理模式可以屏蔽用户真正请求的对象，是用户程序和正在的对象解耦</li>
+<li>使用代理来担当那些创建耗时的对象的替身</li>
+</ul>
+<p>缺点：
+代理类和委托类实现相同的接口，同时要实现相同的方法。这样就出现了大量的代码重复。如果接口增加一个方法，除了所有实现类需要实现这个方法外，所有代理类也需要实现此方法。增加了代码维护的复杂度。</p>
+<h4 id="静态代理">静态代理</h4>
+<p>需要定义接口或者父类,被代理对象与代理对象一起实现相同的接口或者是继承相同父类.</p>
+<blockquote>
+<p>注意:代理对象与目标对象要实现相同的接口,然后通过调用相同的方法来调用目标对象的方法</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">IUserDao</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//目标对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserDao</span> <span style="color:#66d9ef">implements</span> IUserDao <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;----已经保存数据!----&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">//代理对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserDaoProxy</span> <span style="color:#66d9ef">implements</span> IUserDao<span style="color:#f92672">{</span>
+    <span style="color:#75715e">//接收保存目标对象
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> IUserDao target<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">UserDaoProxy</span><span style="color:#f92672">(</span>IUserDao target<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">target</span><span style="color:#f92672">=</span>target<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">save</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;开始事务...&#34;</span><span style="color:#f92672">);</span>
+        target<span style="color:#f92672">.</span><span style="color:#a6e22e">save</span><span style="color:#f92672">();</span><span style="color:#75715e">//执行目标对象的方法
+</span><span style="color:#75715e"></span>        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;提交事务...&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">App</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//目标对象
+</span><span style="color:#75715e"></span>        UserDao target <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> UserDao<span style="color:#f92672">();</span>
+        <span style="color:#75715e">//代理对象,把目标对象传给代理对象,建立代理关系
+</span><span style="color:#75715e"></span>        UserDaoProxy proxy <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> UserDaoProxy<span style="color:#f92672">(</span>target<span style="color:#f92672">);</span>
+        proxy<span style="color:#f92672">.</span><span style="color:#a6e22e">save</span><span style="color:#f92672">();</span><span style="color:#75715e">//执行的是代理的方法
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="动态代理">动态代理</h4>
+<p>也叫JDK代理,接口代理</p>
+<ul>
+<li>在运行期，通过反射机制创建一个实现了一组给定接口的新类</li>
+<li>接口中声明的所有方法都被转移到调用处理器一个集中的方法中处理（InvocationHandler.invoke).在接口方法数量比较多的时候，我们可以进行灵活处理，而不需要像静态代理那样每一个方法进行中转。而且动态代理的应用使我们的类职责更加单一，复用性更强</li>
+<li>在运行时生成的class，必须提供一组interface给它，然后该class就宣称它实现了这些 interface</li>
+</ul>
+<p>代理类所在包:<code>java.lang.reflect.Proxy</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">static</span> Object <span style="color:#a6e22e">newProxyInstance</span><span style="color:#f92672">(</span>ClassLoader loader<span style="color:#f92672">,</span> Class <span style="color:#f92672">[]</span> interfaces<span style="color:#f92672">,</span> InvocationHandler handler<span style="color:#f92672">)</span>
+</code></pre></div><p>注意该方法是在Proxy类中是静态方法,且接收的三个参数依次为:</p>
+<ul>
+<li>ClassLoader loader:指定当前目标对象使用类加载器,用null表示默认类加载器</li>
+<li>Class [] interfaces:需要实现的接口数组</li>
+<li>InvocationHandler handler:调用处理器,执行目标对象的方法时,会触发调用处理器的方法,从而把当前执行目标对象的方法作为参数传入</li>
+</ul>
+<p><code>java.lang.reflect.InvocationHandler</code>：这是调用处理器接口，它自定义了一个 invoke 方法，用于集中处理在动态代理类对象上的方法调用，通常在该方法中实现对委托类的代理访问。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 该方法负责集中处理动态代理类上的所有方法调用。第一个参数既是代理类实例，第二个参数是被调用的方法对象
+</span><span style="color:#75715e">// 第三个方法是调用参数。
+</span><span style="color:#75715e"></span>Object <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>Object proxy<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span>
+</code></pre></div><p>retrofit中就是使用了动态代理模式，调用时传入<code>.class</code>对象,返回接口实例对象</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//Retrofit.java
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> T <span style="color:#a6e22e">create</span><span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> Class<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> service<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>T<span style="color:#f92672">)</span> Proxy<span style="color:#f92672">.</span><span style="color:#a6e22e">newProxyInstance</span><span style="color:#f92672">(</span>service<span style="color:#f92672">.</span><span style="color:#a6e22e">getClassLoader</span><span style="color:#f92672">(),</span> <span style="color:#66d9ef">new</span> Class<span style="color:#f92672">&lt;?&gt;[]</span> <span style="color:#f92672">{</span> service <span style="color:#f92672">},</span>
+        <span style="color:#66d9ef">new</span> InvocationHandler<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Platform platform <span style="color:#f92672">=</span> Platform<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+
+          <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>Object proxy<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> <span style="color:#a6e22e">@Nullable</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span>
+              <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// If the method is a method from Object then defer to normal invocation.
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaringClass</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> Object<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+              <span style="color:#66d9ef">return</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>platform<span style="color:#f92672">.</span><span style="color:#a6e22e">isDefaultMethod</span><span style="color:#f92672">(</span>method<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+              <span style="color:#66d9ef">return</span> platform<span style="color:#f92672">.</span><span style="color:#a6e22e">invokeDefaultMethod</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> service<span style="color:#f92672">,</span> proxy<span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">return</span> loadServiceMethod<span style="color:#f92672">(</span>method<span style="color:#f92672">).</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>args<span style="color:#f92672">);</span>
+          <span style="color:#f92672">}</span>
+        <span style="color:#f92672">});</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//IHttp为自定义接口
+</span><span style="color:#75715e"></span>IHttp ihttp <span style="color:#f92672">=</span> retrofit<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>IHttp<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+</code></pre></div><h2 id="注解">注解</h2>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

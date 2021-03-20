@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>algorithms on Jerry Blog</title>
+    <link>https://nightjerry.github.io/tags/algorithms/</link>
+    <description>Recent content in algorithms on Jerry Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 25 Nov 2019 09:28:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/algorithms/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>&lt;算法&gt;_查找</title>
+      <link>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</link>
+      <pubDate>Mon, 25 Nov 2019 09:28:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-25-algorithms-search/</guid>
+      <description>##算法 [TOC]
+顺序查找(基于无序链表) public class SequentialSearchST&amp;lt;Key, Value&amp;gt; { private Node first;//链表首结点  private class Node { Key key; Value val; Node next; public Node(Key key, Value val, Node next){ this.key = key; this.val = val; this.next= next; } } public Value get(key key){ for (Node x = first; x!= null; x=x.</description>
+    </item>
+    
+    <item>
+      <title>算法之排序(kotlin实现)</title>
+      <link>https://nightjerry.github.io/posts/2019-11-21-algorithms-1kotlin/</link>
+      <pubDate>Thu, 21 Nov 2019 17:15:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-21-algorithms-1kotlin/</guid>
+      <description>fun main(){ // val a = intArrayOf(20,5,10,3,7,98,2,9,54,1,23,6,65)  val a = intArrayOf(20,5,10,3,7,98,2,9) // selection(a) // insertion(a) // shell(a) // mergeSort(a,0, a.size-1)  quick(a, 0,a.size-1) a.forEach{ print(&amp;#34;$it,&amp;#34;) } } /** * 快速排序 */ fun quick(a:IntArray, start: Int, end: Int) { if (end &amp;lt;= start) return val partition = partition(a, start, end) quick(a, start, partition-1) quick(a, partition+1, end) } fun partition(a:IntArray, start: Int,end: Int): Int { var i = start //左右扫描指针  var j = end+1 val value = a[start] while (true){ while (a[++i] &amp;lt; value) if (i == end) break while (value &amp;lt; a[--j]) if (j == start) break if (i &amp;gt;= j) break swap(a, i, j) } swap(a, start, j) //将value放到索引j位置  return j //得到 a[start.</description>
+    </item>
+    
+    <item>
+      <title>算法之排序</title>
+      <link>https://nightjerry.github.io/posts/2019-11-21-algorithms-1/</link>
+      <pubDate>Thu, 21 Nov 2019 17:03:02 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/2019-11-21-algorithms-1/</guid>
+      <description>[TOC]
+堆栈 栈(动态调整数组大小) import java.util.Iterator; public class ResizingArrayStack&amp;lt;Item&amp;gt; implements Iterable&amp;lt;Item&amp;gt; { private Item[] a = (Item[]) new Object[1]; //栈元素  private int N = 0; public boolean isEmpty() { return N == 0; } public int size(){ return N; } private void resize(int max) { Item[] tmp = (Item[]) new Object[max]; for(int i=0; i&amp;lt; N; i++) { tmp[i] = a[i]; } a = tmp; } public void push(Item item) { if (N == a.</description>
+    </item>
+    
+  </channel>
+</rss>

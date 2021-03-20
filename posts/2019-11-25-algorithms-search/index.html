@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>&lt;算法&gt;_查找 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="&lt;算法&gt;_查找"/>
+<meta name="twitter:description" content="##算法 [TOC]
+顺序查找(基于无序链表) public class SequentialSearchST&lt;Key, Value&gt; { private Node first;//链表首结点  private class Node { Key key; Value val; Node next; public Node(Key key, Value val, Node next){ this.key = key; this.val = val; this.next= next; } } public Value get(key key){ for (Node x = first; x!= null; x=x."/>
+
+    <meta property="og:title" content="&lt;算法&gt;_查找" />
+<meta property="og:description" content="##算法 [TOC]
+顺序查找(基于无序链表) public class SequentialSearchST&lt;Key, Value&gt; { private Node first;//链表首结点  private class Node { Key key; Value val; Node next; public Node(Key key, Value val, Node next){ this.key = key; this.val = val; this.next= next; } } public Value get(key key){ for (Node x = first; x!= null; x=x." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-25-algorithms-search/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-25T09:28:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-25T09:28:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">&lt;算法&gt;_查找</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 25, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          6 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/algorithms/">algorithms</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/java/">java</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>##算法
+[TOC]</p>
+<h3 id="顺序查找基于无序链表">顺序查找(基于无序链表)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SequentialSearchST</span><span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">,</span> Value<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> Node first<span style="color:#f92672">;</span><span style="color:#75715e">//链表首结点
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Node</span> <span style="color:#f92672">{</span>
+        Key key<span style="color:#f92672">;</span>
+        Value val<span style="color:#f92672">;</span>
+        Node next<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Node</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">,</span> Node next<span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">key</span> <span style="color:#f92672">=</span> key<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">=</span> next<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> Value <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>key key<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Node x <span style="color:#f92672">=</span> first<span style="color:#f92672">;</span> x<span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span> x<span style="color:#f92672">=</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>key<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">){</span>
+                <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">val</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">=</span> first<span style="color:#f92672">;</span> x<span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span> x <span style="color:#f92672">=</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>key<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                x<span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        first <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Node<span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> val<span style="color:#f92672">,</span> first<span style="color:#f92672">);</span><span style="color:#75715e">//未命中，新建结点
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="二分查找基于有序数组">二分查找(基于有序数组)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BinarySearchST</span><span style="color:#f92672">&lt;</span>Key <span style="color:#66d9ef">extends</span> Comparable<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;,</span>Value<span style="color:#f92672">&gt;{</span>
+    <span style="color:#66d9ef">private</span> Key<span style="color:#f92672">[]</span> keys<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> Value<span style="color:#f92672">[]</span> vals<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> N<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">BinarySearchST</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> capacity<span style="color:#f92672">){</span>
+        keys <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Key<span style="color:#f92672">[])</span> <span style="color:#66d9ef">new</span> Comparable<span style="color:#f92672">[</span>capacity<span style="color:#f92672">];</span>
+        vals <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Value<span style="color:#f92672">[])</span> <span style="color:#66d9ef">new</span> Object<span style="color:#f92672">[</span>capacity<span style="color:#f92672">];</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">(){</span>
+        <span style="color:#66d9ef">return</span> N<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> Value <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>isEmpty<span style="color:#f92672">())</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> rank<span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>i <span style="color:#f92672">&lt;</span> N <span style="color:#f92672">&amp;&amp;</span> keys<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>key<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> vals<span style="color:#f92672">[</span>i<span style="color:#f92672">];</span>
+        <span style="color:#66d9ef">else</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span> rank<span style="color:#f92672">(</span>key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>i <span style="color:#f92672">&lt;</span> N <span style="color:#f92672">&amp;&amp;</span> keys<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>key<span style="color:#f92672">)</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">){</span>
+            vals<span style="color:#f92672">[</span>i<span style="color:#f92672">]=</span> val<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> j<span style="color:#f92672">=</span>N <span style="color:#f92672">;</span> j<span style="color:#f92672">&gt;</span>i<span style="color:#f92672">;</span> j<span style="color:#f92672">--){</span>
+            keys<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> keys<span style="color:#f92672">[</span>j<span style="color:#f92672">-</span>1<span style="color:#f92672">];</span>
+            vals<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> vals<span style="color:#f92672">[</span>j<span style="color:#f92672">-</span>1<span style="color:#f92672">];</span>
+        <span style="color:#f92672">}</span>
+        keys<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> key<span style="color:#f92672">;</span>
+        vals<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+        N<span style="color:#f92672">++;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//二分查找
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">rank</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">){</span>
+    <span style="color:#66d9ef">int</span> lo <span style="color:#f92672">=</span>0<span style="color:#f92672">,</span> hi <span style="color:#f92672">=</span> N<span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>lo <span style="color:#f92672">&lt;=</span> hi<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> lo<span style="color:#f92672">+</span> <span style="color:#f92672">(</span>hi<span style="color:#f92672">-</span>lo<span style="color:#f92672">)/</span>2<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> tmp<span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>keys<span style="color:#f92672">[</span>mid<span style="color:#f92672">]);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tmp <span style="color:#f92672">&lt;</span>0<span style="color:#f92672">)</span>
+            hi <span style="color:#f92672">=</span> mid <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>tmp <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span>
+            lo <span style="color:#f92672">=</span> mid <span style="color:#f92672">+</span>1<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">else</span>
+            <span style="color:#66d9ef">return</span> mid<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> 0<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="符号表的各种实现的优缺点">符号表的各种实现的优缺点</h3>
+<table>
+<thead>
+<tr>
+<th>使用的数据结构</th>
+<th>实现</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>链表(顺序查找)</td>
+<td>SequentialSearchST</td>
+<td>适用小型问题</td>
+<td>大型符号表查找慢</td>
+</tr>
+<tr>
+<td>有序数组(二分查找)</td>
+<td>BinarySearchST</td>
+<td>最优的查找效率和空间需求，能够进行有序性相关的操作</td>
+<td>插入操作慢</td>
+</tr>
+<tr>
+<td>二叉查找树</td>
+<td>BST</td>
+<td>实现简单，能进行有序性相关的操作</td>
+<td>没有性能上界的保证，链接需要额外的空间</td>
+</tr>
+<tr>
+<td>平衡二叉查找树</td>
+<td>RedBlackBST</td>
+<td>最优的查找和插入效率，能进行有序性相关的操作</td>
+<td>链接需要额外的空间</td>
+</tr>
+<tr>
+<td>散列表</td>
+<td>SeparateChainHashST                 LinearProbingHashST</td>
+<td>能够快速的查找和插入常见类型的数据</td>
+<td>需要计算每种类型的数据的散列，无法进行有序性相关的操作，链接和空结点需要额外的空间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="二叉查找树算法250">二叉查找树《算法》250</h3>
+<p>每个结点都含有一个Comparable的键且每个结点的键都大于其左子树中的任意结点的键，小于右子树的任意结点的键</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BST</span><span style="color:#f92672">&lt;</span>Key <span style="color:#66d9ef">extends</span> Comparable<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;,</span> Value<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> Node root<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Node</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">private</span> Key key<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">private</span> Value val<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">private</span> Node left<span style="color:#f92672">,</span> right<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> N<span style="color:#f92672">;</span><span style="color:#75715e">//该结点为根的子树中的结点总数
+</span><span style="color:#75715e"></span>
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Node</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> N<span style="color:#f92672">){</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">key</span> <span style="color:#f92672">=</span> key<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> N<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">(){</span>
+        <span style="color:#66d9ef">return</span> size<span style="color:#f92672">(</span>root<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> 0<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">else</span>
+            <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> Value <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">return</span> get<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> Value <span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> Key key<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> tmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tmp <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> get<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tmp <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> get<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">,</span>key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span>
+            <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">val</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+      <span style="color:#75715e">//查找key，找到则更新它的值，否则为它创建一个新的结点
+</span><span style="color:#75715e"></span>        root <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> key<span style="color:#f92672">,</span> val<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+      <span style="color:#75715e">//创建新结点
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Node<span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> val<span style="color:#f92672">,</span> 1<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">int</span> tmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tmp <span style="color:#f92672">&lt;</span>0<span style="color:#f92672">)</span>
+            x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> key <span style="color:#f92672">,</span>val<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>tmp <span style="color:#f92672">&gt;</span>0<span style="color:#f92672">)</span>
+            x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">,</span> key<span style="color:#f92672">,</span> val<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span>
+            x<span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+
+        x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span>size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">)+</span>1<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//最小值
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> Key <span style="color:#a6e22e">min</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> min<span style="color:#f92672">(</span>root<span style="color:#f92672">).</span><span style="color:#a6e22e">key</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> Key <span style="color:#a6e22e">min</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> min<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//小于等于key的最大键
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> Key <span style="color:#a6e22e">floor</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        Node x <span style="color:#f92672">=</span> floor<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">floor</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> Key key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> cmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmp <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+        <span style="color:#75715e">//x.key &gt; key 向x左子树查找小于等于key的值
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmp <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> floor<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+
+        Node t <span style="color:#f92672">=</span> floor<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>t <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> t<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">//**rank()是select()的逆方法**
+</span><span style="color:#75715e"></span>
+    <span style="color:#66d9ef">public</span> Key <span style="color:#a6e22e">select</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> k<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> select<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> k<span style="color:#f92672">).</span><span style="color:#a6e22e">key</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//返回排名为k的结点
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">select</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> k<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> t <span style="color:#f92672">=</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>t <span style="color:#f92672">&gt;</span> k<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> select<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> k<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>t <span style="color:#f92672">&lt;</span> k<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> select<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">,</span> k<span style="color:#f92672">-</span>t<span style="color:#f92672">-</span>1<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">rank</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> rank<span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> root<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//返回x结点的子树中小于x.key的键的数量
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">rank</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Node x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> 0<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">int</span> cmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmp <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> rank<span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span> cmp <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> 1<span style="color:#f92672">+</span>size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span>rank<span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">return</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">//删除最小值
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">deleteMin</span><span style="color:#f92672">(){</span>
+        root <span style="color:#f92672">=</span> deleteMin<span style="color:#f92672">(</span>root<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#75715e">//递归遍历，深入跟结点的左子树直至遇到一个空链接，返回它的右子树即可
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">deleteMin</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">;</span>
+        x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> deleteMin<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">);</span>
+        x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)</span> <span style="color:#f92672">+</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">)</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">//删除
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">delete</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        root <span style="color:#f92672">=</span> delete<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#75715e">/**
+</span><span style="color:#75715e">  	*1.将指向即将被删除的结点的链接保存为t
+</span><span style="color:#75715e">  	*2.将x指向它的后继结点min(t.right)
+</span><span style="color:#75715e">  	*3.将x的右链接指向deleteMin(t.right),也就是在删除后所有结点仍然都大于x.key的子二叉查找树
+</span><span style="color:#75715e">  	*4.将x的左链接设为t.left
+</span><span style="color:#75715e">  	*/</span>
+  	<span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">delete</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> Key key<span style="color:#f92672">){</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">int</span> cmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmp <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> delete<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>cmp <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> delete<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">,</span> key<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">;</span>
+        Node t <span style="color:#f92672">=</span> x<span style="color:#f92672">;</span>
+        x <span style="color:#f92672">=</span> min<span style="color:#f92672">(</span>t<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">);</span>
+        x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> deleteMin<span style="color:#f92672">(</span>t<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">);</span>
+        x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> t<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">;</span>
+      <span style="color:#f92672">}</span>
+      x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span>size<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">)+</span>1<span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+  	<span style="color:#75715e">//范围查找
+</span><span style="color:#75715e"></span>	  <span style="color:#66d9ef">public</span> Iterable<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">keys</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">return</span> keys<span style="color:#f92672">(</span>min<span style="color:#f92672">(),</span> max<span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+  	<span style="color:#66d9ef">public</span> Iterable<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">keys</span><span style="color:#f92672">(</span>Key lo<span style="color:#f92672">,</span> Key hi<span style="color:#f92672">){</span>
+      Queue<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;</span> queue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Queue<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;();</span>
+      keys<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> queue<span style="color:#f92672">,</span> lo<span style="color:#f92672">,</span> hi<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">return</span> queue<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+  	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">keys</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">,</span> Queue<span style="color:#f92672">&lt;</span>Key<span style="color:#f92672">&gt;</span> queue<span style="color:#f92672">,</span> Key lo<span style="color:#f92672">,</span> Key hi<span style="color:#f92672">){</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#f92672">;</span>
+      <span style="color:#66d9ef">int</span> cmplo <span style="color:#f92672">=</span> lo<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">int</span> cmphi <span style="color:#f92672">=</span> hi<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmplo <span style="color:#f92672">&lt;</span> 0 <span style="color:#f92672">)</span> keys<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> queue<span style="color:#f92672">,</span>lo<span style="color:#f92672">,</span> hi<span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmplo <span style="color:#f92672">&lt;=</span>0 <span style="color:#f92672">&amp;&amp;</span> cmphi <span style="color:#f92672">&gt;=</span>0<span style="color:#f92672">)</span> queue<span style="color:#f92672">.</span><span style="color:#a6e22e">enqueue</span><span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>cmphi <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span> keys<span style="color:#f92672">(</span>x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">,</span> queue<span style="color:#f92672">,</span> lo <span style="color:#f92672">,</span>hi<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">//大于等于key的最小键
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> Key <span style="color:#a6e22e">ceiling</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">){</span>
+        <span style="color:#75715e">//TODO
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+  	<span style="color:#66d9ef">public</span> Key <span style="color:#a6e22e">max</span><span style="color:#f92672">(){</span> <span style="color:#75715e">//TODO }
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><h3 id="平衡查找树">平衡查找树</h3>
+<h4 id="2-3查找树">2-3查找树</h4>
+<p>一颗2-3查找树由一下结点组成：
+<code>2-结点</code>：含有一个键和两条链接，左链接指向的2-3树中的键都小于该结点，右链接指向的2-3树中的键都大于该结点；
+<code>3-结点</code>：含有两个键和三条链接，左链接指向的2-3树中的键都小于该结点，中链接指向的2-3树中的键都位于该结点的两个键之间，右链接指向的2-3树中的键都大于该结点。</p>
+<p>一颗<code>完美平衡</code>的2-3查找树中所有的空链接到跟结点的距离都应该是相同的</p>
+<ul>
+<li>
+<p><strong>向2-结点中插入新键</strong>
+只要把2-结点替换为一个3-结点，将要插入的键保存在其中即可</p>
+</li>
+<li>
+<p><strong>向3-结点中插入新键：</strong>
+先临时将新键存入该结点中，使之成为一个4-结点
+将4-结点转换为一颗由3个<code>2-结点</code>组成的2-3树,其中一个结点(根)含有中键，左链接为3个键中的最小值，右链接为三个键中的最大值。
+既是3个结点的二叉查找树，也是完美平衡的2-3树.</p>
+</li>
+<li>
+<p><strong>向一个父结点为<code>2-结点</code>的3-结点中插入新键</strong></p>
+</li>
+</ul>
+<ol>
+<li>构建临时4-结点并将其分解；</li>
+<li>将中键移动到父结点2-结点中，使之成为<code>3-结点</code>；</li>
+<li>临时4-结点的左键，右键分别为父结点的中链接，右链接；并分解为2个<code>2-结点</code>；</li>
+</ol>
+<ul>
+<li><strong>向一个父结点为<code>3-结点</code>的3-结点中插入新键</strong>
+向上不断分解临时的4-节点并将中键插入更高层的父结点，知道遇到一个2-结点将它替换为一个不需要继续分解的3-结点，或到达3-结点的根</li>
+</ul>
+<p><strong>分解根结点</strong>
+如果从插入结点到根结点的路径上都是3-结点，根结点最终变成<code>临时4-结点</code>，将4-结点分解为3个<code>2-结点</code>，使得树高加1 (按照<code>向3-结点中插入新键</code>处理)</p>
+<blockquote>
+<p>插入新键原则：维持树的完美平衡，即<strong>所有空链接到根结点的距离都应该是相同的</strong></p>
+</blockquote>
+<p>2-3树插入算法的根本在于这些变换都是<code>局部的</code>,除了相关的结点和链接之外不必修改或检查树的其它部分
+局部变换不影响树的全局有序性和平衡性</p>
+<blockquote>
+<ul>
+<li>变换之前后根结点到所有空链接的路径长度皆为h，
+当根结点被分解为3个2-结点时，所有空链接到根结点到路径长度会加1</li>
+</ul>
+</blockquote>
+<p><em>2-3树的生长是由下向上的</em></p>
+<h4 id="红黑二叉查找树红黑树">红黑二叉查找树(红黑树)</h4>
+<p>红链接将两个2-结点连接起来构成一个3-结点
+黑连接则是2-3树中的普通链接
+这种表示法的优点是直接使用标准二叉查找树的get()方法</p>
+<p>红黑树另一种定义是含有红黑链接并满足下列条件的二叉查找树：</p>
+<ol>
+<li><strong>红链接均为<code>左链接</code>；</strong></li>
+<li><strong>没有任何一个结点同时和两条红链接相连；</strong></li>
+<li><strong>该树是<code>完美黑色平衡</code>的，即任意空链接到根结点的路径上的黑链接数量相同</strong></li>
+</ol>
+<p>将由红链接相连的结点合并，得到的就是2-3树
+红黑树既是二叉查找树，也是2-3树；结合了二叉查找树中简洁高效的查找方法，2-3树中高效的平衡插入算法。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> RED <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> BLACK <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Node</span> <span style="color:#f92672">{</span>
+    Key key<span style="color:#f92672">;</span>    <span style="color:#75715e">//键
+</span><span style="color:#75715e"></span>    Value val<span style="color:#f92672">;</span>  <span style="color:#75715e">//值
+</span><span style="color:#75715e"></span>  	Node left<span style="color:#f92672">,</span> right<span style="color:#f92672">;</span> <span style="color:#75715e">//左右子树
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> N<span style="color:#f92672">;</span>      <span style="color:#75715e">//该结点中子树的结点总数
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> color<span style="color:#f92672">;</span> <span style="color:#75715e">//其父结点指向它的链接的颜色
+</span><span style="color:#75715e"></span>
+    Node<span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> N<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> color<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">key</span> <span style="color:#f92672">=</span> key<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> N<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> color<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isRed</span><span style="color:#f92672">(</span>Node x<span style="color:#f92672">){</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>x <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">return</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">==</span> RED<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h5 id="旋转-算法277">旋转 (《算法》277)</h5>
+<p>某些操作可能会出现<strong>红色右链接</strong>或<strong>两条连续的红链接</strong>，使用旋转修复。使用旋转可以保持红黑树的两个重要性质：有序性和完美平衡性
+<code>左旋转</code>：一条红色的右链接需要被转化为<code>左链接</code>
+即将两个键中的较小者作为根结点变为较大者作为根结点</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Node <span style="color:#a6e22e">rotateLeft</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">){</span>
+    Node x <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> h<span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> RED<span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> 1<span style="color:#f92672">+</span>size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span>size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+
+Node <span style="color:#a6e22e">rotateRight</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">){</span>
+    Node x <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> h<span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> RED<span style="color:#f92672">;</span>
+    x<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span><span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> 1<span style="color:#f92672">+</span> size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span> size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">return</span> x<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h5 id="插入新键">插入新键</h5>
+<ul>
+<li>向单个2-结点插入新键
+如果新键 &lt;老健，只需新增一个红色的结点，新的红黑树和单个3-结点完全等价
+如果新键 &gt; 老健，新增的红色结点会产生一条红色右链接，使用<code>左旋转root=rotateLeft(root)</code>修正根结点的链接，插入完成</li>
+<li>向数底部的2-结点插入新键
+同单个2-结点</li>
+<li>向一棵双键树(即一个3-结点)中插入新键
+分三种情况：新键小于树中的两个键，在两者之间，大于树中两个键； 每种情况都会产生一个同时连接到<strong>两条红链接</strong>的结点,需要修正
+<ol>
+<li>新键 &gt; 树中的两个键；
+新键被连接到<code>3-结点</code>的右链接，此时树平衡，根结点为中间大小的键，有两条红链接分别与较小和较大的结点相连；将两条链接的颜色<strong>由红转黑</strong>，得到一棵三个结点组成的高为2的平衡树. 是最简单情况</li>
+<li>新键 &lt; 树中两个键:
+它被连接到最左边的空链接，此时产生两条连续的红链接； 将上层的红链接<code>右旋转</code>可得到第一种情况 (中值键为根结点并和其他两个结点用红链接相连)</li>
+<li>新键介于树中的两个键之间:
+将下层的红链接<code>左旋转</code>可得到第二种情况</li>
+</ol>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//颜色转换： 局部操作，不影响整棵树的黑色平衡性
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">flipColors</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">){</span>
+    <span style="color:#75715e">//父结点的颜色由黑变红
+</span><span style="color:#75715e"></span>    h<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> RED<span style="color:#f92672">;</span>
+    <span style="color:#75715e">//将子节点的颜色由红变黑
+</span><span style="color:#75715e"></span>    h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> BLACK<span style="color:#f92672">;</span>
+    h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> BLACK<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><strong>根结点总是黑色</strong>
+红色的根结点说明根结点是一个3-结点的一部分,每当根结点由红变黑时树的黑链接高度就加1</p>
+<blockquote>
+<p>谨慎的使用<code>左旋转</code>，<code>右旋转</code>，<code>颜色转换</code>, 就能保证插入操作后<code>红黑树</code>和<code>2-3树</code>的一一对应关系</p>
+</blockquote>
+<p><strong>如果右子结点是红色而左子结点是黑色，进行<code>左旋转</code>；</strong>
+<strong>左子结点是红色且它的左子结点也是红色，进行<code>右旋转</code>；</strong>
+<strong>如果左右子节点均为红色，进行<code>颜色转换</code>;</strong></p>
+<h5 id="红黑树的插入算法">红黑树的插入算法</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RedBlackBST</span><span style="color:#f92672">&lt;</span>Key <span style="color:#66d9ef">extends</span> Comparable<span style="color:#f92672">&lt;</span>key<span style="color:#f92672">&gt;,</span> Value<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> Node root<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isRed</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">rotateLeft</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">rotateRight</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">flipColors</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">size</span><span style="color:#f92672">();</span>
+
+    <span style="color:#75715e">//查找key，找到则更新值；否则新建一个结点
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+        root <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>root<span style="color:#f92672">,</span> key<span style="color:#f92672">,</span> val<span style="color:#f92672">);</span>
+        root<span style="color:#f92672">.</span><span style="color:#a6e22e">color</span> <span style="color:#f92672">=</span> BLACK<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">private</span> Node <span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>Node h<span style="color:#f92672">,</span> Key key<span style="color:#f92672">,</span> Value val<span style="color:#f92672">){</span>
+    <span style="color:#75715e">//标准的插入，和父结点用红链接相连
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>h <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Node<span style="color:#f92672">(</span>key <span style="color:#f92672">,</span>val<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> RED<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">int</span> tmp <span style="color:#f92672">=</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">key</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>tmp <span style="color:#f92672">&lt;</span> 0<span style="color:#f92672">)</span>
+            h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span> <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">,</span> key<span style="color:#f92672">,</span> val<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>tmp <span style="color:#f92672">&gt;</span> 0<span style="color:#f92672">)</span>
+            h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span> <span style="color:#f92672">=</span> put<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">,</span> key<span style="color:#f92672">,</span> val<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">else</span>
+            h<span style="color:#f92672">.</span><span style="color:#a6e22e">val</span> <span style="color:#f92672">=</span> val<span style="color:#f92672">;</span>
+
+        <span style="color:#75715e">//左旋转，右旋转，颜色转换
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">))</span>
+            h <span style="color:#f92672">=</span> rotateLeft<span style="color:#f92672">(</span>h<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">))</span>
+            h <span style="color:#f92672">=</span> rotateRight<span style="color:#f92672">(</span>h<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> isRed<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">))</span>
+            flipColors<span style="color:#f92672">(</span>h<span style="color:#f92672">);</span>
+
+        h<span style="color:#f92672">.</span><span style="color:#a6e22e">N</span> <span style="color:#f92672">=</span> size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">left</span><span style="color:#f92672">)+</span>size<span style="color:#f92672">(</span>h<span style="color:#f92672">.</span><span style="color:#a6e22e">right</span><span style="color:#f92672">)</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">return</span> h<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>结论: <strong>所有基于红黑树的符号表实现都能保证操作的运行时间为对数级别</strong></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

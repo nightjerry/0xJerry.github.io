@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>kotlin1 函数&amp;变量 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kotlin1 函数&amp;变量"/>
+<meta name="twitter:description" content="1. 函数和变量 1.1 函数 fun main(args: Array&lt;String&gt;){ println(&#34;Hello world!&#34;) } 函数以关键字fun开始声明，函数名称紧随其后，参数列表用小括号括起来，返回值类型位于参数列表后，之间用:分隔；
+ 语句和表达式: kotlin中表达式有值，可以使用变量引用，而语句没有值；java中所有的控制结构都是语句； kotlin中除了循环(for,while,do/while)以外大多数控制结构都是表达式；
+ 表达式函数体
+fun max(a:Int, b:Int):Int = if (a&gt; b) a else b 只有表达式体函数的返回类型可以省略，有返回值的代码块体函数，必须显示写出返回值类型和return
+1.2 变量 kotlin变量类型可以省略，如果没有初始化，需要显示指定类型；
+val answer = 42 //省略变量类型 val answer:Int //指定类型 answer = 42 变量声明语法： val/var 变量名: 变量类型 = x
+可变变量和不可变量
+ val(value简写): 不可变引用；相当于java的final var(variable简写): 可变引用，可以多次修改；  默认情况下，使用val关键字声明变量； val引用自身是不可变的，但指向的对象可能是可变的； 例："/>
+
+    <meta property="og:title" content="kotlin1 函数&amp;变量" />
+<meta property="og:description" content="1. 函数和变量 1.1 函数 fun main(args: Array&lt;String&gt;){ println(&#34;Hello world!&#34;) } 函数以关键字fun开始声明，函数名称紧随其后，参数列表用小括号括起来，返回值类型位于参数列表后，之间用:分隔；
+ 语句和表达式: kotlin中表达式有值，可以使用变量引用，而语句没有值；java中所有的控制结构都是语句； kotlin中除了循环(for,while,do/while)以外大多数控制结构都是表达式；
+ 表达式函数体
+fun max(a:Int, b:Int):Int = if (a&gt; b) a else b 只有表达式体函数的返回类型可以省略，有返回值的代码块体函数，必须显示写出返回值类型和return
+1.2 变量 kotlin变量类型可以省略，如果没有初始化，需要显示指定类型；
+val answer = 42 //省略变量类型 val answer:Int //指定类型 answer = 42 变量声明语法： val/var 变量名: 变量类型 = x
+可变变量和不可变量
+ val(value简写): 不可变引用；相当于java的final var(variable简写): 可变引用，可以多次修改；  默认情况下，使用val关键字声明变量； val引用自身是不可变的，但指向的对象可能是可变的； 例：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-14-kotlin1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-14T16:48:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-14T16:48:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">kotlin1 函数&amp;变量</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 14, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h2 id="1-函数和变量">1. 函数和变量</h2>
+<h3 id="11-函数">1.1 函数</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">main</span>(args: Array&lt;String&gt;){
+	println(<span style="color:#e6db74">&#34;Hello world!&#34;</span>)
+}
+</code></pre></div><p>函数以关键字<code>fun</code>开始声明，<code>函数名称</code>紧随其后，<code>参数列表</code>用小括号括起来，<code>返回值类型</code>位于参数列表后，之间用<code>:</code>分隔；</p>
+<blockquote>
+<p><strong>语句和表达式:</strong>
+kotlin中表达式有值，可以使用变量引用，而语句没有值；java中所有的控制结构都是语句；
+kotlin中除了循环(for,while,do/while)以外大多数控制结构都是表达式；</p>
+</blockquote>
+<p><em><strong>表达式函数体</strong></em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">max</span>(a:Int, b:Int):Int = <span style="color:#66d9ef">if</span> (a&gt; b) a <span style="color:#66d9ef">else</span> b
+</code></pre></div><p>只有<strong>表达式体函数的返回类型可以省略</strong>，有返回值的代码块体函数，必须显示写出返回值类型和<code>return</code></p>
+<h3 id="12-变量">1.2 变量</h3>
+<p>kotlin变量类型可以省略，如果没有初始化，需要显示指定类型；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> answer = <span style="color:#ae81ff">42</span> <span style="color:#75715e">//省略变量类型
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> answer:Int  <span style="color:#75715e">//指定类型
+</span><span style="color:#75715e"></span>answer = <span style="color:#ae81ff">42</span>
+</code></pre></div><p>变量声明语法：
+<code>val</code>/<code>var</code> <code>变量名: 变量类型 = x</code></p>
+<p>可变变量和不可变量</p>
+<ul>
+<li><code>val</code>(value简写): 不可变引用；相当于java的<code>final</code></li>
+<li><code>var</code>(variable简写): 可变引用，可以多次修改；</li>
+</ul>
+<p>默认情况下，使用<code>val</code>关键字声明变量；
+<code>val</code>引用自身是不可变的，但指向的对象可能是可变的；
+例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> language = arrayListOf(<span style="color:#e6db74">&#34;java&#34;</span>)
+language.add(<span style="color:#e6db74">&#34;Kotlin&#34;</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">main</span>(args: Array&lt;String&gt;) {
+    <span style="color:#66d9ef">val</span> name = <span style="color:#66d9ef">if</span> (args.size &gt; <span style="color:#ae81ff">0</span>) args[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#34;Kotlin&#34;</span>
+    println(<span style="color:#e6db74">&#34;Hello, </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">!&#34;</span>) <span style="color:#75715e">//字符串模版
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>执行结果： <code>Hello, Kotlin!</code>
+<code>字符串模版$</code>: 相当于java中的字符串拼接(&ldquo;Hello, &ldquo;+name+&rdquo;!&quot;), 使用<code>$</code>在字符串内取变量的值，并替换到当前位置；</p>
+<p>使用<code>$</code>取表达式的值，可以在双引号中嵌套双引号，处于表达式(即花括号)内；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">main</span>(args: Array&lt;String&gt;) {
+    println(<span style="color:#e6db74">&#34;Hello, </span><span style="color:#e6db74">${if (args.size&gt;0) args[0] else &#34;Kotlin&#34;}</span><span style="color:#e6db74">!&#34;</span>)
+}
+</code></pre></div><p>执行结果： <code>Hello, Kotlin!</code></p>
+<h2 id="2-类和属性">2. 类和属性</h2>
+<p>属性：自带java的get，set方法；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>{
+    <span style="color:#66d9ef">val</span> name: String, <span style="color:#75715e">//只读属性：生成一个字段和getter
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> age: Int <span style="color:#75715e">//可写属性:一个字段和getter，setter
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>当声明属性的时候，就声明了对应的访问器</p>
+<h3 id="自定义访问器">自定义访问器</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Rect</span>(<span style="color:#66d9ef">val</span> height:Int, <span style="color:#66d9ef">val</span> width: Int) {
+    <span style="color:#66d9ef">val</span> isSquare: Boolean
+        <span style="color:#66d9ef">get</span>() { <span style="color:#75715e">//声明属性的getter方法
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span> height <span style="color:#f92672">==</span> width
+        }
+}
+</code></pre></div><h2 id="3-枚举和when">3. 枚举和when</h2>
+<p>枚举的声明：使用<code>enum class</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Color</span> {
+    RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET
+}
+</code></pre></div><p>声明属性和方法</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Color</span>(<span style="color:#66d9ef">val</span> r: Int, <span style="color:#66d9ef">val</span> g:Int, <span style="color:#66d9ef">val</span> b: Int){
+    RED(<span style="color:#ae81ff">255</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>), GREEN(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">255</span>,<span style="color:#ae81ff">0</span>), BLUE(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">255</span>);<span style="color:#75715e">//分号是必须的,
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//使用分号将枚举常量列表和方法分开
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">rgb</span>() = (r*<span style="color:#ae81ff">255</span>+g)*<span style="color:#ae81ff">255</span>+<span style="color:#ae81ff">0</span>
+}
+println(Color.BLUE.rgb()) <span style="color:#75715e">//255
+</span></code></pre></div><h3 id="31-when处理枚举类">3.1 when处理枚举类</h3>
+<p>when是一个有返回值的表达式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">getColor</span>(color: Color) = <span style="color:#66d9ef">when</span>(color) {
+    Color.RED <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;red&#34;</span>
+    Color.GREEN <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;green&#34;</span>
+    Color.BLUE <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;blue&#34;</span>
+}
+println(getColor(Color.RED)) <span style="color:#75715e">// red
+</span></code></pre></div><h3 id="合并多个选项">合并多个选项</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//合并多个选项
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">getWarmth</span>(color: Color)= <span style="color:#66d9ef">when</span>(color) {
+    Color.RED, Color.ORANGE, Color.YELLOW <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;warm&#34;</span>
+    Color.GREEN <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;neutral&#34;</span>
+    Color.BLUE, Color.INDIGO, Color.VIOLET <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;cold&#34;</span>
+}
+</code></pre></div><h3 id="when处理任意对象">when处理任意对象</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">mix</span>(c1: Color, c2: Color) = <span style="color:#66d9ef">when</span>(setOf(c1, c2)){
+    setOf(RED,YELLOW) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;red and yellow&#34;</span>
+    setOf(GREEN, BLUE) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;green and blue&#34;</span>
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">throw</span> Exception(<span style="color:#e6db74">&#34;Dirty color&#34;</span>)
+}
+</code></pre></div><h3 id="不带参数的when">不带参数的when</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">mix</span>(c1: Color, c2:Color) = <span style="color:#66d9ef">when</span>{
+    (c1 <span style="color:#f92672">==</span> RED <span style="color:#f92672">&amp;&amp;</span> c2 <span style="color:#f92672">==</span> YELLOW) <span style="color:#f92672">||</span>
+    (c1 <span style="color:#f92672">==</span> YELLOW <span style="color:#f92672">&amp;&amp;</span> c2 <span style="color:#f92672">==</span> RED) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;red and yellow&#34;</span>
+    (c1 <span style="color:#f92672">==</span> GREEN <span style="color:#f92672">&amp;&amp;</span> c2 <span style="color:#f92672">==</span> BLUE) <span style="color:#f92672">||</span>
+    (c1 <span style="color:#f92672">==</span> BLUE <span style="color:#f92672">&amp;&amp;</span> c2 <span style="color:#f92672">==</span> GREEN) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;green and blue&#34;</span>
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">throw</span> Exception(<span style="color:#e6db74">&#34;Dirty color&#34;</span>)
+}
+println(mix(BLUE,GREEN)) <span style="color:#75715e">// green and blue
+</span></code></pre></div><h2 id="4-迭代-while-和for">4. 迭代： while 和for</h2>
+<p>while循环和do/while循环与java的用法一致；</p>
+<h3 id="区间">区间</h3>
+<p>使用<code>..</code>运算符表示区间，kotlin的区间是包含的，或者说闭合的；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">for</span>(i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1.</span>.<span style="color:#ae81ff">100</span>) <span style="color:#75715e">// 循环1至100， 包含100
+</span></code></pre></div><p>使用<code>until</code>表示不闭合，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">for</span> (i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span> until <span style="color:#ae81ff">100</span>) <span style="color:#75715e">// 1至99
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//打印FizzBuzz
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">fizzBuzz</span>(i: Int)= <span style="color:#66d9ef">when</span>{
+    i % <span style="color:#ae81ff">15</span> <span style="color:#f92672">==</span><span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;FizzBuzz&#34;</span>
+    i % <span style="color:#ae81ff">3</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Fizz&#34;</span>
+    i % <span style="color:#ae81ff">5</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Buzz&#34;</span>
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">$i</span><span style="color:#e6db74">&#34;</span>
+}
+<span style="color:#66d9ef">for</span>(i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1.</span>.<span style="color:#ae81ff">100</span>){
+    println(fizzBuzz(i))
+}
+</code></pre></div><h3 id="步长">步长:</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//步长是2，可以是负数，从100至1 ： 100，98，96...
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">for</span> (i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">100</span> downTo <span style="color:#ae81ff">1</span> step <span style="color:#ae81ff">2</span>){
+    print(fizzBuzz(i))
+}
+</code></pre></div><h3 id="迭代map">迭代map</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> binarymap = TreeMap&lt;Char, String&gt;()
+<span style="color:#66d9ef">for</span> (c <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;C&#39;</span>) {
+    <span style="color:#66d9ef">val</span> binary = Integer.toBinaryString(c.toInt())
+    binarymap[c] = binary
+}
+<span style="color:#66d9ef">for</span>((letter, binary) <span style="color:#66d9ef">in</span> binarymap) { <span style="color:#75715e">//迭代map
+</span><span style="color:#75715e"></span>    println(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">$letter</span><span style="color:#e6db74"> = </span><span style="color:#e6db74">$binary</span><span style="color:#e6db74">&#34;</span>)
+}
+</code></pre></div><p>使用<code>map[key]</code>读取值，使用<code>map[key]=value</code> 设置值；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> list = arrayListOf({<span style="color:#e6db74">&#34;10&#34;</span>, <span style="color:#e6db74">&#34;11&#34;</span>,<span style="color:#e6db74">&#34;111&#34;</span>})
+<span style="color:#66d9ef">for</span>((index, element) <span style="color:#66d9ef">in</span> list.withIndex()) {
+<span style="color:#75715e">//withIndex返回下标及元素
+</span><span style="color:#75715e"></span>    println(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">$index</span><span style="color:#e6db74">: </span><span style="color:#e6db74">$element</span><span style="color:#e6db74">&#34;</span>)
+}
+<span style="color:#75715e">//0: 10
+</span><span style="color:#75715e">//1: 11
+</span><span style="color:#75715e">//2: 111
+</span></code></pre></div><h3 id="in检查集合成员">in：检查集合成员</h3>
+<p>使用<code>in</code>检查一个值是否在区间内，<code>!in</code> 检查一个值是否<strong>不在</strong>区间内。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">isLetter</span>(c: Char) = c <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;a&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;z&#39;</span> <span style="color:#f92672">||</span> c <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;Z&#39;</span>
+</code></pre></div><h3 id="in适用于when表达式">in适用于when表达式</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">test</span>(c: Char) = <span style="color:#66d9ef">when</span>(c){
+    <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;0&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;9&#39;</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;It&#39;s a digit&#34;</span>
+    <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;a&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;z&#39;</span>, <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;Z&#39;</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;It&#39;s a letter&#34;</span>
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;I don&#39;t know&#34;</span>
+}
+println(test(<span style="color:#e6db74">&#39;8&#39;</span>)) <span style="color:#75715e">// It&#39;s a digit
+</span></code></pre></div><h2 id="5-异常trycatch">5. 异常try/catch</h2>
+<p><code>try</code>可以是有返回值的表达式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">div</span>(a: Int, b: Int){
+    <span style="color:#66d9ef">val</span> v = <span style="color:#66d9ef">try</span>{
+        a/b
+    }<span style="color:#66d9ef">catch</span>(e: Exception){
+        -<span style="color:#ae81ff">1</span>
+    }
+    println(v)
+}
+div(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>) <span style="color:#75715e">// -1
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">readNumber</span>(reader: BufferedReader) {
+    <span style="color:#66d9ef">val</span> number = <span style="color:#66d9ef">try</span>{
+        Integer.parseInt(reader.readLine())
+    }<span style="color:#66d9ef">catch</span>(e: NumberFormatException){
+        <span style="color:#66d9ef">null</span>
+    }
+    println(number)
+}
+<span style="color:#66d9ef">val</span> reader = BufferedReader(StringReader(<span style="color:#e6db74">&#34;not a number&#34;</span>))
+readerNumber(reader) <span style="color:#75715e">// null
+</span></code></pre></div><blockquote>
+<p>如果try代码块之行正常，代码块中的最后一个表达式就是结果；如果捕获到异常，catch代码块最后一个表达式就是结果</p>
+</blockquote>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

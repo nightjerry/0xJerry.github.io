@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>kotlin basic 5 lambda // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kotlin basic 5 lambda"/>
+<meta name="twitter:description" content="lambda语法 始终在花括号内，箭头将实参列表与函数体隔开
+{x: Int, y: Int -&gt; x&#43;y} val people = listOf(Person(&#34;Bob&#34;,29), Person(&#34;Alice&#34;,20)) println(people.maxBy{ it.age}) //Person(name=Bob, age=29) //`it`是自动生成的参数名称  people.maxBy(){ p:Person -&gt; p.age}//显式写出参数类型 people.maxBy {p: Person -&gt; p.age}//当lambda是唯一参数时，可去掉括号 people.maxBy {p -&gt; p.age} //推导出参数类型  最好显示声明每个lambda的参数
+ 成员引用:: 创建一个调用单个方法或访问单个属性的函数值, 双冒号将类名称与要引用的成员名隔开,不要在成员引用的名称后加括号 还可以引用顶层函数
+fun salute() = println(&#34;hello&#34;) run(::salute) 集合的函数式API filter和map filter函数可以从集合中移除不想要的元素，但不会改变这些元素；起过滤作用 map函数对集合中的每个元素应用给定的函数并把结果收集到新集合
+val list = listOf(1,2,3,4) println(list."/>
+
+    <meta property="og:title" content="kotlin basic 5 lambda" />
+<meta property="og:description" content="lambda语法 始终在花括号内，箭头将实参列表与函数体隔开
+{x: Int, y: Int -&gt; x&#43;y} val people = listOf(Person(&#34;Bob&#34;,29), Person(&#34;Alice&#34;,20)) println(people.maxBy{ it.age}) //Person(name=Bob, age=29) //`it`是自动生成的参数名称  people.maxBy(){ p:Person -&gt; p.age}//显式写出参数类型 people.maxBy {p: Person -&gt; p.age}//当lambda是唯一参数时，可去掉括号 people.maxBy {p -&gt; p.age} //推导出参数类型  最好显示声明每个lambda的参数
+ 成员引用:: 创建一个调用单个方法或访问单个属性的函数值, 双冒号将类名称与要引用的成员名隔开,不要在成员引用的名称后加括号 还可以引用顶层函数
+fun salute() = println(&#34;hello&#34;) run(::salute) 集合的函数式API filter和map filter函数可以从集合中移除不想要的元素，但不会改变这些元素；起过滤作用 map函数对集合中的每个元素应用给定的函数并把结果收集到新集合
+val list = listOf(1,2,3,4) println(list." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-11-15-kotlin4/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-11-15T09:57:02&#43;08:00" />
+<meta property="article:modified_time" content="2019-11-15T09:57:02&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">kotlin basic 5 lambda</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 15, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h3 id="lambda语法">lambda语法</h3>
+<p>始终在花括号内，箭头将实参列表与函数体隔开</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">{x: Int, y: Int <span style="color:#f92672">-&gt;</span> x+y}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> people = listOf(Person(<span style="color:#e6db74">&#34;Bob&#34;</span>,<span style="color:#ae81ff">29</span>), Person(<span style="color:#e6db74">&#34;Alice&#34;</span>,<span style="color:#ae81ff">20</span>))
+println(people.maxBy{ <span style="color:#66d9ef">it</span>.age}) <span style="color:#75715e">//Person(name=Bob, age=29)
+</span><span style="color:#75715e">//`it`是自动生成的参数名称
+</span><span style="color:#75715e"></span>
+people.maxBy(){ p:Person <span style="color:#f92672">-&gt;</span> p.age}<span style="color:#75715e">//显式写出参数类型
+</span><span style="color:#75715e"></span>people.maxBy {p: Person <span style="color:#f92672">-&gt;</span> p.age}<span style="color:#75715e">//当lambda是唯一参数时，可去掉括号
+</span><span style="color:#75715e"></span>people.maxBy {p <span style="color:#f92672">-&gt;</span> p.age} <span style="color:#75715e">//推导出参数类型
+</span></code></pre></div><blockquote>
+<p>最好显示声明每个lambda的参数</p>
+</blockquote>
+<h3 id="成员引用">成员引用<code>::</code></h3>
+<p>创建一个调用单个方法或访问单个属性的函数值, 双冒号将类名称与要引用的成员名隔开,<em><strong>不要</strong></em>在成员引用的名称后加括号
+还可以引用顶层函数</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">salute</span>() = println(<span style="color:#e6db74">&#34;hello&#34;</span>)
+run(<span style="color:#f92672">::</span>salute)
+</code></pre></div><h2 id="集合的函数式api">集合的函数式API</h2>
+<h3 id="filter和map">filter和map</h3>
+<p><code>filter</code>函数可以从集合中移除不想要的元素，但不会改变这些元素；起过滤作用
+<code>map</code>函数对集合中的每个元素应用给定的函数并把结果收集到新集合</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> list = listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>)
+println(list.filter{ <span style="color:#66d9ef">it</span> % <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>}) <span style="color:#75715e">//[2,4]
+</span><span style="color:#75715e"></span>println(list.map{<span style="color:#66d9ef">it</span> * <span style="color:#66d9ef">it</span>} <span style="color:#75715e">//[1,4,9,16]
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">people.filter{<span style="color:#66d9ef">it</span>.age&gt; <span style="color:#ae81ff">20</span>}.map(Person<span style="color:#f92672">::</span>name) <span style="color:#75715e">//[Bob]
+</span></code></pre></div><p>针对map应用过滤和变换</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> numbers = mapOf(<span style="color:#ae81ff">0</span> to <span style="color:#e6db74">&#34;zero&#34;</span>, <span style="color:#ae81ff">1</span> to <span style="color:#e6db74">&#34;one&#34;</span>)
+println(numbers.mapValues { <span style="color:#66d9ef">it</span>.value.toUpperCase()} <span style="color:#75715e">//{0=ZERO, 1=ONE}
+</span></code></pre></div><h3 id="对集合应用判断式allanycountfind">对集合应用判断式：<code>all``any``count``find</code></h3>
+<p><code>count</code>函数检查有多少元素满足判断式，
+<code>find</code>函数返回第一个符合条件的元素
+<code>all</code>是否所有元素满足判断式
+<code>any</code>检查集合汇总是否<strong>至少</strong>存在一个匹配的元素</p>
+<blockquote>
+<p><code>!</code>加上判断式，表示取反</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> canInClub = {p: Person <span style="color:#f92672">-&gt;</span> p.age <span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">27</span>}
+<span style="color:#66d9ef">val</span> people = listOf(Person(<span style="color:#e6db74">&#34;Alice&#34;</span>, <span style="color:#ae81ff">27</span>), Person(<span style="color:#e6db74">&#34;Bob&#34;</span>, <span style="color:#ae81ff">31</span>))
+println(people.all(canInClub)) <span style="color:#75715e">//false
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> list = listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>)
+println(list.any{<span style="color:#66d9ef">it</span> <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span>}) <span style="color:#75715e">// true
+</span><span style="color:#75715e"></span>
+println(people.count(canInClub)) <span style="color:#75715e">//1
+</span></code></pre></div><p><code>count</code>与<code>size</code>对比</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">println(people.filter(canInClub).size)<span style="color:#75715e">//1
+</span><span style="color:#75715e">//这种情况下中间集合绘被创建并用来存储所有满足判断式的元素
+</span></code></pre></div><h3 id="groupby--把列表转成map">groupBy : 把列表转成map</h3>
+<p><code>groupBy</code>起过滤作用，根据条件得到map</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> people = listOf(Person(<span style="color:#e6db74">&#34;Alice&#34;</span>, <span style="color:#ae81ff">31</span>), Person(<span style="color:#e6db74">&#34;Bob&#34;</span>, <span style="color:#ae81ff">29</span>), Person(<span style="color:#e6db74">&#34;Carol&#34;</span>, <span style="color:#ae81ff">31</span>))
+println(people.groupBy{ <span style="color:#66d9ef">it</span>.age})
+</code></pre></div><blockquote>
+<p>得到的结果类型是<code>Map&lt;Int,List&lt;Person&gt;&gt;</code>,使用<code>mapKeys</code>，<code>mapValues</code>查询</p>
+</blockquote>
+<h3 id="flatmap和flatten">flatMap和flatten</h3>
+<p><code>flatMap</code>对集合中的每个元素做映射，把多个列表合并成一个列表</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> strings = listOf(<span style="color:#e6db74">&#34;abc&#34;</span>, <span style="color:#e6db74">&#34;def&#34;</span>)
+println(strings.flatMap{ <span style="color:#66d9ef">it</span>.toList()})
+<span style="color:#75715e">//[a,b,c,d,e,f]
+</span></code></pre></div><h3 id="序列惰性集合操作">序列：惰性集合操作</h3>
+<p><code>filter</code>和<code>map</code>都会返回一个列表，如果集合元素多，链式调用会变得低效.
+为了提高效率，可以把操作集合变成使用<code>序列</code>
+使用序列更高效地对集合元素执行链式操作，不需要创建额外的集合来保存过程中产生的中间结果.</p>
+<p><code>Sequence</code>只提供一个方法<code>iterator</code>，用来从序列中获取值
+调用<code>asSequence</code>把集合转换成序列，调用<code>toList</code>把序列转集合</p>
+<h3 id="执行序列操作-中间和末端操作">执行序列操作： 中间和末端操作</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">sequence.map{<span style="color:#f92672">..</span>.}.filter{<span style="color:#f92672">..</span>.}.toList()
+<span style="color:#75715e">//toList()为末端操作，map/filter为中间操作
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>).asSequence()<span style="color:#75715e">//把初始集合转成序列
+</span><span style="color:#75715e"></span>               .map{print(<span style="color:#e6db74">&#34;map(</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">) &#34;</span>); <span style="color:#66d9ef">it</span>*<span style="color:#66d9ef">it</span>}
+               .filter{ print(<span style="color:#e6db74">&#34;filter(</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">) &#34;</span>); <span style="color:#66d9ef">it</span> % <span style="color:#ae81ff">2</span><span style="color:#f92672">==</span><span style="color:#ae81ff">0</span> }
+</code></pre></div><p>执行这段代码不会在控制台输出任何内容，map和filter变换被延期了,只有获取结果时才被应用(即末端操作被调用的时候)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>).asSequence()
+        .map{print(<span style="color:#e6db74">&#34;map(</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">) &#34;</span>); <span style="color:#66d9ef">it</span>*<span style="color:#66d9ef">it</span>}
+        .filter{ print(<span style="color:#e6db74">&#34;filter(</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">) &#34;</span>); <span style="color:#66d9ef">it</span>%<span style="color:#ae81ff">2</span><span style="color:#f92672">==</span><span style="color:#ae81ff">0</span> }
+        .toList()
+<span style="color:#75715e">//map(1) filter(1) map(2) filter(4) map(3) filter(9) map(4) filter(16)
+</span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">末端操作触发执行了所有的延期计算</span>
+</code></pre></div><p>操作顺序：对序列来说，所有操作是按顺序应用在每个元素上.也就是说一个元素执行完所有中间操作后，再执行下一个元素</p>
+<p>这种操作意味着部分元素不会发生转换，惰性求值逐个处理元素</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">println(listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>).asSequence().map{<span style="color:#66d9ef">it</span> * <span style="color:#66d9ef">it</span>}.find{ <span style="color:#66d9ef">it</span> &gt; <span style="color:#ae81ff">3</span>})
+println(listOf(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>).map{<span style="color:#66d9ef">it</span> * <span style="color:#66d9ef">it</span>}.find{ <span style="color:#66d9ef">it</span> &gt; <span style="color:#ae81ff">3</span>})
+</code></pre></div><blockquote>
+<p>第一行方法集合中的元素只执行前两个中间操作，然后发现满足条件元素，直接返回结果，后面的元素不再执行map,find
+第二行方法对集合中的所有元素先执行map，再执行find
+先应用filter有助于减少变换的总次数</p>
+</blockquote>
+<h3 id="创建序列">创建序列</h3>
+<ul>
+<li>集合上调用<code>asSequence()</code></li>
+<li><code>generateSequence</code>给定序列的一个元素，计算下一个元素</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> natureNumbers = generateSequence(<span style="color:#ae81ff">0</span>){<span style="color:#66d9ef">it</span>+<span style="color:#ae81ff">1</span>}
+<span style="color:#66d9ef">val</span> numbers = natureNumbers.takeWhile{ <span style="color:#66d9ef">it</span> <span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">100</span>}
+println(numbers.sum()) <span style="color:#75715e">// 5050
+</span></code></pre></div><h3 id="函数式接口">函数式接口</h3>
+<p>接口只有一个抽象方法，这种接口称<code>函数式接口</code>，或<code>SAM</code>接口
+<code>SAM</code>代表单抽象方法</p>
+<h3 id="sam构造方法把lambda转换成函数式接口">SAM构造方法：把lambda转换成函数式接口</h3>
+<p><code>SAM构造方法</code>只接收一个参数, 就是一个被用作函数式接口单抽象方法体的lambda，并返回实现了这个接口的类的一个实例
+可以用变量存储SAM构造方法返回的类的实例</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> listener = OnClickListener{ view <span style="color:#f92672">-&gt;</span>
+    <span style="color:#66d9ef">val</span> text = <span style="color:#66d9ef">when</span>(view.id){
+        button.id <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Click&#34;</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;unknow id&#34;</span>
+    }
+    toast(text)
+}
+button.setOnClickListener(listener)
+</code></pre></div><blockquote>
+<p>更简洁的实现单抽象方法接口</p>
+</blockquote>
+<h3 id="with与apply-带接受者的lambda"><code>with</code>与<code>apply</code>: 带接受者的lambda</h3>
+<p><code>with</code>对同一个对象执行多次操作，不需要反复使用对象名称</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">alphabet</span>(): String {
+    <span style="color:#66d9ef">val</span> result = StringBuilder()
+    <span style="color:#66d9ef">for</span> (letter <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;G&#39;</span>)
+        result.append(letter)
+    result.append(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Now I know the alphabet!&#34;</span>)
+    <span style="color:#66d9ef">return</span> result.toString()
+}
+println(alphabet())<span style="color:#75715e">//ABCDEFG Now I know the alphabet!
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//与上例等同
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">alphabet</span>(): String() {
+    <span style="color:#66d9ef">val</span> stringBuilder = StringBuilder()
+    <span style="color:#66d9ef">return</span> with(stringBuilder) {
+        <span style="color:#66d9ef">for</span> (letter <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;G&#39;</span>)
+            <span style="color:#66d9ef">this</span>.append(letter)
+        append(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Now I know the alphabet!&#34;</span>)
+        <span style="color:#66d9ef">this</span>.toString()
+    }
+}
+</code></pre></div><p><code>with</code>函数把第一个参数转换成作为第二个参数传给lambda的接受者，可以使用this引用来访问这个接受者，也可以省略this</p>
+<p><code>with</code>返回的值就是执行lambda的结果，是lambda中最后一个表达式的值.
+<code>apply</code>与<code>with</code>函数一摸一样，区别是<code>apply</code>始终会返回作为实参传递给它的对象，就是说将参数对象返回</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">alphabet</span>() = StringBuilder.apply{
+    <span style="color:#66d9ef">for</span> (letter <span style="color:#66d9ef">in</span> <span style="color:#e6db74">&#39;A&#39;</span><span style="color:#f92672">..</span><span style="color:#e6db74">&#39;G&#39;</span>)
+        append(letter)
+    append(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Now I know the alphabet!&#34;</span>)
+}.toString()
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

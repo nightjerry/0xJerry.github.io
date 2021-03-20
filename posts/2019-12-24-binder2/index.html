@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Binder机制之messenger，aidl // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Binder机制之messenger，aidl"/>
+<meta name="twitter:description" content="[TOC]
+Messenger 轻量级的IPC方式，底层实现是aidl
+通信范例(client sendMsg to server) 步骤：
+ 服务端进程；实现逻辑如下  //1.创建service  public class MessengerService extends Services { //2.创建处理消息的handler  private static class MessengerHandler extends Handler { @Override public void handleMessage(Message msg) { //处理消息  switch(msg.what) { case MSG_FROM_CLIENT: Log.e(&#34;tag&#34;,&#34;receive msg:&#34;=msg.getData().getString(&#34;msg&#34;)); break; default: break; } } } //3.根据Handler创建Messenger  private final Messenger mMessenger = new Messenger(new MessengerHandler()); //4."/>
+
+    <meta property="og:title" content="Binder机制之messenger，aidl" />
+<meta property="og:description" content="[TOC]
+Messenger 轻量级的IPC方式，底层实现是aidl
+通信范例(client sendMsg to server) 步骤：
+ 服务端进程；实现逻辑如下  //1.创建service  public class MessengerService extends Services { //2.创建处理消息的handler  private static class MessengerHandler extends Handler { @Override public void handleMessage(Message msg) { //处理消息  switch(msg.what) { case MSG_FROM_CLIENT: Log.e(&#34;tag&#34;,&#34;receive msg:&#34;=msg.getData().getString(&#34;msg&#34;)); break; default: break; } } } //3.根据Handler创建Messenger  private final Messenger mMessenger = new Messenger(new MessengerHandler()); //4." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/2019-12-24-binder2/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2019-12-24T10:55:00&#43;08:00" />
+<meta property="article:modified_time" content="2019-12-24T10:55:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Binder机制之messenger，aidl</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Dec 24, 2019
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          4 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<h2 id="messenger">Messenger</h2>
+<p>轻量级的IPC方式，底层实现是aidl</p>
+<h3 id="通信范例client-sendmsg-to-server">通信范例(client sendMsg to server)</h3>
+<p>步骤：</p>
+<ul>
+<li>服务端进程；实现逻辑如下</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#75715e">//1.创建service
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessengerService</span> <span style="color:#66d9ef">extends</span> Services <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//2.创建处理消息的handler
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessengerHandler</span> <span style="color:#66d9ef">extends</span> Handler <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleMessage</span><span style="color:#f92672">(</span>Message msg<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//处理消息
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">what</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">case</span> MSG_FROM_CLIENT<span style="color:#f92672">:</span>
+                       Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;tag&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;receive msg:&#34;</span><span style="color:#f92672">=</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">getData</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;msg&#34;</span><span style="color:#f92672">));</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                    <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#75715e">//3.根据Handler创建Messenger
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Messenger mMessenger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Messenger<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> MessengerHandler<span style="color:#f92672">());</span>
+        <span style="color:#75715e">//4.返回IBinder
+</span><span style="color:#75715e"></span>        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> IBinder <span style="color:#a6e22e">onBind</span><span style="color:#f92672">(</span>Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> mMessenger<span style="color:#f92672">.</span><span style="color:#a6e22e">getBinder</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#75715e">//5.注册为独立进程的service
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">&lt;</span>service
+        android<span style="color:#f92672">:</span>name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;com.xxx.MessengerHander&#34;</span>
+        android<span style="color:#f92672">:</span>process<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;:remote&#34;</span><span style="color:#f92672">/&gt;</span>
+</code></pre></div><ul>
+<li>客户端进程</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessengerActivity</span> and Activity <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">private</span> Messenger mService<span style="color:#f92672">;</span>
+
+        <span style="color:#66d9ef">private</span> ServiceConnection mConn <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ServiceConnection<span style="color:#f92672">(){</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onServiceConnected</span><span style="color:#f92672">(</span>ComponentName className<span style="color:#f92672">,</span> IBinder service<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//2.创建客户端Messenger
+</span><span style="color:#75715e"></span>                mService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Messenger<span style="color:#f92672">(</span>service<span style="color:#f92672">);</span>
+            <span style="color:#75715e">//3.创建通信消息
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//3.1创建Message
+</span><span style="color:#75715e"></span>                Message msg <span style="color:#f92672">=</span> Message<span style="color:#f92672">.</span><span style="color:#a6e22e">obtain</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span>  MSG_FROM_CLIENT<span style="color:#f92672">);</span>
+                <span style="color:#75715e">//3.2.创建通信消息
+</span><span style="color:#75715e"></span>                Bundler data <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Bundler<span style="color:#f92672">();</span>
+                data<span style="color:#f92672">.</span><span style="color:#a6e22e">putString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;msg&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;hello, i&#39;m client&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#75715e">//3.3 使用Message封装数据
+</span><span style="color:#75715e"></span>                msg<span style="color:#f92672">.</span><span style="color:#a6e22e">setData</span><span style="color:#f92672">(</span>data<span style="color:#f92672">);</span>
+
+                <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+            <span style="color:#75715e">//4.发送消息给service
+</span><span style="color:#75715e"></span>                    mService<span style="color:#f92672">.</span><span style="color:#a6e22e">send</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>RemoteException e<span style="color:#f92672">){</span>
+                    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onServiceDisconnected</span><span style="color:#f92672">(</span>ComponentName className<span style="color:#f92672">){}</span>
+        <span style="color:#f92672">};</span>
+
+        <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onCreate</span><span style="color:#f92672">(</span>Bundle savedInstancesState<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onCreate</span><span style="color:#f92672">(</span>saveInstanceState<span style="color:#f92672">);</span>
+            setContentView<span style="color:#f92672">(</span>R<span style="color:#f92672">.</span><span style="color:#a6e22e">layout</span><span style="color:#f92672">.</span><span style="color:#a6e22e">main</span><span style="color:#f92672">);</span>
+            <span style="color:#75715e">//1.绑定service
+</span><span style="color:#75715e"></span>            Intent intent <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Intent<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> MessengerService<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+            bindService<span style="color:#f92672">(</span>intent<span style="color:#f92672">,</span> mConn<span style="color:#f92672">,</span> Context<span style="color:#f92672">.</span><span style="color:#a6e22e">BIND_AUTO_CREATE</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onDestroy</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            unbindService<span style="color:#f92672">(</span>mConn<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onDestroy</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p>通过上例，在Messenger中进行数据传递，必须使用Message封装数据； 而Messenger，Message都实现了Parceable接口，所以可以进程间传输.
+Messenger, Message支持的跨进程传输数据类型相同； Message能封装的数据有<code>what</code>,<code>arg1</code>,<code>arg2</code>,<code>Bundle</code>,<code>replyTo</code>;
+object字段在同一进程可使用，非系统的Parcelable对象无法通过object字段传输.</p>
+<h3 id="通信范例服务端返回消息给客户端">通信范例(服务端返回消息给客户端)</h3>
+<ul>
+<li>服务端进程，基于上例修改</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//2.创建处理消息的handler
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessengerHandler</span> <span style="color:#66d9ef">extends</span> Handler <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleMessage</span><span style="color:#f92672">(</span>Message msg<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//处理消息
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">what</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">case</span> MSG_FROM_CLIENT<span style="color:#f92672">:</span>
+                       Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;tag&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;receive msg:&#34;</span><span style="color:#f92672">=</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">getData</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;msg&#34;</span><span style="color:#f92672">));</span>
+                       <span style="color:#75715e">//3.返回消息
+</span><span style="color:#75715e"></span>                       <span style="color:#75715e">//3.1 获取客户端Messenger
+</span><span style="color:#75715e"></span>                       Messenger client <span style="color:#f92672">=</span> msg<span style="color:#f92672">.</span><span style="color:#a6e22e">replyTo</span><span style="color:#f92672">;</span>
+                       <span style="color:#75715e">//3.2 创建Message
+</span><span style="color:#75715e"></span>                       Message replyMessage <span style="color:#f92672">=</span> Message<span style="color:#f92672">.</span><span style="color:#a6e22e">obtain</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> MSG_FROM_SERVICE<span style="color:#f92672">);</span>
+                       <span style="color:#75715e">//3.3 创建消息
+</span><span style="color:#75715e"></span>                       Bundle bundle <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Bundle<span style="color:#f92672">();</span>
+                       bundle<span style="color:#f92672">.</span><span style="color:#a6e22e">putString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;reply&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;service receive msg and reply&#34;</span><span style="color:#f92672">);</span>
+                       <span style="color:#75715e">//3.4 封装消息
+</span><span style="color:#75715e"></span>                       replyMessage<span style="color:#f92672">.</span><span style="color:#a6e22e">setData</span><span style="color:#f92672">(</span>bundle<span style="color:#f92672">);</span>
+
+                       <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+                       <span style="color:#75715e">//3.5 回复消息给客户端
+</span><span style="color:#75715e"></span>                            client<span style="color:#f92672">.</span><span style="color:#a6e22e">send</span><span style="color:#f92672">(</span>replyMessage<span style="color:#f92672">);</span>
+                       <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>RemoteException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+                       <span style="color:#f92672">}</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                    <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+                    <span style="color:#f92672">...</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>客户端进程</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//2.创建Messenger，用于传递消息时，指定客户端对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> Messenger mGetReplyMessenger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Messenger<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> MessengerHandler<span style="color:#f92672">());</span>
+
+<span style="color:#75715e">//1. 创建Handler
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MessengerHandler</span> <span style="color:#66d9ef">extends</span> Handler <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleMessage</span><span style="color:#f92672">(</span>Message msg<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//处理服务端返回的消息
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">switch</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">what</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">case</span> MSG_FROM_SERVICE<span style="color:#f92672">:</span>
+                       Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;tag&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;reply msg:&#34;</span><span style="color:#f92672">=</span>msg<span style="color:#f92672">.</span><span style="color:#a6e22e">getData</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;reply&#34;</span><span style="color:#f92672">));</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                    <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+                    <span style="color:#f92672">...</span>
+                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+</code></pre></div><p><strong>指定replyTo对象</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">            mService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Messenger<span style="color:#f92672">(</span>service<span style="color:#f92672">);</span>
+            <span style="color:#75715e">//3.创建通信消息
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">//3.1创建Message
+</span><span style="color:#75715e"></span>                Message msg <span style="color:#f92672">=</span> Message<span style="color:#f92672">.</span><span style="color:#a6e22e">obtain</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span>  MSG_FROM_CLIENT<span style="color:#f92672">);</span>
+                <span style="color:#75715e">//3.2.创建通信消息
+</span><span style="color:#75715e"></span>                Bundler data <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Bundler<span style="color:#f92672">();</span>
+                data<span style="color:#f92672">.</span><span style="color:#a6e22e">putString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;msg&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;hello, i&#39;m client&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#75715e">//3.3 使用Message封装数据
+</span><span style="color:#75715e"></span>                msg<span style="color:#f92672">.</span><span style="color:#a6e22e">setData</span><span style="color:#f92672">(</span>data<span style="color:#f92672">);</span>
+                <span style="color:#75715e">//** 指定reply对象**
+</span><span style="color:#75715e"></span>                msg<span style="color:#f92672">.</span><span style="color:#a6e22e">replyTo</span> <span style="color:#f92672">=</span> mGetReplyMessenger<span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+            <span style="color:#75715e">//4.发送消息给service
+</span><span style="color:#75715e"></span>                    mService<span style="color:#f92672">.</span><span style="color:#a6e22e">send</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span><span style="color:#f92672">(</span>RemoteException e<span style="color:#f92672">){</span>
+                    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+</code></pre></div><pre><code class="language-mermaid" data-lang="mermaid">graph LR
+    A[Client] --&gt; B[/ Message /]
+    subgraph Binder
+    B --&gt; C[Messenger ]
+    end
+    subgraph service
+    C --&gt; D[Service]
+    D --&gt; E(Handler)
+    end
+</code></pre><pre><code class="language-mermaid" data-lang="mermaid">graph RL
+    A[Service] --&gt; B[/Message/]
+    subgraph service
+    A --&gt; F(Handler)
+    end
+    subgraph Binder
+    B --&gt; C[replyTo Messenger  Binder]
+    end
+    C --&gt; D[Client]
+    subgraph client
+    D --&gt; E(Handler)
+    end
+</code></pre><hr>
+<h2 id="aidl">AIDL</h2>
+<p>进程间通信中，如果服务端有大量并发请求，Messenger方式不适用。
+Messenger方式主要用于传递消息，如果想执行服务端方法，使用aidl.
+aidl支持的数据类型：</p>
+<ul>
+<li>基本数据类型</li>
+<li>String, CharSequence</li>
+<li>List:  只支持ArrayList，泛型类型必须被AIDL支持；</li>
+<li>Map： 只支持HashMap, key，value必须被AIDL支持；</li>
+<li>Parcelable: 实现了Parcelable接口的对象</li>
+<li>AIDL: AIDL接口本身也可以在AIDL文件中使用.</li>
+</ul>
+<blockquote>
+<p>自定义的Parcelable对象,aidl文件必须显示**<code>import</code>**</p>
+<blockquote>
+<p>自定义的Parcelable对象，必须新建一个和它同名的aidl文件，文件中声明Parcelable类型; 例如</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.xxx<span style="color:#f92672">;</span>
+parcelable Book<span style="color:#f92672">;</span>
+</code></pre></div></blockquote>
+</blockquote>
+<p>AIDL中除了基本数据类型外，其他类型的参数必须标上方向:<code>in, out或 inout</code>;</p>
+<p><code>in</code> : 输入型参数，将<code>in</code>修饰的变量实参传递到服务端，服务端进程对<code>in</code>修饰的变量的修改，不会影响到客户端进程</p>
+<p><code>out</code> ： 输出型参数; 实参不会传递到服务端进程，只传递了实参到初始值；但服务端对实参的修改，会返回给客户端进程</p>
+<p><code>inout</code> ： 输入输出型参数；实参会传递给服务端，服务端对实参的修改，会返回给客户端；</p>
+<p>服务端service：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.jerry.aidldemo<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> android.app.Service<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.content.Intent<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.Binder<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.IBinder<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.RemoteException<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.List<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.util.concurrent.CopyOnWriteArrayList<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> androidx.annotation.Nullable<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookManagerService</span> <span style="color:#66d9ef">extends</span> Service <span style="color:#f92672">{</span>
+    <span style="color:#75715e">//CopyOnWriteArrayList: 支持并发读/写
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;</span>Book<span style="color:#f92672">&gt;</span> mBookList <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CopyOnWriteArrayList<span style="color:#f92672">&lt;&gt;();</span>
+
+    <span style="color:#66d9ef">private</span> Binder mBinder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookManager</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Stub</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">basicTypes</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> anInt<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> aLong<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> aBoolean<span style="color:#f92672">,</span> <span style="color:#66d9ef">float</span> aFloat<span style="color:#f92672">,</span>
+                <span style="color:#66d9ef">double</span> aDouble<span style="color:#f92672">,</span> String aString<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> RemoteException <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//just test
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addBook</span><span style="color:#f92672">(</span>Book book<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> RemoteException <span style="color:#f92672">{</span>
+            mBookList<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>book<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>Book<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getBooks</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> RemoteException <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> mBookList<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onCreate</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onCreate</span><span style="color:#f92672">();</span>
+        mBookList<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Book<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Android&#34;</span><span style="color:#f92672">,</span> 11<span style="color:#f92672">));</span>
+        mBookList<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Book<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;iOS&#34;</span><span style="color:#f92672">,</span> 12<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Nullable</span>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> IBinder <span style="color:#a6e22e">onBind</span><span style="color:#f92672">(</span>Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> mBinder<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><p>客户端实现:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.jerry.aidldemo<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> androidx.appcompat.app.AppCompatActivity<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> android.content.ComponentName<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.content.Context<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.content.Intent<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.content.ServiceConnection<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.Bundle<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.IBinder<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> android.os.RemoteException<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> java.util.List<span style="color:#f92672">;</span>
+
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainActivity</span> <span style="color:#66d9ef">extends</span> AppCompatActivity <span style="color:#f92672">{</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onCreate</span><span style="color:#f92672">(</span>Bundle savedInstanceState<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onCreate</span><span style="color:#f92672">(</span>savedInstanceState<span style="color:#f92672">);</span>
+        setContentView<span style="color:#f92672">(</span>R<span style="color:#f92672">.</span><span style="color:#a6e22e">layout</span><span style="color:#f92672">.</span><span style="color:#a6e22e">activity_main</span><span style="color:#f92672">);</span>
+        Intent intent<span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Intent<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> BookManagerService<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        bindService<span style="color:#f92672">(</span>intent<span style="color:#f92672">,</span> mConn<span style="color:#f92672">,</span> Context<span style="color:#f92672">.</span><span style="color:#a6e22e">BIND_AUTO_CREATE</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> ServiceConnection mConn <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ServiceConnection<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onServiceConnected</span><span style="color:#f92672">(</span>ComponentName componentName<span style="color:#f92672">,</span> IBinder iBinder<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">//获取aidl的Binder对象
+</span><span style="color:#75715e"></span>            com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookManager</span> bookManager<span style="color:#f92672">=</span> com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookManager</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Stub</span><span style="color:#f92672">.</span><span style="color:#a6e22e">asInterface</span><span style="color:#f92672">(</span>iBinder<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                List<span style="color:#f92672">&lt;</span>Book<span style="color:#f92672">&gt;</span> books <span style="color:#f92672">=</span> bookManager<span style="color:#f92672">.</span><span style="color:#a6e22e">getBooks</span><span style="color:#f92672">();</span>
+
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RemoteException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onServiceDisconnected</span><span style="color:#f92672">(</span>ComponentName componentName<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">};</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onDestroy</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        unbindService<span style="color:#f92672">(</span>mConn<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onDestroy</span><span style="color:#f92672">();</span>
+
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><h3 id="aidl服务端回调客户端">AIDL服务端回调客户端</h3>
+<p><code>RemoteCallbackList</code>是系统提供用于删除跨进程listener的接口.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RemoteCallbackList</span><span style="color:#f92672">&lt;</span>E <span style="color:#66d9ef">extends</span> IIterface<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+    ArrayMap<span style="color:#f92672">&lt;</span>IBinder<span style="color:#f92672">,</span> Callback<span style="color:#f92672">&gt;</span> mCallbacks <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayMap<span style="color:#f92672">&lt;</span>IBinder<span style="color:#f92672">,</span> Callback<span style="color:#f92672">&gt;();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>内部维护一个map，key是IBinder类型，value是Callback类型，Callback封装了远程listener</p>
+<h4 id="注册解绑">注册/解绑</h4>
+<p>还有<code>register</code>,<code>unregister</code>方法，用于注册和解除注册
+RemoteCallbackList部分源码如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">//常用此函数
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">register</span><span style="color:#f92672">(</span>E callback<span style="color:#f92672">){</span>
+    register<span style="color:#f92672">(</span>callback<span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">register</span><span style="color:#f92672">(</span>E callback<span style="color:#f92672">,</span> Object cookie<span style="color:#f92672">){</span>
+    <span style="color:#f92672">...</span>
+    IBinder binder <span style="color:#f92672">=</span> callback<span style="color:#f92672">.</span><span style="color:#a6e22e">asBinder</span><span style="color:#f92672">();</span>
+    Callback cb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Callback<span style="color:#f92672">(</span>callback<span style="color:#f92672">,</span> cookie<span style="color:#f92672">);</span>
+    mCallbacks<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>binder<span style="color:#f92672">,</span> cb<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">unregister</span><span style="color:#f92672">(</span>E callback<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    Callback cb <span style="color:#f92672">=</span> mCallbacks<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>callback<span style="color:#f92672">.</span><span style="color:#a6e22e">asBinder</span><span style="color:#f92672">());</span>
+    cb<span style="color:#f92672">.</span><span style="color:#a6e22e">mCallback</span><span style="color:#f92672">.</span><span style="color:#a6e22e">asBinder</span><span style="color:#f92672">.</span><span style="color:#a6e22e">unlinkToDeath</span><span style="color:#f92672">(</span>cb<span style="color:#f92672">,</span> 0<span style="color:#f92672">);</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>服务端使用方式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookManagerService</span> <span style="color:#66d9ef">extends</span> Service <span style="color:#f92672">{</span>
+<span style="color:#66d9ef">private</span> RemoteCallbackList<span style="color:#f92672">&lt;</span>com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookCallback</span><span style="color:#f92672">&gt;</span> mListenerList <span style="color:#f92672">=</span>
+        <span style="color:#66d9ef">new</span> RemoteCallbackList<span style="color:#f92672">&lt;&gt;();</span>
+ <span style="color:#66d9ef">private</span> Binder mBinder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookManager</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Stub</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">registerCallback</span><span style="color:#f92672">(</span>com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookCallback</span> callback<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> RemoteException <span style="color:#f92672">{</span>
+            mListenerList<span style="color:#f92672">.</span><span style="color:#a6e22e">register</span><span style="color:#f92672">(</span>callback<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+         <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">unregisterCallback</span><span style="color:#f92672">(</span>com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookCallback</span> callback<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> RemoteException <span style="color:#f92672">{</span>
+            mListenerList<span style="color:#f92672">.</span><span style="color:#a6e22e">unregister</span><span style="color:#f92672">(</span>callback<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#f92672">...</span>
+ <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h4 id="执行回调">执行回调</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> mListenerList<span style="color:#f92672">.</span><span style="color:#a6e22e">beginBroadcast</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span>0<span style="color:#f92672">;</span> i<span style="color:#f92672">&lt;</span> n<span style="color:#f92672">;</span> i<span style="color:#f92672">++){</span>
+            com<span style="color:#f92672">.</span><span style="color:#a6e22e">jerry</span><span style="color:#f92672">.</span><span style="color:#a6e22e">aidldemo</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IBookCallback</span> callback <span style="color:#f92672">=</span> mListenerList<span style="color:#f92672">.</span><span style="color:#a6e22e">getBroadcastItem</span><span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>callback <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">){</span>
+                <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                    callback<span style="color:#f92672">.</span><span style="color:#a6e22e">onNewBookArrived</span><span style="color:#f92672">(</span>book<span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RemoteException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+        mListenerList<span style="color:#f92672">.</span><span style="color:#a6e22e">finishBroadcast</span><span style="color:#f92672">();</span>
+
+</code></pre></div><blockquote>
+<p>RemoteCallbackList的<code>beginBroadcast</code>和<code>finishBroadcast</code>是配对使用的</p>
+</blockquote>
+<p>aidl demo见<a href="https://github.com/nightjerry/aidldemo.git">github</a></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>
