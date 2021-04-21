@@ -5,7 +5,32 @@
     <link>https://nightjerry.github.io/tags/kotlin/</link>
     <description>Recent content in kotlin on Jerry Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 21 Nov 2019 17:15:02 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/kotlin/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 21 Apr 2021 09:26:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/kotlin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jetpack Compose 2 State</title>
+      <link>https://nightjerry.github.io/posts/16169192653523/</link>
+      <pubDate>Wed, 21 Apr 2021 09:26:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/16169192653523/</guid>
+      <description>[TOC]
+Compose 中的状态 应用中的状态是指可以随时间变化的任何值。 状态的概念是 Compose 的核心
+@Composable fun HelloContent() { Column(modifier = Modifier.padding(16.dp)) { Text( text = &amp;#34;Hello!&amp;#34;, modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.h5 ) // 相当于 EditText  OutlinedTextField( value = &amp;#34;&amp;#34;, onValueChange = { }, // 相当于 hint 属性  label = { Text(&amp;#34;Name&amp;#34;) } ) } } 程序运行后，点击 OutlinedTextField 会弹出输入法，但输入内容不会显示到输入框中，TextField 不会自行更新，但会在其 value 参数更改时更新。这是因 Compose 中组合和重组的工作原理造成的。 onValueChange 函数没有实现更新操作 在函数外定义 text 变量，在以前开发中是可以这样操作的，代码如下；</description>
+    </item>
+    
+    <item>
+      <title>Jetpack Compose 1</title>
+      <link>https://nightjerry.github.io/posts/jetpack-compose-1/</link>
+      <pubDate>Tue, 20 Apr 2021 21:49:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/jetpack-compose-1/</guid>
+      <description>[TOC]
+Jetpack Compose 是用于构建原生界面的新款 Android 工具包。它可简化并加快 Android 上的界面开发。使用更少的代码、强大的工具和直观的 Kotlin API，快速让应用生动而精彩
+需要 android studio canary 版本, 下载最新版本 android studio
+创建 Compose 项目 创建 Demo File &amp;gt; New &amp;gt; New Project &amp;gt; Empty Compose Activity
+app/build.gradle 内容如下
+android { ... kotlinOptions { jvmTarget = &amp;#39;1.8&amp;#39; useIR = true } buildFeatures { compose true } composeOptions { kotlinCompilerExtensionVersion &amp;#34;${compose_version}&amp;#34; } } dependencies { .</description>
+    </item>
+    
     <item>
       <title>算法之排序(kotlin实现)</title>
       <link>https://nightjerry.github.io/posts/2019-11-21-algorithms-1kotlin/</link>

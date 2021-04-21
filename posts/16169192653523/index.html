@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Jetpack Compose 2 State // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Jetpack Compose 2 State"/>
+<meta name="twitter:description" content="[TOC]
+Compose 中的状态 应用中的状态是指可以随时间变化的任何值。 状态的概念是 Compose 的核心
+@Composable fun HelloContent() { Column(modifier = Modifier.padding(16.dp)) { Text( text = &#34;Hello!&#34;, modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.h5 ) // 相当于 EditText  OutlinedTextField( value = &#34;&#34;, onValueChange = { }, // 相当于 hint 属性  label = { Text(&#34;Name&#34;) } ) } } 程序运行后，点击 OutlinedTextField 会弹出输入法，但输入内容不会显示到输入框中，TextField 不会自行更新，但会在其 value 参数更改时更新。这是因 Compose 中组合和重组的工作原理造成的。 onValueChange 函数没有实现更新操作 在函数外定义 text 变量，在以前开发中是可以这样操作的，代码如下；"/>
+
+    <meta property="og:title" content="Jetpack Compose 2 State" />
+<meta property="og:description" content="[TOC]
+Compose 中的状态 应用中的状态是指可以随时间变化的任何值。 状态的概念是 Compose 的核心
+@Composable fun HelloContent() { Column(modifier = Modifier.padding(16.dp)) { Text( text = &#34;Hello!&#34;, modifier = Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.h5 ) // 相当于 EditText  OutlinedTextField( value = &#34;&#34;, onValueChange = { }, // 相当于 hint 属性  label = { Text(&#34;Name&#34;) } ) } } 程序运行后，点击 OutlinedTextField 会弹出输入法，但输入内容不会显示到输入框中，TextField 不会自行更新，但会在其 value 参数更改时更新。这是因 Compose 中组合和重组的工作原理造成的。 onValueChange 函数没有实现更新操作 在函数外定义 text 变量，在以前开发中是可以这样操作的，代码如下；" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/16169192653523/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-21T09:26:00&#43;08:00" />
+<meta property="article:modified_time" content="2021-04-21T09:26:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Jetpack Compose 2 State</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Apr 21, 2021
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          4 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/compose/">compose</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<h2 id="compose-中的状态">Compose 中的状态</h2>
+<p>应用中的状态是指可以随时间变化的任何值。
+<code>状态</code>的概念是 Compose 的核心</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloContent</span>() {
+   Column(modifier = Modifier.padding(<span style="color:#ae81ff">16.</span>dp)) {
+       Text(
+           text = <span style="color:#e6db74">&#34;Hello!&#34;</span>,
+           modifier = Modifier.padding(bottom = <span style="color:#ae81ff">8.</span>dp),
+           style = MaterialTheme.typography.h5
+       )
+       <span style="color:#75715e">// 相当于 EditText
+</span><span style="color:#75715e"></span>       OutlinedTextField(
+           value = <span style="color:#e6db74">&#34;&#34;</span>,
+           onValueChange = { },
+           <span style="color:#75715e">// 相当于 hint 属性
+</span><span style="color:#75715e"></span>           label = { Text(<span style="color:#e6db74">&#34;Name&#34;</span>) }
+       )
+   }
+}
+</code></pre></div><p><img src="media/16169192653523/android_compose_state_invalid.png" alt="android_compose_state_invalid"></p>
+<p>程序运行后，点击 <code>OutlinedTextField</code> 会弹出输入法，但输入内容不会显示到输入框中，TextField 不会自行更新，但会在其 value 参数更改时更新。这是因 Compose 中组合和重组的工作原理造成的。
+<code>onValueChange</code> 函数没有实现更新操作
+在函数外定义 <code>text</code> 变量，在以前开发中是可以这样操作的，代码如下；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">// 定义变量记录 value 变化
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> text = <span style="color:#e6db74">&#34;&#34;</span>
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloContent</span>() {
+    Column(modifier = Modifier.padding(<span style="color:#ae81ff">16.</span>dp)) {
+        Text(
+            text = <span style="color:#e6db74">&#34;Hello&#34;</span>,
+            modifier = Modifier.padding(bottom = <span style="color:#ae81ff">8.</span>dp),
+            style = MaterialTheme.typography.h5
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = <span style="color:#66d9ef">it</span> },
+            label = { Text(<span style="color:#e6db74">&#34;Name&#34;</span>) }
+        )
+    }
+}
+</code></pre></div><p>运行后还是无法更新输入框内容，这里需要引入<code>状态</code></p>
+<h3 id="组合和重组">组合和重组</h3>
+<p><strong>组合</strong>：是描述界面的可组合项的树结构
+<strong>初始组合</strong>：通过首次运行可组合项创建组合
+<strong>重组</strong><code>Recomposition</code>：在数据发生变化时重新运行可组合项以更新组合</p>
+<p><strong><code>组合</code>只能通过<code>初始组合</code>生成且只能通过<code>重组</code>进行更新。修改组合的 <em>唯一方式</em> 是通过<code>重组</code>实现。</strong></p>
+<h3 id="使用状态">使用状态</h3>
+<p>请使用 <code>remember { mutableStateOf() }</code> 传入文本的默认值</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloContent</span>() {
+    Column(modifier = Modifier.padding(<span style="color:#ae81ff">16.</span>dp)) {
+        <span style="color:#75715e">// name: MutableState&lt;String&gt;； 当 name 变化时，TextField 显示的值也会发生变化
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">val</span> name = remember { mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>) }
+        OutlinedTextField(
+            value = name.value,
+            onValueChange = { name.value = <span style="color:#66d9ef">it</span> },
+            label = { Text(<span style="color:#e6db74">&#34;Name&#34;</span>) }
+        )
+    }
+}
+</code></pre></div><p><code>remember</code> 是一个可以赋予另一种可组合函数记忆能力的函数。<code>remember</code> 可帮助您在重组后保持状态
+<code>mutableStateOf</code> 会创建 <code>MutableState</code>，后者是 Compose 中的可观察类型。值如有任何更改，系统会安排重组读取此值的所有可组合函数。</p>
+<p><code>remember</code> 可帮助您在重组后保持状态，如果在还未使用 <code>remember</code> 的情况下使用 <code>mutableStateOf</code>，则每次重组 HelloContent 可组合项时，系统都会将状态重新初始化为默认值；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> name: MutableState&lt;String&gt; = mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>)
+</code></pre></div><blockquote>
+<p>注意：<code>remember</code> 与 <code>mutableStateOf</code> 同时使用</p>
+</blockquote>
+<p>可以将 <code>remember</code> 的值用作其他可组合项的参数或语句中的逻辑判断</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloContent</span>() {
+    Column(modifier = Modifier.padding(<span style="color:#ae81ff">16.</span>dp)) {
+        <span style="color:#75715e">// name: MutableState&lt;String&gt;
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">val</span> name = remember { mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>) }
+        <span style="color:#75715e">// name 不为空时，显示 Text 组件； 为空时则不显示 Text 组件，不需要 else
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> (name.value.isNotEmpty()) {
+            Text(
+                text = <span style="color:#e6db74">&#34;Hello, </span><span style="color:#e6db74">${name.value}</span><span style="color:#e6db74">!&#34;</span>,
+                modifier = Modifier.padding(bottom = <span style="color:#ae81ff">8.</span>dp),
+                style = MaterialTheme.typography.h5
+            )
+        }
+        OutlinedTextField(
+            value = name.value,
+            onValueChange = { name.value = <span style="color:#66d9ef">it</span> },
+            label = { Text(<span style="color:#e6db74">&#34;Name&#34;</span>) }
+        )
+    }
+}
+</code></pre></div><p><code>remember</code> 不会在配置更改后保持状态
+<code>rememberSaveable</code> 会自动保存可保存在 Bundle 中的任何值；对于其他值，您可以将其传入自定义 Saver 对象。</p>
+<h3 id="无状态可组合项">无状态可组合项</h3>
+<p>可组合函数保持自己的状态，会变得难以复用，也会与状态的存储方式强耦合；应改为<code>无状态可组合项</code>，即不保持状态的可组合项，通过<code>状态提升</code>完成
+<code>状态提升</code>是一种编程模式，可以将可组合项的状态移至该可组合项的调用方</p>
+<p>在本示例中，从 HelloContent 中提取 <code>name</code> 和 <code>onValueChange</code>，并按照可组合项的树结构将它们移至调用方</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloScreen</span>() {
+    <span style="color:#75715e">// 将状态提升到调用方
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> nameState = rememberSaveable { mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>) }
+    HelloContent(name = nameState.value, onNameChange = { nameState.value = <span style="color:#66d9ef">it</span> })
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">HelloContent</span>(name: String, onNameChange: (String) <span style="color:#f92672">-&gt;</span> Unit) {
+    Column(modifier = Modifier.padding(<span style="color:#ae81ff">16.</span>dp)) {
+        Text(
+            text = <span style="color:#e6db74">&#34;Hello, </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">&#34;</span>,
+            modifier = Modifier.padding(bottom = <span style="color:#ae81ff">8.</span>dp),
+            style = MaterialTheme.typography.h5
+        )
+        OutlinedTextField(
+            value = name,
+            onValueChange = { onNameChanged(<span style="color:#66d9ef">it</span>) },
+            label = { Text(<span style="color:#e6db74">&#34;Name&#34;</span>) }
+        )
+    }
+}
+</code></pre></div><h3 id="状态下降事件上升">状态下降，事件上升</h3>
+<h3 id="单项数据流">单项数据流</h3>
+<p>单项数据流（UDF <em>unidirectional data flow</em>）一种状态向下流动而事件向上流动的设计
+<img src="media/16169192653523/android_compose_data_flow.png" alt="android_compose_data_flow"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HelloViewModel</span>: ViewModel() {
+    <span style="color:#75715e">// LiveData holds state which is observed by the UI
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// (state flows down from ViewModel)
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">val</span> name = MutableLiveData(<span style="color:#e6db74">&#34;&#34;</span>)
+    <span style="color:#75715e">// onNameChanged is an event we&#39;re defining that the UI can invoke
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// (events flow up from UI)
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">onNameChanged</span>(newName: String) {
+        name.value = newName
+    }
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">helloScreenWithViewModel</span>(viewModel: HelloViewModel) {
+    <span style="color:#66d9ef">val</span> name: String <span style="color:#66d9ef">by</span> viewModel.name.observeAsState(<span style="color:#e6db74">&#34;&#34;</span>)
+    HelloContentState(name = name) {
+        viewModel.onNameChanged(<span style="color:#66d9ef">it</span>)
+    }
+}
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainActivity</span> : ComponentActivity() {
+
+    <span style="color:#66d9ef">val</span> helloViewModel <span style="color:#66d9ef">by</span> viewModels&lt;HelloViewModel&gt;()
+
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">onCreate</span>(savedInstanceState: Bundle?) {
+        <span style="color:#66d9ef">super</span>.onCreate(savedInstanceState)
+        setContent {
+            Surface(color = Color.Red) {
+                helloScreenWithViewModel(helloViewModel)
+            }
+        }
+    }
+}
+</code></pre></div><blockquote>
+<p><code>observeAsState</code> 可观察 <code>LiveData&lt;T&gt;</code> 并返回 <code>State&lt;T&gt;</code> 对象，每当 <code>LiveData</code> 发生变化时，该对象都会更新。<code>State&lt;T&gt;</code> 是 Jetpack Compose 可以直接使用的可观察类型。仅当 <code>LiveData</code> 在组合中时，<code>observeAsState</code> 才会观察 <code>LiveData</code>。</p>
+</blockquote>
+<p>通过三种方式声明一个 <code>MutableState</code> 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#ae81ff">1.</span> <span style="color:#66d9ef">val</span> state = remember { mutableStateOf(default) }  
+<span style="color:#ae81ff">2.</span> <span style="color:#66d9ef">val</span> value <span style="color:#66d9ef">by</span> remember { mutableStateOf(default) }
+<span style="color:#ae81ff">3.</span> <span style="color:#66d9ef">val</span> <span style="color:#960050;background-color:#1e0010">(</span>value, setValue) = remember { mutableStateOf(default) }
+
+<span style="color:#960050;background-color:#1e0010">其中，</span>
+state <span style="color:#960050;background-color:#1e0010">是</span> MutableState <span style="color:#960050;background-color:#1e0010">类型；</span>
+value <span style="color:#960050;background-color:#1e0010">与</span> default <span style="color:#960050;background-color:#1e0010">类型一致，</span>
+setValue <span style="color:#960050;background-color:#1e0010">是函数类型</span> (default) <span style="color:#f92672">-&gt;</span> Unit
+</code></pre></div><blockquote>
+<p>当在组合中创建 State &lt; t &gt; (或其他有状态对象)时，重要的是要记住它。否则，它将重新初始化每个组合。
+<code>ViewModel</code> 中使用 <code>MutableState</code> 时不需要 <code>remember</code></p>
+</blockquote>
+<p><code>Compose</code> 通过读取 <code>State&lt;T&gt;</code> 对象自动重组界面
+常见可观察类型创建 <code>State&lt;T&gt;</code> 的函数：</p>
+<ul>
+<li>LiveData</li>
+<li>Flow</li>
+<li>RxJava2</li>
+</ul>
+<blockquote>
+<p>在 Compose 中将可变对象（如 ArrayList<!-- raw HTML omitted --> 或 mutableListOf()）用做状态会导致界面看不到新数据，无刷新；
+不可观察对象(如 ArrayList )不能有 <code>Compose</code> 观察，不会触发重组</p>
+</blockquote>
+<p>提升的状态具有一些重要的属性：</p>
+<ul>
+<li>单一可信来源：通过移动状态而不是复制状态</li>
+<li>封装：</li>
+<li>可共享：</li>
+<li>可拦截：</li>
+<li>解耦：</li>
+</ul>
+<p>状态提升的规则：</p>
+<ol>
+<li>状态应至少提升到使用该状态（读取）的所有可组合项的最低共同父项</li>
+<li>状态应至少提升到它可以发生变化（写入）的最高级别</li>
+<li>如果<strong>两种状态发生变化以响应相同的事件</strong>，它们应一起提升</li>
+</ol>
+<h3 id="保存状态">保存状态</h3>
+<h4 id="remember">remember</h4>
+<p>可组合函数可以使用 <code>remember</code> 可组合项记住单个对象; <code>remember</code> 既可用于存储可变对象，又可用于存储不可变对象。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> state = remember { mutableStateOf(default) }  
+<span style="color:#66d9ef">val</span> value = remember(id) { default }
+</code></pre></div><p><code>remember(id) {default}</code> 可以通过 <code>map key/ value</code> 结构理解，</p>
+<h4 id="remembersaveable">rememberSaveable</h4>
+<p>在重新创建 activity 或进程后，您可以使用 <code>rememberSaveable</code> 恢复界面状态。<code>rememberSaveable</code> 可以在重组后保持状态</p>
+<p>如果对象无法添加到 Bundle 中，有一下几种替代方法：</p>
+<h4 id="parcelize">Parcelize</h4>
+<p>使用 <code>@Parcelize</code> 修饰，是最简单的解决方案;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Parcelize</span>
+<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">City</span>(<span style="color:#66d9ef">val</span> name: String, <span style="color:#66d9ef">val</span> country: String)
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyExample</span>() {
+    <span style="color:#66d9ef">var</span> city = rememberSaveable { mutableStateOf(City(<span style="color:#e6db74">&#34;Jack&#34;</span>, <span style="color:#e6db74">&#34;Beijing&#34;</span>)) }
+}
+</code></pre></div><h4 id="mapsaver">mapSaver</h4>
+<p>如果 <code>@Parcelize</code> 不合适，可以使用 <code>mapSaver</code> 定义自己的规则</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">data</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">City</span>(<span style="color:#66d9ef">val</span> name: String, <span style="color:#66d9ef">val</span> country: String)
+
+<span style="color:#66d9ef">val</span> CitySaver = run {
+    <span style="color:#66d9ef">val</span> nameKey = <span style="color:#e6db74">&#34;Name&#34;</span>
+    <span style="color:#66d9ef">val</span> countryKey = <span style="color:#e6db74">&#34;Country&#34;</span>
+    mapSaver(
+        save = { mapOf(nameKey to <span style="color:#66d9ef">it</span>.name, countryKey to <span style="color:#66d9ef">it</span>.country) },
+        restore = { City(<span style="color:#66d9ef">it</span>[nameKey] <span style="color:#66d9ef">as</span> String, <span style="color:#66d9ef">it</span>[countryKey] <span style="color:#66d9ef">as</span> String) }
+    )
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyExample</span>() {
+    <span style="color:#66d9ef">var</span> selectedCity = rememberSaveable { mutableStateOf(City(<span style="color:#e6db74">&#34;Madrid&#34;</span>, <span style="color:#e6db74">&#34;Spain&#34;</span>)) }
+}
+</code></pre></div><h4 id="listsaver">listSaver</h4>
+<p>为了避免需要为映射定义键，您也可以使用 listSaver 并将其索引用作键：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">data</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">City</span>(<span style="color:#66d9ef">val</span> name: String, <span style="color:#66d9ef">val</span> country: String)
+
+<span style="color:#66d9ef">val</span> CitySaver = listSaver&lt;City, Any&gt;(
+    save = { listOf(<span style="color:#66d9ef">it</span>.name, <span style="color:#66d9ef">it</span>.country) },
+    restore = { City(<span style="color:#66d9ef">it</span>[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">as</span> String, <span style="color:#66d9ef">it</span>[<span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">as</span> String) }
+)
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyExample</span>() {
+    <span style="color:#66d9ef">var</span> selectedCity = rememberSaveable { mutableStateOf(City(<span style="color:#e6db74">&#34;Madrid&#34;</span>, <span style="color:#e6db74">&#34;Spain&#34;</span>)) }
+}
+</code></pre></div><p><a href="https://developer.android.com/codelabs/jetpack-compose-state?index=..%2F..index&amp;hl=zh-cn#0"><strong>Using State in Jetpack Compose</strong></a></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

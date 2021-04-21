@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Jetpack Compose 1 // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Jetpack Compose 1"/>
+<meta name="twitter:description" content="[TOC]
+Jetpack Compose 是用于构建原生界面的新款 Android 工具包。它可简化并加快 Android 上的界面开发。使用更少的代码、强大的工具和直观的 Kotlin API，快速让应用生动而精彩
+需要 android studio canary 版本, 下载最新版本 android studio
+创建 Compose 项目 创建 Demo File &gt; New &gt; New Project &gt; Empty Compose Activity
+app/build.gradle 内容如下
+android { ... kotlinOptions { jvmTarget = &#39;1.8&#39; useIR = true } buildFeatures { compose true } composeOptions { kotlinCompilerExtensionVersion &#34;${compose_version}&#34; } } dependencies { ."/>
+
+    <meta property="og:title" content="Jetpack Compose 1" />
+<meta property="og:description" content="[TOC]
+Jetpack Compose 是用于构建原生界面的新款 Android 工具包。它可简化并加快 Android 上的界面开发。使用更少的代码、强大的工具和直观的 Kotlin API，快速让应用生动而精彩
+需要 android studio canary 版本, 下载最新版本 android studio
+创建 Compose 项目 创建 Demo File &gt; New &gt; New Project &gt; Empty Compose Activity
+app/build.gradle 内容如下
+android { ... kotlinOptions { jvmTarget = &#39;1.8&#39; useIR = true } buildFeatures { compose true } composeOptions { kotlinCompilerExtensionVersion &#34;${compose_version}&#34; } } dependencies { ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/jetpack-compose-1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-20T21:49:00&#43;08:00" />
+<meta property="article:modified_time" content="2021-04-20T21:49:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Jetpack Compose 1</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Apr 20, 2021
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          4 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/compose/">compose</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<p><strong>Jetpack Compose</strong> 是用于构建原生界面的新款 Android 工具包。它可简化并加快 Android 上的界面开发。使用更少的代码、强大的工具和直观的 <code>Kotlin</code> API，快速让应用生动而精彩</p>
+<p>需要 <code>android studio canary</code> 版本, 下载最新版本 <a href="https://developer.android.com/studio/preview?authuser=1&amp;hl=zh-cn">android studio</a></p>
+<h2 id="创建-compose-项目">创建 Compose 项目</h2>
+<h3 id="创建-demo">创建 Demo</h3>
+<p>File &gt; New &gt; New Project &gt; <strong>Empty Compose Activity</strong></p>
+<p><code>app/build.gradle</code> 内容如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">android <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    kotlinOptions <span style="color:#f92672">{</span>
+        jvmTarget <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;1.8&#39;</span>
+        useIR <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+    <span style="color:#f92672">}</span>
+    buildFeatures <span style="color:#f92672">{</span>
+        compose <span style="color:#66d9ef">true</span>
+    <span style="color:#f92672">}</span>
+    composeOptions <span style="color:#f92672">{</span>
+        kotlinCompilerExtensionVersion <span style="color:#e6db74">&#34;${compose_version}&#34;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+dependencies <span style="color:#f92672">{</span>
+    <span style="color:#f92672">...</span>
+    implementation <span style="color:#e6db74">&#34;androidx.compose.ui:ui:$compose_version&#34;</span>
+    implementation <span style="color:#e6db74">&#34;androidx.activity:activity-compose:1.3.0-alpha03&#34;</span>
+    implementation <span style="color:#e6db74">&#34;androidx.compose.material:material:$compose_version&#34;</span>
+    implementation <span style="color:#e6db74">&#34;androidx.compose.ui:ui-tooling:$compose_version&#34;</span>
+    <span style="color:#f92672">...</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p><code>build.gradle</code> 内容如下</p>
+<pre><code>buildscript {
+    ext {
+        compose_version = '1.0.0-beta03'
+    }
+    ext.kotlin_version = &quot;1.4.31&quot;
+    ...
+}
+</code></pre><h3 id="已有工程使用-jetpack-compose">已有工程使用 Jetpack Compose</h3>
+<ul>
+<li>确保您在项目中使用的是 Kotlin 1.4.21 或更高版本</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">plugins <span style="color:#f92672">{</span>
+  id <span style="color:#e6db74">&#39;org.jetbrains.kotlin.android&#39;</span> version <span style="color:#e6db74">&#39;1.4.21&#39;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>应用的最低 API 级别设置为 21 或更高级别</li>
+<li>在 <code>build.gradle</code> 中启用 Jetpack Compose,</li>
+<li>设置 Kotlin 编译器插件的版本</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">android <span style="color:#f92672">{</span>
+    defaultConfig <span style="color:#f92672">{</span>
+        <span style="color:#f92672">...</span>
+        minSdkVersion <span style="color:#ae81ff">21</span>
+    <span style="color:#f92672">}</span>
+
+    buildFeatures <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// Enables Jetpack Compose for this module
+</span><span style="color:#75715e"></span>        compose <span style="color:#66d9ef">true</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#f92672">...</span>
+
+    <span style="color:#75715e">// Set both the Java and Kotlin compilers to target Java 8.
+</span><span style="color:#75715e"></span>
+    compileOptions <span style="color:#f92672">{</span>
+        sourceCompatibility JavaVersion<span style="color:#f92672">.</span><span style="color:#a6e22e">VERSION_1_8</span>
+        targetCompatibility JavaVersion<span style="color:#f92672">.</span><span style="color:#a6e22e">VERSION_1_8</span>
+    <span style="color:#f92672">}</span>
+
+    kotlinOptions <span style="color:#f92672">{</span>
+        jvmTarget <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1.8&#34;</span>
+        useIR <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+    <span style="color:#f92672">}</span>
+
+    composeOptions <span style="color:#f92672">{</span>
+        kotlinCompilerVersion <span style="color:#e6db74">&#39;1.4.21&#39;</span>
+        kotlinCompilerExtensionVersion <span style="color:#e6db74">&#39;1.0.0-alpha10&#39;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>添加 Jetpack Compose 工具包依赖项</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">dependencies <span style="color:#f92672">{</span>
+    implementation <span style="color:#e6db74">&#39;androidx.compose.ui:ui:1.0.0-alpha10&#39;</span>
+    <span style="color:#75715e">// Tooling support (Previews, etc.)
+</span><span style="color:#75715e"></span>    implementation <span style="color:#e6db74">&#39;androidx.compose.ui:ui-tooling:1.0.0-alpha10&#39;</span>
+    
+    <span style="color:#75715e">// Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
+</span><span style="color:#75715e"></span>    implementation <span style="color:#e6db74">&#39;androidx.compose.foundation:foundation:1.0.0-alpha10&#39;</span>
+    
+    <span style="color:#75715e">// Material Design
+</span><span style="color:#75715e"></span>    implementation <span style="color:#e6db74">&#39;androidx.compose.material:material:1.0.0-alpha10&#39;</span>
+    
+    <span style="color:#75715e">// Material design icons
+</span><span style="color:#75715e"></span>    implementation <span style="color:#e6db74">&#39;androidx.compose.material:material-icons-core:1.0.0-alpha10&#39;</span>
+    implementation <span style="color:#e6db74">&#39;androidx.compose.material:material-icons-extended:1.0.0-alpha10&#39;</span>
+    
+    <span style="color:#75715e">// Integration with observables
+</span><span style="color:#75715e"></span>    implementation <span style="color:#e6db74">&#39;androidx.compose.runtime:runtime-livedata:1.0.0-alpha10&#39;</span>
+    implementation <span style="color:#e6db74">&#39;androidx.compose.runtime:runtime-rxjava2:1.0.0-alpha10&#39;</span>
+
+    <span style="color:#75715e">// UI Tests
+</span><span style="color:#75715e"></span>    androidTestImplementation <span style="color:#e6db74">&#39;androidx.compose.ui:ui-test-junit4:1.0.0-alpha10&#39;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h3 id="compose-ui-之-hello-world">Compose UI 之 Hello world</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainActivity</span> : ComponentActivity() {
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">onCreate</span>(savedInstanceState: Bundle?) {
+        <span style="color:#66d9ef">super</span>.onCreate(savedInstanceState)
+        setContent {            
+            Greeting(<span style="color:#e6db74">&#34;Android&#34;</span>)
+        }
+    }
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Greeting</span>(name: String) {
+    Text(text = <span style="color:#e6db74">&#34;Hello </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">!&#34;</span>)
+}
+
+<span style="color:#a6e22e">@Preview</span>(showBackground = <span style="color:#66d9ef">true</span>)
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">DefaultPreview</span>() {
+    Compose2Theme {
+        Greeting(<span style="color:#e6db74">&#34;Android&#34;</span>)
+    }
+}
+</code></pre></div><h4 id="composable-functions可组合函数">Composable functions(可组合函数)</h4>
+<p>Jetpack Compose 是围绕<em><strong>可组合函数</strong></em>构建的，只需描述应用界面的形状和数据依赖关系，而不必关注界面的构建过程。</p>
+<p><strong>Composable functions(可组合函数)</strong> 是带有 <code>@Composable</code> 注解的常规 Kotlin 函数，可以调用其他的 <code>@Composable</code> 函数</p>
+<h4 id="preview">Preview</h4>
+<p>在 xml 布局中，可以通过 <code>Split</code> 或 <code>Design</code>可以预览 UI 效果
+在 Jetpack Compose 中，通过 <code>@Preview</code> 注解修饰在可组合函数上，查看预览</p>
+<h3 id="声明式-ui">声明式 UI</h3>
+<p>如果想给 <code>Greeting</code> 设置背景色，需要定义 <code>Surface</code> 包裹它；嵌套在 <code>Surface</code> 内部的组件将绘制在该背景颜色上</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Greeting</span>(name: String) {
+    <span style="color:#75715e">// 定义了红色背景
+</span><span style="color:#75715e"></span>    Surface(color = Color.RED) {
+        Text(text = <span style="color:#e6db74">&#34;Hello </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">!&#34;</span>)
+    }
+}
+</code></pre></div><p><img src="../media/16169030258404/android_compose_surface.png" alt="android_compose_surface"></p>
+<h3 id="modifiers">Modifiers</h3>
+<p><code>modifiers</code> 参数告诉 UI 元素如何在其父布局中布局、显示或行为, 大多数组合 UI 元素(如 Surface 和 Text)都接受一个<strong>可选的</strong>修饰符参数</p>
+<p><code>padding</code> 修饰符将设置 view 的边距</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Greeting</span>(name: String) {
+    Surface(color = Color.Red) {
+        Text(text = <span style="color:#e6db74">&#34;Hello </span><span style="color:#e6db74">$name</span><span style="color:#e6db74">!&#34;</span>, modifier = Modifier.padding(<span style="color:#ae81ff">10.</span>dp))
+    }
+}
+</code></pre></div><p><img src="../media/16169030258404/android_compose_modifier.png" alt="android_compose_modifier"></p>
+<h3 id="compose-reusability">Compose Reusability</h3>
+<p>可重用性：声明为顶级函数，确保可重用</p>
+<blockquote>
+<p><code>@Composable</code> 注解应修饰在绘制 UI 或调用其他<strong>可组合函数</strong>的函数上；如果一个函数不满足这些要求，那么不应该用 <code>@Composable</code> 修饰</p>
+</blockquote>
+<h3 id="创建可组合函数的容器">创建可组合函数的容器</h3>
+<p>相当于创建 viewGroup
+定义一个可组合函数，该函数以<code>返回 Unit 的可组合函数</code>作为参数;
+返回 Unit 的原因：可组合函数<strong>不返回 UI 组件，而是绘制组件</strong>。所以返回值为 Unit</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyApp</span>(content: <span style="color:#a6e22e">@Composable</span> () <span style="color:#f92672">-&gt;</span> Unit) {
+    Surface(color = Color.Red) {
+        content()
+    }
+}
+</code></pre></div><blockquote>
+<p>参数是函数，是可组合函数，用 <code>@Composable</code> 修饰</p>
+</blockquote>
+<h4 id="尾随-lambda-kotlin-trailing-lambda-syntax">尾随 lambda (kotlin trailing lambda syntax)</h4>
+<p>当参数为函数参数列表最后一项时，可以将传递参数写成方法体形式</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainActivity</span> : AppCompatActivity() {
+    <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">onCreate</span>(savedInstanceState: Bundle?) {
+        <span style="color:#66d9ef">super</span>.onCreate(savedInstanceState)
+        setContent {
+        <span style="color:#75715e">// 下面两句同义
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">// MyApp({ Greeting(&#34;Android&#34;)} ) 
+</span><span style="color:#75715e"></span>            MyApp {
+                Greeting(<span style="color:#e6db74">&#34;Android&#34;</span>)
+            }
+        }
+    }
+}
+</code></pre></div><h3 id="layout">Layout</h3>
+<h4 id="divider">Divider</h4>
+<p><code>Divider</code> 是一个提供的可组合函数，用于创建水平分隔符</p>
+<h4 id="column">Column</h4>
+<p><code>Column</code> 是垂直排列可组合函数；类似于 <code>LinearLayout</code> 垂直排列</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span> 
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyScreenContent</span>() {
+    Column {
+        Greeting(<span style="color:#e6db74">&#34;Android&#34;</span>)
+        Divider(color = Color.Black)
+        Greeting(<span style="color:#e6db74">&#34;world&#34;</span>)
+    }
+}
+</code></pre></div><p><img src="../media/16169030258404/android_compose_column.png" alt="android_compose_column"></p>
+<h4 id="row">Row</h4>
+<p><code>Row</code> 水平布局；类似于 <code>LinearLayout</code> 水平排列</p>
+<h4 id="布局排列">布局排列</h4>
+<p>描述：列表充满屏幕，一个按钮悬浮位于屏幕底部切悬浮在列表之上</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Kotlin" data-lang="Kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyScreenContent</span>(names: List&lt;String&gt; = listOf(<span style="color:#e6db74">&#34;Android&#34;</span>, <span style="color:#e6db74">&#34;world&#34;</span>)) {
+    Column(modifier = Modifier.fillMaxHeight()) {
+        Column(modifier = Modifier.weight(<span style="color:#ae81ff">1f</span>)) {
+            <span style="color:#66d9ef">for</span> (name <span style="color:#66d9ef">in</span> names) {
+                Greeting(name = name)
+                Divider(color = Color.Black)
+            }
+        }
+        Text(
+            text = <span style="color:#e6db74">&#34;i&#39;m float view&#34;</span>,
+            modifier = Modifier.background(color = Color.Green),
+            color = Color.Black
+        )
+    }
+}
+</code></pre></div><p><code>Modifier.fillMaxHeight()</code> 充满屏幕高度；
+同理 <code>fillMaxWidth()</code> 是充满屏幕宽度；
+<code>weight</code> 是权重</p>
+<p><img src="../media/16169030258404/android_compose_column1.png" alt="android_compose_column1"></p>
+<h4 id="可滑动布局"><strong>可滑动布局</strong></h4>
+<p>开发中常用的列表数据展示用 <code>RecyclerView</code> ，有些情况下用 <code>ScrollView</code>;
+在 Jetpack Compose 中，推荐两个可组合函数（Composable Funcations);</p>
+<ul>
+<li><code>ScrollableColumn</code> 同时渲染所有的子元素，相当于 <code>ScrollView</code>，垂直滑动并包裹 <code>Column</code></li>
+<li><code>LazyColumn</code> 只渲染屏幕上可见的项目，渲染大量列表数据时有性能提升；相当于 <code>RecyclerView</code></li>
+</ul>
+<p>官方文档描述如下：
+<img src="../media/16169030258404/android_compose_scroll.png" alt="android_compose_scroll"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">NameList</span>(names: List&lt;String&gt;, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        items(items = names) { name <span style="color:#f92672">-&gt;</span>
+            Greeting(name = name)
+            Divider(color = Color.Black)
+        }
+    }
+}
+<span style="color:#a6e22e">@Preview</span>
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">DefaultPreview</span>() {
+    Surface(color = Color.Red) {
+        NameList(names = List(<span style="color:#ae81ff">500</span>){<span style="color:#e6db74">&#34;compose #</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">&#34;</span>})
+    }
+}
+</code></pre></div><p><img src="../media/16169030258404/android_compose_lazycolumn.png" alt="android_compose_lazycolumn"></p>
+<h2 id="compose-编程思想">Compose 编程思想</h2>
+<ol>
+<li>声明性编程范式</li>
+<li>可组合函数
+<ul>
+<li>带有 <code>@Composable</code> 注解。所有可组合函数必须带有此注解，旨在将数据转换为界面</li>
+<li>接受数据</li>
+<li>可以在界面中显示 UI</li>
+<li>无返回值；执行 Compose 函数不需要返回任何内容，因为它们描述所需的屏幕状态，而不是创建界面元素</li>
+</ul>
+</li>
+</ol>
+<h3 id="重组"><strong>重组</strong></h3>
+<p>用户与界面元素进行了交互，导致触发一个事件。应用逻辑响应该事件，然后系统根据需要使用新参数自动再次调用可组合函数。这会导致重新绘制界面元素，此过程称为<code>重组</code>。如 <em>onClick</em> 事件</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ClickCounter</span>(clicks: Int, onClick: () <span style="color:#f92672">-&gt;</span> Unit) {
+    Button(onClick = onClick) {
+        Text(<span style="color:#e6db74">&#34;I&#39;ve been clicked </span><span style="color:#e6db74">$clicks</span><span style="color:#e6db74"> times&#34;</span>)
+    }
+}
+</code></pre></div><p>每次点击该按钮时，调用方都会更新 clicks 的值。Compose 会再次调用 lambda 与 Text 函数以显示新值；此过程称为<code>重组</code>。<strong>不依赖于该值的其他函数不会进行重组</strong>。</p>
+<p>当 Compose 根据新输入重组时，它仅调用可能已更改的函数或 lambda，而跳过其余函数或 lambda。通过跳过所有未更改参数的函数或 lambda，Compose 可以高效地重组。</p>
+<blockquote>
+<p>切勿依赖于执行可组合函数所产生的附带效应
+危险的附带效应包括：</p>
+<ul>
+<li>写入共享对象的属性</li>
+<li>更新 <code>ViewModel</code> 中的可观察项</li>
+<li>更新共享偏好设置</li>
+</ul>
+</blockquote>
+<p>使用 Compose 注意事项：</p>
+<ul>
+<li>可组合函数可以按任何顺序执行</li>
+<li>可组合函数可以并行执行。</li>
+<li>重组会跳过尽可能多的可组合函数和 lambda。</li>
+<li>重组是乐观的操作，可能会被取消</li>
+<li>可组合函数可能会像动画的每一帧一样非常频繁地运行</li>
+</ul>
+<h3 id="可组合函数可以按任何顺序执行">可组合函数可以按任何顺序执行</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ButtonRow</span>() {
+    MyFancyNavigation {
+        StartScreen()
+        MiddleScreen()
+        EndScreen()
+    }
+}
+</code></pre></div><p>对 StartScreen、MiddleScreen 和 EndScreen 的调用可以按任何顺序进行。这意味着，举例来说，您不能让 StartScreen() 设置某个全局变量（附带效应）并让 MiddleScreen() 利用这项更改。相反，其中<strong>每个函数都需要保持独立</strong>。</p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>
