@@ -5,7 +5,28 @@
     <link>https://nightjerry.github.io/tags/kotlin/</link>
     <description>Recent content in kotlin on Jerry Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 21 Apr 2021 09:26:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/kotlin/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 22 Apr 2021 09:44:00 +0800</lastBuildDate><atom:link href="https://nightjerry.github.io/tags/kotlin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jetpack Compose 4 Layout</title>
+      <link>https://nightjerry.github.io/posts/16176982519360/</link>
+      <pubDate>Thu, 22 Apr 2021 09:44:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/16176982519360/</guid>
+      <description>[TOC]
+Column 垂直布局 @Composable fun ArtistCard() { Column { Text(&amp;#34;First Line&amp;#34;) Text(&amp;#34;Second Line&amp;#34;) } } Row 水平布局 @Composable fun ArtistCard() { Row(verticalAlignment = Alignment.CenterVertically) { Image( painter = painterResource(id = R.mipmap.ic_launcher_round), contentDescription = null ) Column { Text(&amp;#34;Alfred Sisley&amp;#34;) Text(&amp;#34;3 minutes ago&amp;#34;) } } } Box 使用 Box 可将一个元素放在另一个元素上  Compose 可以有效地处理嵌套布局</description>
+    </item>
+    
+    <item>
+      <title>Jetpack Compose 3 Text</title>
+      <link>https://nightjerry.github.io/posts/16176905521700/</link>
+      <pubDate>Thu, 22 Apr 2021 09:26:00 +0800</pubDate>
+      
+      <guid>https://nightjerry.github.io/posts/16176905521700/</guid>
+      <description>[TOC]
+Compose 提供了基础的 BasicText 和 BasicTextField，分别用于显示文字及处理用户输入的主要函数。如果需要自定义可以重写以上两个函数 Compose 提供了高级的 Text 和 TextField，也是用于显示文字和输入框的可组合函数，是遵循 Material Design 设计的函数，推荐使用；
+Text @Composable fun SimpleText() { Text(&amp;#34;hello world!&amp;#34;) } 字符串资源 @Composable fun SimpleResourceText() { Text(stringResource(id = R.string.hello_world)) } 文字颜色 @Composable fun SimpleText() { Text(&amp;#34;Hello World!&amp;#34;, color = Color.Blue) } 字号 @Composable fun SimpleText() { Text(&amp;#34;Hello World!&amp;#34;, color = Color.</description>
+    </item>
+    
     <item>
       <title>Jetpack Compose 2 State</title>
       <link>https://nightjerry.github.io/posts/16169192653523/</link>

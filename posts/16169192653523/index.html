@@ -117,7 +117,7 @@ Compose 中的状态 应用中的状态是指可以随时间变化的任何值�
        )
    }
 }
-</code></pre></div><p><img src="media/16169192653523/android_compose_state_invalid.png" alt="android_compose_state_invalid"></p>
+</code></pre></div><p><img src="../media/16169192653523/android_compose_state_invalid.png" alt="android_compose_state_invalid"></p>
 <p>程序运行后，点击 <code>OutlinedTextField</code> 会弹出输入法，但输入内容不会显示到输入框中，TextField 不会自行更新，但会在其 value 参数更改时更新。这是因 Compose 中组合和重组的工作原理造成的。
 <code>onValueChange</code> 函数没有实现更新操作
 在函数外定义 <code>text</code> 变量，在以前开发中是可以这样操作的，代码如下；</p>
@@ -217,7 +217,7 @@ Compose 中的状态 应用中的状态是指可以随时间变化的任何值�
 </code></pre></div><h3 id="状态下降事件上升">状态下降，事件上升</h3>
 <h3 id="单项数据流">单项数据流</h3>
 <p>单项数据流（UDF <em>unidirectional data flow</em>）一种状态向下流动而事件向上流动的设计
-<img src="media/16169192653523/android_compose_data_flow.png" alt="android_compose_data_flow"></p>
+<img src="../media/16169192653523/android_compose_data_flow.png" alt="android_compose_data_flow"></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HelloViewModel</span>: ViewModel() {
     <span style="color:#75715e">// LiveData holds state which is observed by the UI
 </span><span style="color:#75715e"></span>    <span style="color:#75715e">// (state flows down from ViewModel)

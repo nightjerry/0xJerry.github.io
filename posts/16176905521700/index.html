@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Jetpack Compose 3 Text // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Jetpack Compose 3 Text"/>
+<meta name="twitter:description" content="[TOC]
+Compose 提供了基础的 BasicText 和 BasicTextField，分别用于显示文字及处理用户输入的主要函数。如果需要自定义可以重写以上两个函数 Compose 提供了高级的 Text 和 TextField，也是用于显示文字和输入框的可组合函数，是遵循 Material Design 设计的函数，推荐使用；
+Text @Composable fun SimpleText() { Text(&#34;hello world!&#34;) } 字符串资源 @Composable fun SimpleResourceText() { Text(stringResource(id = R.string.hello_world)) } 文字颜色 @Composable fun SimpleText() { Text(&#34;Hello World!&#34;, color = Color.Blue) } 字号 @Composable fun SimpleText() { Text(&#34;Hello World!&#34;, color = Color."/>
+
+    <meta property="og:title" content="Jetpack Compose 3 Text" />
+<meta property="og:description" content="[TOC]
+Compose 提供了基础的 BasicText 和 BasicTextField，分别用于显示文字及处理用户输入的主要函数。如果需要自定义可以重写以上两个函数 Compose 提供了高级的 Text 和 TextField，也是用于显示文字和输入框的可组合函数，是遵循 Material Design 设计的函数，推荐使用；
+Text @Composable fun SimpleText() { Text(&#34;hello world!&#34;) } 字符串资源 @Composable fun SimpleResourceText() { Text(stringResource(id = R.string.hello_world)) } 文字颜色 @Composable fun SimpleText() { Text(&#34;Hello World!&#34;, color = Color.Blue) } 字号 @Composable fun SimpleText() { Text(&#34;Hello World!&#34;, color = Color." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/16176905521700/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-22T09:26:00&#43;08:00" />
+<meta property="article:modified_time" content="2021-04-22T09:26:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Jetpack Compose 3 Text</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Apr 22, 2021
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/compose/">compose</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<p>Compose 提供了<strong>基础</strong>的 <code>BasicText</code> 和 <code>BasicTextField</code>，分别用于显示文字及处理用户输入的主要函数。如果需要自定义可以重写以上两个函数
+Compose 提供了高级的 <code>Text</code> 和 <code>TextField</code>，也是用于显示文字和输入框的可组合函数，是遵循 Material Design 设计的函数，推荐使用；</p>
+<h2 id="text">Text</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;hello world!&#34;</span>)
+}
+</code></pre></div><p><img src="../media/16176905521700/16176911846671.jpg" alt=""></p>
+<h3 id="字符串资源">字符串资源</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span> 
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleResourceText</span>() {
+    Text(stringResource(id = R.string.hello_world))
+}
+</code></pre></div><h3 id="文字颜色">文字颜色</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>, color = Color.Blue)
+}
+</code></pre></div><p><img src="../media/16176905521700/16176915175691.jpg" alt=""></p>
+<h3 id="字号">字号</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>, color = Color.Blue, fontSize = <span style="color:#ae81ff">30.</span>sp)
+}
+</code></pre></div><p><img src="../media/16176905521700/16176922574730.jpg" alt=""></p>
+<h3 id="斜体">斜体</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>,
+        color = Color.Blue,
+        fontSize = <span style="color:#ae81ff">30.</span>sp,
+        fontStyle = FontStyle.Italic
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176923614452.jpg" alt=""></p>
+<h3 id="粗体">粗体</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>,
+        fontWeight = FontWeight.Bold
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176924879796.jpg" alt=""></p>
+<h3 id="对齐">对齐</h3>
+<p>通过 <code>textAlign</code> 参数，设置文字的对齐方式
+默认情况下，Text 会根据其内容值选择自然的文字对齐方式：</p>
+<ul>
+<li>对于从左到右书写的文字，如拉丁语、西里尔文或朝鲜文，向 Text 容器的左边缘对齐</li>
+<li>对于从右到左书写的文字，如阿拉伯语或希伯来语，向 Text 容器的右边缘对齐</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>,
+        textAlign = TextAlign.Center,
+        <span style="color:#75715e">// 宽度 150dp
+</span><span style="color:#75715e"></span>        modifier = Modifier.width(<span style="color:#ae81ff">150.</span>dp)
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176928151331.jpg" alt=""></p>
+<blockquote>
+<p>推荐使用 <code>TextAlign.Start</code> 和 <code>TextAlgin.End</code>，而不是 <code>TextAlgin.Left</code> 和 <code>TextAlign.Right</code>;
+系统可以根据具体语言的首选文字方向解析 Text 的对齐；<code>TextAlign.End</code> 对于法语文字将向右侧对齐，而对于阿拉伯语文字将向左侧对齐；但无论对于哪种文字，<code>TextAlign.Right</code> 都将向右侧对齐</p>
+</blockquote>
+<h3 id="字体">字体</h3>
+<p>通过 <code>fontFamily</code> 参数设置字体</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World!&#34;</span>,
+        fontFamily = FontFamily.Cursive
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176937031354.jpg" alt="">
+使用 <code>fontFamily</code> 属性来处理 <code>res/fonts</code> 文件夹中定义的自定义字体和字型
+<img src="../media/16176905521700/16176937517184.jpg" alt=""></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> firaSansFamily = FontFamily(
+        Font(R.font.firasans_light, FontWeight.Light),
+        Font(R.font.firasans_regular, FontWeight.Normal),
+        Font(R.font.firasans_italic, FontWeight.Normal, FontStyle.Italic),
+        Font(R.font.firasans_medium, FontWeight.Medium),
+        Font(R.font.firasans_bold, FontWeight.Bold)
+)
+</code></pre></div><p>最后，您可以将此 fontFamily 传递给 Text 可组合项。由于 fontFamily 可以包含不同的粗细度，因此您可以手动设置 fontWeight 来为您的文字选择合适的粗细度：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">Column {
+    Text(<span style="color:#f92672">..</span>., fontFamily = firaSansFamily, fontWeight = FontWeight.Light)
+    Text(<span style="color:#f92672">..</span>., fontFamily = firaSansFamily, fontWeight = FontWeight.Normal)
+    Text(<span style="color:#f92672">..</span>., fontFamily = firaSansFamily, fontWeight = FontWeight.Normal,
+                    fontStyle = FontStyle.Italic)
+    Text(<span style="color:#f92672">..</span>., fontFamily = firaSansFamily, fontWeight = FontWeight.Medium)
+    Text(<span style="color:#f92672">..</span>., fontFamily = firaSansFamily, fontWeight = FontWeight.Bold)
+}
+</code></pre></div><p><img src="../media/16176905521700/16176940693618.jpg" alt=""></p>
+<h3 id="多种样式">多种样式</h3>
+<p><code>Text</code> 可组合函数可以设置不同的样式，比如：部分文字下划线，改变字体，颜色，字号等，使用 <code>AnnotatedString</code>，类似于 <code>TextView</code> 的 <code>SpannableStringBuilder</code>；
+<code>AnnotatedString</code> 是一个数据类，其中包含：</p>
+<ul>
+<li>一个 <code>Text</code> 值</li>
+<li>一个 <code>SpanStyleRange</code> 的 List，等同于位置范围在文字值内的内嵌样式</li>
+<li>一个 <code>ParagraphStyleRange</code> 的 List，用于指定文字对齐、文字方向、行高和文字缩进样式</li>
+</ul>
+<p>TextStyle 用于 Text 可组合项，而 SpanStyle 和 ParagraphStyle 用于 AnnotatedString。</p>
+<p>SpanStyle 和 ParagraphStyle 之间的区别在于，ParagraphStyle 可应用于整个段落，而 SpanStyle 可以在字符级别应用。一旦用 ParagraphStyle 标记了一部分文字，该部分就会与其余部分隔开，就像在开头和末尾有换行符一样。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MultipleStylesInText</span>() {
+    Text(buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.Green)) {
+            append(<span style="color:#e6db74">&#34;H&#34;</span>)
+        }
+        append(<span style="color:#e6db74">&#34;ello &#34;</span>)
+        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Red)) {
+            append(<span style="color:#e6db74">&#34;W&#34;</span>)
+        }
+        append(<span style="color:#e6db74">&#34;orld&#34;</span>)
+    })
+}
+</code></pre></div><p><img src="../media/16176905521700/16176948047130.jpg" alt=""></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ParagraphStyle</span>() {
+    Text(buildAnnotatedString {
+        withStyle(style = ParagraphStyle(lineHeight = <span style="color:#ae81ff">30.</span>sp)) {
+            withStyle(style = SpanStyle(color = Color.Blue)) {
+                append(<span style="color:#e6db74">&#34;Hello</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
+            }
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold,
+                                        color = Color.Red)) {
+                append(<span style="color:#e6db74">&#34;World</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
+            }
+            append(<span style="color:#e6db74">&#34;Compose&#34;</span>)
+        }
+    })
+}
+</code></pre></div><p><img src="../media/16176905521700/16176949423350.jpg" alt=""></p>
+<h3 id="行数上限">行数上限</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Text(<span style="color:#e6db74">&#34;Hello World! &#34;</span>.repeat(<span style="color:#ae81ff">30</span>),
+        maxLines = <span style="color:#ae81ff">2</span>
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176950419601.jpg" alt=""></p>
+<h3 id="文字溢出">文字溢出</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleText</span>() {
+    Surface(color = Color.LightGray) {
+        Text(<span style="color:#e6db74">&#34;Hello World! &#34;</span>.repeat(<span style="color:#ae81ff">30</span>),
+            maxLines = <span style="color:#ae81ff">2</span>,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+</code></pre></div><p><img src="../media/16176905521700/16176951859539.jpg" alt=""></p>
+<h3 id="选中文字">选中文字</h3>
+<p>默认情况下，可组合项不可选中，如需启动，使用 <code>SelectionContainer</code> 修饰</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SelectableText</span>() {
+    SelectionContainer {
+        Text(<span style="color:#e6db74">&#34;This text is selectable&#34;</span>)
+    }
+}
+</code></pre></div><p><img src="../media/16176905521700/16176973251471.jpg" alt=""></p>
+<h4 id="可选择区域的特定部分停用选择功能">可选择区域的特定部分停用选择功能</h4>
+<p>要执行此操作，您需要使用 <code>DisableSelection</code> 可组合项来封装不可选择的部分：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PartiallySelectableText</span>() {
+    SelectionContainer {
+        Column {
+            Text(<span style="color:#e6db74">&#34;This text is selectable&#34;</span>)
+            Text(<span style="color:#e6db74">&#34;This one too&#34;</span>)
+            Text(<span style="color:#e6db74">&#34;This one as well&#34;</span>)
+            DisableSelection {
+                Text(<span style="color:#e6db74">&#34;But not this one&#34;</span>)
+                Text(<span style="color:#e6db74">&#34;Neither this one&#34;</span>)
+            }
+            Text(<span style="color:#e6db74">&#34;But again, you can select this one&#34;</span>)
+            Text(<span style="color:#e6db74">&#34;And this one too&#34;</span>)
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176905521700/16176974019351.jpg" alt=""></p>
+<h2 id="textfield">TextField</h2>
+<p><code>TextField</code> 允许用户输入和修改文字；分为两类</p>
+<ol>
+<li><code>TextField</code> 是 <code>Material Design</code> 实现。我们建议您选择此实现，因为它遵循的是 Material Design 指南
+<ul>
+<li>默认样式为<strong>填充</strong></li>
+<li><code>OutlinedTextField</code> 是轮廓样式版本</li>
+</ul>
+</li>
+<li><code>BasicTextField</code> 允许用户通过硬件或软件键盘编辑文字，但没有提供提示或占位符等装饰。</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleFilledTextFieldSample</span>() {
+    <span style="color:#66d9ef">var</span> text <span style="color:#66d9ef">by</span> remember { mutableStateOf(<span style="color:#e6db74">&#34;Hello&#34;</span>) }
+
+    TextField(
+        value = text,
+        onValueChange = { text = <span style="color:#66d9ef">it</span> },
+        label = { Text(<span style="color:#e6db74">&#34;Label&#34;</span>) }
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176976056958.jpg" alt=""></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleOutlinedTextFieldSample</span>() {
+    <span style="color:#66d9ef">var</span> text <span style="color:#66d9ef">by</span> remember { mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>) }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = <span style="color:#66d9ef">it</span> },
+        label = { Text(<span style="color:#e6db74">&#34;Label&#34;</span>) }
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176976226472.jpg" alt=""></p>
+<h3 id="键盘选项">键盘选项</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PasswordTextField</span>() {
+    <span style="color:#66d9ef">var</span> password <span style="color:#66d9ef">by</span> rememberSaveable { mutableStateOf(<span style="color:#e6db74">&#34;&#34;</span>) }
+
+    TextField(
+        value = password,
+        onValueChange = { password = <span style="color:#66d9ef">it</span> },
+        label = { Text(<span style="color:#e6db74">&#34;Enter password&#34;</span>) },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+}
+</code></pre></div><p><img src="../media/16176905521700/16176981879357.jpg" alt=""></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Jetpack Compose 4 Layout // Jerry Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jerry" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://nightjerry.github.io/css/main.min.4a7ec8660f9a44b08c4da97c5f2e31b1192df1d4d0322e65c0dbbc6ecb1b863f.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Jetpack Compose 4 Layout"/>
+<meta name="twitter:description" content="[TOC]
+Column 垂直布局 @Composable fun ArtistCard() { Column { Text(&#34;First Line&#34;) Text(&#34;Second Line&#34;) } } Row 水平布局 @Composable fun ArtistCard() { Row(verticalAlignment = Alignment.CenterVertically) { Image( painter = painterResource(id = R.mipmap.ic_launcher_round), contentDescription = null ) Column { Text(&#34;Alfred Sisley&#34;) Text(&#34;3 minutes ago&#34;) } } } Box 使用 Box 可将一个元素放在另一个元素上  Compose 可以有效地处理嵌套布局"/>
+
+    <meta property="og:title" content="Jetpack Compose 4 Layout" />
+<meta property="og:description" content="[TOC]
+Column 垂直布局 @Composable fun ArtistCard() { Column { Text(&#34;First Line&#34;) Text(&#34;Second Line&#34;) } } Row 水平布局 @Composable fun ArtistCard() { Row(verticalAlignment = Alignment.CenterVertically) { Image( painter = painterResource(id = R.mipmap.ic_launcher_round), contentDescription = null ) Column { Text(&#34;Alfred Sisley&#34;) Text(&#34;3 minutes ago&#34;) } } } Box 使用 Box 可将一个元素放在另一个元素上  Compose 可以有效地处理嵌套布局" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nightjerry.github.io/posts/16176982519360/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-22T09:44:00&#43;08:00" />
+<meta property="article:modified_time" content="2021-04-22T09:44:00&#43;08:00" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://nightjerry.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="Jerry" /></a>
+      <h1>Jerry Blog</h1>
+      <nav class="app-header-menu">
+          <a class="app-header-menu-item" href="/">Home</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/tags/">Tags</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/categories/">Categories</a>
+             - 
+          
+          <a class="app-header-menu-item" href="/about/">About</a>
+      </nav>
+      <p>博客包含「Android」「Kotlin」「算法」「开源项目」</p>
+      <div class="app-header-social">
+        
+          <a href="https://github.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>Github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg>
+          </a>
+        
+          <a href="https://twitter.com/gohugoio" target="_blank" rel="noreferrer noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>Twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg>
+          </a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Jetpack Compose 4 Layout</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Apr 22, 2021
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          5 min read
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line>
+</svg>
+              <a class="tag" href="https://nightjerry.github.io/tags/android/">android</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/kotlin/">kotlin</a>
+              <a class="tag" href="https://nightjerry.github.io/tags/compose/">compose</a>
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>[TOC]</p>
+<h3 id="column-垂直布局">Column 垂直布局</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ArtistCard</span>() {
+    Column {
+        Text(<span style="color:#e6db74">&#34;First Line&#34;</span>)
+        Text(<span style="color:#e6db74">&#34;Second Line&#34;</span>)
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16177059581119.jpg" alt=""></p>
+<h3 id="row-水平布局">Row 水平布局</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ArtistCard</span>() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Image( 
+            painter = painterResource(id = R.mipmap.ic_launcher_round),
+            contentDescription = <span style="color:#66d9ef">null</span>
+        )
+        Column {
+            Text(<span style="color:#e6db74">&#34;Alfred Sisley&#34;</span>)
+            Text(<span style="color:#e6db74">&#34;3 minutes ago&#34;</span>)
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16177060459400.jpg" alt=""></p>
+<h3 id="box">Box</h3>
+<p>使用 <code>Box</code> 可将一个元素放在另一个元素上
+<img src="../media/16176982519360/16177060544883.jpg" alt=""></p>
+<blockquote>
+<p>Compose 可以有效地处理嵌套布局</p>
+</blockquote>
+<p><code>Row</code> 设置子项位置，使用 <code>horizontalArrangement</code> 和 <code>verticalAlignment</code>；
+<code>Column</code> 设置子项位置，使用 <code>verticalArrangement</code> 和 <code>horizontalAlignment</code>；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">AlignInRow</span>() {
+    Row(
+        modifier = Modifier
+            .size(<span style="color:#ae81ff">150.</span>dp)
+            .background(Color.Yellow),
+            <span style="color:#75715e">// 水平靠右
+</span><span style="color:#75715e"></span>        horizontalArrangement = Arrangement.End,
+        <span style="color:#75715e">// 竖直居中
+</span><span style="color:#75715e"></span>        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.size(<span style="color:#ae81ff">50.</span>dp).background(Color.Red))
+        Box(Modifier.size(<span style="color:#ae81ff">50.</span>dp).background(Color.Blue))
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16177065217750.jpg" alt=""></p>
+<h3 id="modifier-修饰符">Modifier 修饰符</h3>
+<p>修饰符是标准的 Kotlin 对象，使用修饰符来执行以下操作：</p>
+<ul>
+<li>更改可组合项的大小、布局、行为和外观</li>
+<li>添加信息，如无障碍标签</li>
+<li>处理用户输入</li>
+<li>添加高级互动，如使元素可点击、可滚动、可拖动或可缩放</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PhotographerCard</span>() {
+    Row {
+    <span style="color:#75715e">// 图片占位
+</span><span style="color:#75715e"></span>        Surface(
+            modifier = Modifier.size(<span style="color:#ae81ff">50.</span>dp),
+            shape = CircleShape,
+            color = MaterialTheme.colors.onSurface.copy(alpha = <span style="color:#ae81ff">0.2f</span>)
+        ) {
+            <span style="color:#75715e">// TODO
+</span><span style="color:#75715e"></span>        }
+        Column {
+            Text(<span style="color:#e6db74">&#34;Alfred Sisley&#34;</span>, fontWeight = FontWeight.Bold)
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Text(<span style="color:#e6db74">&#34;3 minutes ago&#34;</span>, style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16179343470779.jpg" alt=""></p>
+<p>接下来将字体居中，与占位图保留间距；在 <code>Column</code> 中添加修饰符对象</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PhotographerCard</span>() {
+    Row {
+        Surface(
+            modifier = Modifier.size(<span style="color:#ae81ff">50.</span>dp),
+            shape = CircleShape,
+            color = MaterialTheme.colors.onSurface.copy(alpha = <span style="color:#ae81ff">0.2f</span>)
+        ) {
+            <span style="color:#75715e">// TODO
+</span><span style="color:#75715e"></span>        }
+        <span style="color:#75715e">// padding 间距； align：垂直居中
+</span><span style="color:#75715e"></span>        Column(
+            modifier = Modifier.padding(start = <span style="color:#ae81ff">9.</span>dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(<span style="color:#e6db74">&#34;Alfred Sisley&#34;</span>, fontWeight = FontWeight.Bold)
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Text(<span style="color:#e6db74">&#34;3 minutes ago&#34;</span>, style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16179345086408.jpg" alt=""></p>
+<blockquote>
+<p>大多数组合对象都接受一个可选的修饰符参数，以使它们更加灵活，从而使调用者能够修改它们</p>
+</blockquote>
+<h4 id="修饰语调用顺序的重要性">修饰语调用顺序的重要性</h4>
+<p>链接修饰语时要注意顺序的重要性。当它们连接成一个参数时，顺序会影响最终结果</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PhotographerCard</span>(modifier: Modifier = Modifier) {
+<span style="color:#75715e">// 先指定 padding 间距，再定义 click 监听；
+</span><span style="color:#75715e"></span>    Row(modifier
+        .padding(<span style="color:#ae81ff">16.</span>dp)
+        .clickable(onClick = { <span style="color:#75715e">/* Ignoring onClick */</span> })
+    ) {
+        <span style="color:#f92672">..</span>.
+    }
+}
+</code></pre></div><p>最终结果是 <code>padding</code> 的区域不响应点击事件，这是因为在可点击修饰符之前应用了 <code>padding</code>
+<img src="../media/16176982519360/android_compose_modifier_order.gif" alt="android_compose_modifier_order"></p>
+<p>相反，如果在可点击区域之后使用填充修饰符，那么可点击区域就包含了填充:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PhotographerProfile</span>(modifier: Modifier = Modifier) {
+    Row(modifier
+        .clickable(onClick = { <span style="color:#75715e">/* Ignoring onClick */</span> })
+        .padding(<span style="color:#ae81ff">16.</span>dp)
+    ) {
+        <span style="color:#f92672">..</span>.
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_modifier_order1.gif" alt="android_compose_modifier_orde"></p>
+<h4 id="区分内外边距">区分内外边距</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">PhotographerCard</span>() {
+    Row(
+        modifier = Modifier
+        <span style="color:#75715e">// 外边距
+</span><span style="color:#75715e"></span>            .padding(<span style="color:#ae81ff">8.</span>dp)
+            <span style="color:#75715e">// 圆角
+</span><span style="color:#75715e"></span>            .clip(RoundedCornerShape(<span style="color:#ae81ff">4.</span>dp))
+            <span style="color:#75715e">// 背景色
+</span><span style="color:#75715e"></span>            .background(color = Color.White)
+            .clickable(onClick = { <span style="color:#75715e">/* TODO */</span>})
+            <span style="color:#75715e">// 内边距
+</span><span style="color:#75715e"></span>            .padding(<span style="color:#ae81ff">16.</span>dp)
+    ) {
+        Surface(
+            modifier = Modifier.size(<span style="color:#ae81ff">50.</span>dp),
+            shape = CircleShape,
+            color = MaterialTheme.colors.onSurface.copy(alpha = <span style="color:#ae81ff">0.2f</span>)
+        ) {
+            <span style="color:#75715e">// TODO
+</span><span style="color:#75715e"></span>        }
+        Column(
+            modifier = Modifier.padding(start = <span style="color:#ae81ff">9.</span>dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(<span style="color:#e6db74">&#34;Alfred Sisley&#34;</span>, fontWeight = FontWeight.Bold)
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Text(<span style="color:#e6db74">&#34;3 minutes ago&#34;</span>, style = MaterialTheme.typography.body2)
+            }
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_modifier_padding.png" alt="android_compose_modifier_padding"></p>
+<p>点击效果如下图：
+<img src="../media/16176982519360/android_compose_modifier_order2.gif" alt="android_compose_modifier_orde"></p>
+<h4 id="替换修饰符">替换修饰符</h4>
+<p><code>padding</code> 位置，通常有两种方式:</p>
+<ul>
+<li>将修饰符属性用在最小可组合函数内部的直接子元素；</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">BodyContent</span>(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(<span style="color:#ae81ff">8.</span>dp)) {
+        Text(text = <span style="color:#e6db74">&#34;Hi there!&#34;</span>)
+        Text(text = <span style="color:#e6db74">&#34;Thanks for going through the Layouts codelab&#34;</span>)
+    }
+}
+</code></pre></div><ul>
+<li>在调用可组合函数的时候传递修饰符；</li>
+</ul>
+<pre><code class="language-kotin" data-lang="kotin">@Composable
+fun LayoutsCodelab() {
+    Scaffold(...) { innerPadding -&gt;
+        BodyContent(Modifier.padding(innerPadding).padding(8.dp))
+    }
+}
+</code></pre><h3 id="插槽">插槽</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">LayoutsCode</span>() {
+    Scaffold(
+        topBar = {
+            Text(
+                text = <span style="color:#e6db74">&#34;LayoutsCodeLab&#34;</span>,
+                style = MaterialTheme.typography.h3
+            )
+        }
+    ) {
+        BodyContent(Modifier.padding(<span style="color:#66d9ef">it</span>))
+    }
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">BodyContent</span>(modifier: Modifier = Modifier) {
+
+    Column(modifier = modifier) {
+        Text(text = <span style="color:#e6db74">&#34;Hi there&#34;</span>)
+        Text(<span style="color:#e6db74">&#34;Thanks for going ...&#34;</span>)
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_scaffold.png" alt="android_compose_scaffold"></p>
+<h4 id="topappbar">TopAppBar</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">LayoutsCode</span>() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = <span style="color:#e6db74">&#34;LayoutsCodeLab&#34;</span>,
+                    )
+                }
+            )
+        }
+    ) {
+        BodyContent(Modifier.padding(<span style="color:#66d9ef">it</span>))
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_scaffold1.png" alt="android_compose_scaffold1"></p>
+<blockquote>
+<p>TopAppBar 背景色为 <code>Theme</code> 指定颜色</p>
+</blockquote>
+<h5 id="topappbar-添加按钮">TopAppBar 添加按钮</h5>
+<p><code>TopAppBar</code> 中内部布局使用的 <code>Row</code>，因此多个动作将被水平放置。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">LayoutsCode</span>() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = <span style="color:#e6db74">&#34;LayoutsCodeLab&#34;</span>,
+                    )
+                },
+                actions = {
+                    IconButton(onClick = {<span style="color:#75715e">/* TODO */</span>}) {
+                        Icon(Icons.Filled.Favorite, contentDescription = <span style="color:#66d9ef">null</span>)
+                    }
+                }
+            )
+        }
+    ) {
+        BodyContent(Modifier.padding(<span style="color:#66d9ef">it</span>))
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16179411212987.jpg" alt=""></p>
+<h3 id="列表">列表</h3>
+<p>由于 <code>Column</code> 默认情况下不处理滚动，添加 <code>verticalScroll</code> 修饰符以启用 <code>Column</code> 中的滚动:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">SimpleList</span>() {
+    <span style="color:#66d9ef">val</span> scrollState = rememberScrollState()
+    Column(Modifier.verticalScroll(scrollState)) {
+        repeat(<span style="color:#ae81ff">50</span>) {
+            Text(<span style="color:#e6db74">&#34;Item #</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">&#34;</span>)
+        }
+    }
+}
+</code></pre></div><h4 id="lazycolumn">LazyColumn</h4>
+<p><strong>Jetpack Compose 中的 <code>LazyColumn</code> 相当于 Android 视图中的 <code>RecyclerView</code></strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">LazyList</span>() {
+    <span style="color:#66d9ef">val</span> scrollState = rememberLazyListState()
+    LazyColumn(state = scrollState) {
+        items(<span style="color:#ae81ff">50</span>) {
+            Text(<span style="color:#e6db74">&#34;Item #</span><span style="color:#e6db74">$it</span><span style="color:#e6db74">&#34;</span>)
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16179506469484.jpg" alt=""></p>
+<h4 id="列表中加载图片">列表中加载图片</h4>
+<p>开发中使用 <code>RecyclerView</code> 显示图片和文本，在 Jetpack Compose 中使用 <code>Accompanist</code> 库加载图片
+首先，在项目 <code>build.gradle</code> 中添加依赖</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">implementation <span style="color:#e6db74">&#34;com.google.accompanist:accompanist-coil:0.6.2&#34;</span>
+</code></pre></div><p>其次，在 manifest 中添加网络请求权限</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">&lt;uses-permission android:name=<span style="color:#e6db74">&#34;android.permission.INTERNET&#34;</span> /&gt;
+</code></pre></div><p>最后，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ImageListItem</span>(index: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        CoilImage(
+            <span style="color:#66d9ef">data</span> = <span style="color:#e6db74">&#34;https://developer.android.com/images/brand/Android_Robot.png&#34;</span>,
+            contentDescription = <span style="color:#66d9ef">null</span>,
+            modifier = Modifier.size(<span style="color:#ae81ff">50.</span>dp)
+        )
+        Spacer(Modifier.width(<span style="color:#ae81ff">10.</span>dp))
+        Text(<span style="color:#e6db74">&#34;Item #</span><span style="color:#e6db74">$index</span><span style="color:#e6db74">&#34;</span>, style = MaterialTheme.typography.subtitle1)
+    }
+}
+
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ImageList</span>() {
+    <span style="color:#66d9ef">val</span> scrollState = rememberLazyListState()
+    LazyColumn(state = scrollState) {
+        items(<span style="color:#ae81ff">100</span>) {
+            ImageListItem(index = <span style="color:#66d9ef">it</span>)
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_accompanist.gif" alt="android_compose_accompanist"></p>
+<h4 id="滑动到指定位置">滑动到指定位置</h4>
+<p>为了避免滚动时阻塞列表渲染，滚动 api 是挂起函数。
+使用  <code>rememberCoroutineScope</code> 函数创建 <code>CoroutineScope</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">ImageList</span>() {
+    <span style="color:#66d9ef">val</span> listSize = <span style="color:#ae81ff">100</span>
+    <span style="color:#66d9ef">val</span> scrollState = rememberLazyListState()
+    <span style="color:#66d9ef">val</span> coroutineScope = rememberCoroutineScope()
+    Column {
+        Row {
+            Button(onClick = {
+                coroutineScope.launch {
+                    scrollState.animateScrollToItem(<span style="color:#ae81ff">0</span>)
+                }
+            }) {
+                Text(<span style="color:#e6db74">&#34;scroll to the top&#34;</span>)
+            }
+            Button(onClick = {
+                coroutineScope.launch {
+                    scrollState.animateScrollToItem(listSize - <span style="color:#ae81ff">1</span>)
+                }
+            }) {
+                Text(text = <span style="color:#e6db74">&#34;scroll to the end&#34;</span>)
+            }
+        }
+
+        LazyColumn(state = scrollState) {
+            items(<span style="color:#ae81ff">100</span>) {
+                ImageListItem(index = <span style="color:#66d9ef">it</span>)
+            }
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/android_compose_lazycolumn_scroll.gif" alt="android_compose_lazycolumn_scroll"></p>
+<h3 id="自定义布局">自定义布局</h3>
+<p><strong>在 View 系统中，创建自定义布局需要扩展 ViewGroup 并重写 <code>onMeasure``onLayout``onDraw</code>。在 Compose 中，您只需使用 <code>Layout</code> 编写一个函数</strong>
+自定义 View 只有一个父 View，多个子 View；在父布局中，它有 x,y 轴位置，宽(width)高(height)， 大小（size）
+<strong>Compose UI 不允许多次测量，单次测量有利于提高性能</strong>
+如果一个布局元素测量了它的子元素两次，并且这个子元素测量了它的一个子元素两次，以此类推，那么一次布局整个用户界面的尝试就必须做大量的工作，这使得你的应用程序很难保持良好的运行。</p>
+<p>使用布局修饰符 <code>layout</code> 手动控制如何测量和定位元素。通常，自定义布局修饰符的通用结构如下:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Modifier</span>.customLayoutModifier(<span style="color:#f92672">..</span>.) = Modifier.layout { measurable, constraints <span style="color:#f92672">-&gt;</span>
+  <span style="color:#f92672">..</span>.
+})
+</code></pre></div><p>当使用布局修饰符时，会得到两个 lambda 参数:</p>
+<ul>
+<li><code>measurable</code>: 测量并摆放子 view</li>
+<li><code>constraints</code>: 子 view 的最大和最小宽高</li>
+</ul>
+<p>例：自定义 View 顶部到基线的距离为 24dp，如下图
+<img src="../media/16176982519360/16181103269219.jpg" alt=""></p>
+<ol>
+<li>测量；通过调用 <code>measureable.Measure(constraints)</code> 来测量可组合项，子 view 只能测量一次；</li>
+<li>计算；通过调用 <code>layout(width, height)</code> 计算它的大小；宽度是通过测量得到</li>
+<li>绘制；通过调用 <code>placeable.placeRelative(x, y)</code> 来绘制可组合项，如果不调用 <code>placeRelative</code> 函数，则可组合项将不可见；</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Preview</span>
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">TextWithPaddingToBaselinePreview</span>() {
+    LayoutsCodelabTheme {
+        Text(<span style="color:#e6db74">&#34;Hi there!&#34;</span>, Modifier.firstBaselineToTop(<span style="color:#ae81ff">24.</span>dp))
+    }
+}
+
+<span style="color:#a6e22e">@Preview</span>
+<span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">TextWithNormalPaddingPreview</span>() {
+    LayoutsCodelabTheme {
+        Text(<span style="color:#e6db74">&#34;Hi there!&#34;</span>, Modifier.padding(top = <span style="color:#ae81ff">24.</span>dp))
+    }
+}
+
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">Modifier</span>.firstBaselineToTop(
+    firstBaselineToTop: Dp
+) = Modifier.layout { measurable, constraints <span style="color:#f92672">-&gt;</span>
+    <span style="color:#75715e">// 1. 测量
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">val</span> placeable = measurable.measure(constraints)
+
+    <span style="color:#75715e">// Check the composable has a first baseline
+</span><span style="color:#75715e"></span>    check(placeable[FirstBaseline] <span style="color:#f92672">!=</span> AlignmentLine.Unspecified)
+    <span style="color:#66d9ef">val</span> firstBaseline = placeable[FirstBaseline]
+
+    <span style="color:#75715e">// Height of the composable with padding - first baseline
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">val</span> placeableY = firstBaselineToTop.roundToPx() - firstBaseline
+    <span style="color:#75715e">// 计算高度
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">val</span> height = placeable.height + placeableY
+    <span style="color:#75715e">// 2. 计算
+</span><span style="color:#75715e"></span>    layout(placeable.width, height) {
+        <span style="color:#75715e">// 3. 绘制
+</span><span style="color:#75715e"></span>        placeable.placeRelative(<span style="color:#ae81ff">0</span>, placeableY)
+    }
+}
+</code></pre></div><h4 id="自定义-column">自定义 Column</h4>
+<p>使用 <code>Layout</code> 手动控制如何测量和定位布局的子元素</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">CustomLayout</span>(
+    modifier: Modifier = Modifier,
+    <span style="color:#75715e">// custom layout attributes 
+</span><span style="color:#75715e"></span>    content: <span style="color:#a6e22e">@Composable</span> () <span style="color:#f92672">-&gt;</span> Unit
+) {
+    Layout(
+        modifier = modifier,
+        content = content
+    ) { measurables, constraints <span style="color:#f92672">-&gt;</span>
+        <span style="color:#75715e">// measure and position children given constraints logic here
+</span><span style="color:#75715e"></span>    }
+}
+</code></pre></div><blockquote>
+<p><code>CustomLayout</code> 所需要的最小参数是 <code>modifier</code> 修饰符和 <code>content</code> 内容，然后传递给 <code>Layout</code></p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#a6e22e">@Composable</span>
+<span style="color:#66d9ef">fun</span> <span style="color:#a6e22e">MyOwnColumn</span>(
+    modifier: Modifier = Modifier,
+    content: <span style="color:#a6e22e">@Composable</span> () <span style="color:#f92672">-&gt;</span> Unit
+) {
+    Layout(
+        modifier = modifier,
+        content = content
+    ) { measurables, constraints <span style="color:#f92672">-&gt;</span>
+
+        <span style="color:#75715e">// 1. 遍历，测量子 view
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">val</span> placeables = measurables.map { measurable <span style="color:#f92672">-&gt;</span>
+            <span style="color:#75715e">// Measure each child
+</span><span style="color:#75715e"></span>            measurable.measure(constraints)
+        }
+
+        <span style="color:#75715e">// Track the y co-ord we have placed children up to
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">var</span> yPosition = <span style="color:#ae81ff">0</span>
+
+        <span style="color:#75715e">// 2. 计算
+</span><span style="color:#75715e"></span>        layout(constraints.maxWidth, constraints.maxHeight) {
+            <span style="color:#75715e">// Place children in the parent layout
+</span><span style="color:#75715e"></span>            placeables.forEach { placeable <span style="color:#f92672">-&gt;</span>
+                <span style="color:#75715e">// Position item on the screen
+</span><span style="color:#75715e"></span>                placeable.placeRelative(x = <span style="color:#ae81ff">0</span>, y = yPosition)
+
+                <span style="color:#75715e">// Record the y co-ord placed up to
+</span><span style="color:#75715e"></span>                yPosition <span style="color:#f92672">+=</span> placeable.height
+            }
+        }
+    }
+}
+</code></pre></div><p><img src="../media/16176982519360/16181244115655.jpg" alt=""></p>
+<h3 id="else">else</h3>
+<h4 id="icons">icons</h4>
+<p>通过向项目添加一个新的依赖项来使用 Material 图标的完整列表
+在 <code>app/build.gradle</code> 中添加</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">dependencies {
+  <span style="color:#f92672">..</span>.
+  implementation <span style="color:#e6db74">&#34;androidx.compose.material:material-icons-extended:</span><span style="color:#e6db74">$compose_version</span><span style="color:#e6db74">&#34;</span>
+}
+</code></pre></div>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>
